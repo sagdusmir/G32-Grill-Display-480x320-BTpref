@@ -9,7 +9,7 @@ Zusätzlich kann es eine Verbindung zu einem Meater+ (nur mit exakt diesem Typ g
 
 Die Hardware des JC3248W535 stellt einen Anschluß für einen externen Lithium Akku zur Verfügung. Dessen Spannung kann ausgelesen werden und wird vom Display ausgewertet. Bei Unterschreiten eines bestimmten SOC wird im Display ein Icon einer leeren Batterie eingeblendet.
 
-Zusätzlich kann im JC3248W535 ein Piezo-Summer (Typen ohne eingebaute Elektronik!) angeschlossen werden. Ich benutze hier nicht den mit Speaker bezweichneten 2-poligen Anschluß (dieser wird über einen eingebauten I²C Chip angesteuert und ist aufwändiger in der Benutzung) sondern die GPIOs I9 und I14 auf dem 8-poligen Steckverbinder. Der Summer wird an diversen Stellen genutzt, so z.B. bei Aufbau und Verlust der Verbindung zu Wifi und BT oder auch bei temperaturwarnungen (more to follow ...).
+Zusätzlich kann im JC3248W535 ein Piezo-Summer (Typen ohne eingebaute Elektronik!) angeschlossen werden. Ich benutze hier nicht den mit Speaker bezweichneten 2-poligen Anschluß (dieser wird über einen eingebauten I²C Chip angesteuert und ist aufwändiger in der Benutzung) sondern die GPIOs I9 und I14 auf dem 8-poligen Steckverbinder. Der Summer wird an diversen Stellen genutzt, so z.B. bei Aufbau und Verlust der Verbindung zu Wifi und BT oder auch bei Temperaturwarnungen (more to follow ...).
 
 
 
