@@ -1,5 +1,5 @@
 # G32-Display480x320
-ESPHome project für ein JC3248W535 Display zur Verwendung mit einem Otto Wilde G32 Gasgrill.
+ESPHome Projekt für ein JC3248W535 Display zur Verwendung mit einem Otto Wilde G32 Gasgrill.
 
 ![PXL_20250531_101818315 MP~2](https://github.com/user-attachments/assets/67b9ae62-9454-436c-98f0-ceb2c0f3f85f)
 
