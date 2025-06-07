@@ -3,7 +3,7 @@ ESPHome Projekt für ein JC3248W535 Display zur Verwendung mit einem Otto Wilde 
 
 ![PXL_20250531_101818315 MP~2](https://github.com/user-attachments/assets/67b9ae62-9454-436c-98f0-ceb2c0f3f85f)
 
-Das Gerät baut eine Bluetooth Verbindung zum G32 aus. Es liest dann diverse Daten aus dem G32 aus, stellt sie auf dem Display grafisch dar und stellt sie über Wifi dem Home Assistant zur Verfügung.
+Das Gerät baut eine Bluetooth Verbindung zum G32 auf. Es liest dann diverse Daten aus dem G32 aus, stellt sie auf dem Display grafisch dar und stellt sie über Wifi dem Home Assistant zur Verfügung.
 
 Zusätzlich kann es eine Verbindung zu einem Meater+ (nur mit exakt diesem Typ getestet!) Grillthermometer aufbauen und auch dessen Daten (Kerntemperatur und Garraumtemperatur) anzeigen und zum HA weiterleiten. Die Auswertung der Temperaturen ist experimentell, da zum Bluetooth Protokoll des Meater+ mWn keine Doku zur Verfügung steht.
 
