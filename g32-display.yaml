@@ -672,7 +672,7 @@ lvgl:
             min_value: 1
             max_value: 300
             indicator:
-              arc_color: 0xff0000
+              arc_color: 0xffff00
             styles: sensor_arc_style  
             value: 0
 
