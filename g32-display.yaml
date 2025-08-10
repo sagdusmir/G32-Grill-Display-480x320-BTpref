@@ -809,7 +809,7 @@ sensor:
           rtttl: !lambda |-
             if(x >= 100) {return ("Alarm:d=4,o=5,b=165:a#,8p,a#,8p,a#,8p,a#");            
             } else {
-            {return ("")};
+            {return ("");}
             };      
 
   - platform: ble_client
