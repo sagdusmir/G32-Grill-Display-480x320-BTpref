@@ -111,7 +111,7 @@ esphome:
 
   project:
     name: "g32.bt_display480_320"
-    version: "1.1.0"
+    version: "0.9.8"
 
 esp32:
 #  variant: esp32S3
@@ -201,8 +201,10 @@ ble_client:
             value: 'true'
         - if:
             condition:
-              lambda: 'return id(show_arcs_page) == false;'
+              lambda: 'return id(show_arcs_page) == true;'
             then:
+              - lvgl.page.show: arcs_page
+            else:
               - lvgl.page.show: numbers_page
         - lvgl.widget.hide: boot_screen
     on_disconnect:
@@ -277,6 +279,13 @@ touchscreen:
           condition: lvgl.is_paused
           then:
             - logger.log: "Display is resuming"
+            - if:
+                condition:
+                  lambda: 'return id(show_arcs_page) == true;'
+                then:
+                  - lvgl.page.show: arcs_page
+                else:
+                  - lvgl.page.show: numbers_page
             - lvgl.resume:
             - lvgl.widget.redraw:
             - light.turn_on: backlight
@@ -1759,7 +1768,7 @@ lvgl:
                       return lv_color_hex(0xff0000); // red
                     }
                   text: !lambda |-
-                    if( id(zone3_value) < 1500) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
+                    if( id(zone4_value) < 1500) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -2981,3 +2990,4 @@ script:
           id: display_time2
           hidden: !lambda |-
             return (!id(show_time));
+
