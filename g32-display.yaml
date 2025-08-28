@@ -111,7 +111,7 @@ esphome:
 
   project:
     name: "g32.bt_display480_320"
-    version: "0.9.8"
+    version: "1.1.0"
 
 esp32:
 #  variant: esp32S3
