@@ -803,26 +803,6 @@ lvgl:
             x: 240
             y: 30
             styles: temp_obj_style
-            clickable: ${Enable_Temperature_Limits}
-            on_press:
-              - lambda: |-
-                  id(page_index) = 1;
-                  id(sensor_index) = 3;
-                  id(sensor_max_value) = 500;
-                  id(sensor_limit_value) = id(zone3_limit_value);
-                  lv_slider_set_range(sensor_limit_slider, 0, 500);
-                  lv_slider_set_value(sensor_limit_slider, id(zone3_limit_value), LV_ANIM_OFF );
-              - lvgl.label.update:
-                  id: sensor_limit_headline_label
-                  text: !lambda |-
-                    return "${Zone_Text}3 Temperaturlimit";
-              - lvgl.label.update:
-                  id: sensor_limit_label
-                  text: !lambda |-
-                    return (to_string(static_cast<int>(id(zone3_limit_value)))+"°C").c_str();
-              - lvgl.widget.redraw:
-                  id: sensor_limit_slider
-              - lvgl.page.show: sensor_limits_page
             widgets:
               - label:
                   x: 0
@@ -892,26 +872,6 @@ lvgl:
             x: 360
             y: 30
             styles: temp_obj_style
-            clickable: ${Enable_Temperature_Limits}
-            on_press:
-              - lambda: |-
-                  id(page_index) = 1;
-                  id(sensor_index) = 4;
-                  id(sensor_max_value) = 500;
-                  id(sensor_limit_value) = id(zone4_limit_value);
-                  lv_slider_set_range(sensor_limit_slider, 0, 500);
-                  lv_slider_set_value(sensor_limit_slider, id(zone4_limit_value), LV_ANIM_OFF );
-              - lvgl.label.update:
-                  id: sensor_limit_headline_label
-                  text: !lambda |-
-                    return "${Zone_Text}4 Temperaturlimit";
-              - lvgl.label.update:
-                  id: sensor_limit_label
-                  text: !lambda |-
-                    return (to_string(static_cast<int>(id(zone4_limit_value)))+"°C").c_str();
-              - lvgl.widget.redraw:
-                  id: sensor_limit_slider
-              - lvgl.page.show: sensor_limits_page
             widgets:
               - label:
                   x: 0
@@ -1624,7 +1584,7 @@ lvgl:
                       return lv_color_hex(0xff0000); // red
                     }
                   text: !lambda |-
-                    if( id(zone1_value) < 1500) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
+                    if( id(zone2_value) < 1500) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
                     } else {
                       return ("---");
                     }
