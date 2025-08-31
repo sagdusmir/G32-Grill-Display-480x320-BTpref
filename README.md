@@ -40,9 +40,8 @@ Dieses Projekt ist für eine bestimmte Kombination aus Mikrocontroller und Displ
 ## ⚙️ Installation & Konfiguration
 
 ### Voraussetzungen
-1. Eine laufende **Home Assistant** Instanz.
-2. HACS Integration für G32 von zaubii 
-3. **ESPHome** als Add-on in Home Assistant oder als eigenständige Installation.
+1. **ESPHome** als Add-on in Home Assistant oder als eigenständige Installation.
+2. Optional: eine laufende **Home Assistant** Instanz. Die Daten des Grills werden dann in den Home Assistant übergeben. 
 
 ### Installationsschritte
 
