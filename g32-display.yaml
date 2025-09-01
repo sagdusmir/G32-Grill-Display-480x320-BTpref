@@ -63,14 +63,14 @@ substitutions:
   Gas_Bar_Low_Color2: "0xff0000"  # 0xff0000 = Rot
 
 # Batteriesymbol komplett ausgeblenden (kein Akku vorhanden)? true = ausblenden, false = anzeigen :
-#  Hide_Battery_Symbol: 'true'
-  Hide_Battery_Symbol: 'false'
+  Hide_Battery_Symbol: 'true'
+#  Hide_Battery_Symbol: 'false'
 # SOC (in %) des Akkus festlegen, unterhalb dessen das Batteriesymbol in rot angezeigt wird:
   Min_SOC: "25"
 
 # sollen inaktive Sensoren komplett ausgeblendet werden? true = ausblenden, false = anzeigen:
-#  Hide_Inactive_Sensors: 'true' # inaktive Sensoren werden ausgeblendet
-  Hide_Inactive_Sensors: 'false' # inaktive Sensoren werden angezeigt
+  Hide_Inactive_Sensors: 'true' # inaktive Sensoren werden ausgeblendet
+#  Hide_Inactive_Sensors: 'false' # inaktive Sensoren werden angezeigt
 
 # sollen für Zonen und Sensoren Temperaturlimits gesetzt werden können? true = Ja, false = Nein
   Enable_Temperature_Limits: 'true'
@@ -111,7 +111,7 @@ esphome:
 
   project:
     name: "g32.bt_display480_320"
-    version: "1.1.0c"
+    version: "1.1.1"
 
 esp32:
 #  variant: esp32S3
@@ -2556,9 +2556,7 @@ lvgl:
               - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
               - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
               - lvgl.widget.refresh: sensors_headline2
-
               - lvgl.widget.redraw:
-
               - if:
                   condition:
                     lambda: 'return id(page_index) == 1;'
@@ -2579,7 +2577,7 @@ sensor:
     attenuation: 12db          # input voltage range: 150mV --- 2450mV
     samples: 16                # samples taken per update interval
     filters:
-      - multiply: 1.72
+      - multiply: 1.72         # due to external voltage divider on adc input
       - sliding_window_moving_average:
           window_size: 15      # average over 15 values
       - calibrate_linear:      # linearise voltage->SOC dependency
@@ -2603,9 +2601,8 @@ sensor:
     update_interval: 4s        # new value after 4s*15(=window size) = 60s!
     on_value:
       - lambda: id(battery_soc_value) = x;
-      - lvgl.widget.refresh: battery_soc_label
-      - lvgl.widget.refresh: battery_symbol
-      - lvgl.widget.refresh: battery_bar
+      - lvgl.widget.refresh: [battery_soc_label, battery_symbol, battery_bar]
+      - lvgl.widget.refresh: [battery_soc_label2, battery_symbol2, battery_bar2]
       - lvgl.bar.update:
           id: battery_bar
           indicator:
@@ -2615,9 +2612,6 @@ sensor:
                 } else {
                 return lv_color_hex(0x00ff00); // green
               }
-      - lvgl.widget.refresh: battery_soc_label2
-      - lvgl.widget.refresh: battery_symbol2
-      - lvgl.widget.refresh: battery_bar2
       - lvgl.bar.update:
           id: battery_bar2
           indicator:
@@ -2648,13 +2642,10 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 10s
-    lambda: |-
-      return (x[6]*10.0+x[7]/10.0);
+    lambda: 'return (x[6]*10.0+x[7]/10.0);'
     on_value:
       - lambda: id(zone1_value) = x;
-      - lvgl.widget.refresh: zone1_label
-      - lvgl.widget.refresh: zone1_arc
-      - lvgl.widget.refresh: zone1_label2
+      - lvgl.widget.refresh: [zone1_label, zone1_arc, zone1_label2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2666,13 +2657,10 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3000s
-    lambda: |-
-      return (x[8]*10.0+x[9]/10.0);
+    lambda: 'return (x[8]*10.0+x[9]/10.0);'
     on_value:
       - lambda: id(zone2_value) = x;
-      - lvgl.widget.refresh: zone2_label
-      - lvgl.widget.refresh: zone2_arc
-      - lvgl.widget.refresh: zone2_label2
+      - lvgl.widget.refresh: [zone2_label, zone2_arc, zone2_label2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2684,13 +2672,10 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3001s
-    lambda: |-
-      return (x[10]*10.0+x[11]/10.0);
+    lambda: 'return (x[10]*10.0+x[11]/10.0);'
     on_value:
       - lambda: id(zone3_value) = x;
-      - lvgl.widget.refresh: zone3_label
-      - lvgl.widget.refresh: zone3_arc
-      - lvgl.widget.refresh: zone3_label2
+      - lvgl.widget.refresh: [zone3_label, zone3_arc, zone3_label2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2702,13 +2687,10 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3002s
-    lambda: |-
-      return (x[12]*10.0+x[13]/10.0);
+    lambda: 'return (x[12]*10.0+x[13]/10.0);'
     on_value:
       - lambda: id(zone4_value) = x;
-      - lvgl.widget.refresh: zone4_label
-      - lvgl.widget.refresh: zone4_arc
-      - lvgl.widget.refresh: zone4_label2
+      - lvgl.widget.refresh: [zone4_label, zone4_arc, zone4_label2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2720,18 +2702,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3003s
-    lambda: |-
-      return (x[14]*10.0+x[15]/10.0);
+    lambda: 'return (x[14]*10.0+x[15]/10.0);'
     on_value:
       - lambda: id(sensor1_value) = x;
-      - lvgl.widget.refresh: sensor1_label
-      - lvgl.widget.refresh: sensor1_arc
-      - lvgl.widget.refresh: sensor1_obj
-      - lvgl.widget.refresh: sensors_headline
-      - lvgl.widget.refresh: sensor1_label2
-      - lvgl.widget.refresh: sensor1_obj2
-      - lvgl.widget.refresh: sensors_headline2
-      - lvgl.widget.refresh: sensors_obj2
+      - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor1_label2, sensor1_obj2, sensors_headline2, sensors_obj2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2743,18 +2718,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3003s
-    lambda: |-
-      return (x[16]*10.0+x[17]/10.0);
+    lambda: 'return (x[16]*10.0+x[17]/10.0);'
     on_value:
       - lambda: id(sensor2_value) = x;
-      - lvgl.widget.refresh: sensor2_label
-      - lvgl.widget.refresh: sensor2_arc
-      - lvgl.widget.refresh: sensor2_obj
-      - lvgl.widget.refresh: sensors_headline
-      - lvgl.widget.refresh: sensor2_label2
-      - lvgl.widget.refresh: sensor2_obj2
-      - lvgl.widget.refresh: sensors_headline2
-      - lvgl.widget.refresh: sensors_obj2
+      - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor2_label2, sensor2_obj2, sensors_headline2, sensors_obj2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2766,18 +2734,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3004s
-    lambda: |-
-      return (x[18]*10.0+x[19]/10.0);
+    lambda: 'return (x[18]*10.0+x[19]/10.0);'
     on_value:
       - lambda: id(sensor3_value) = x;
-      - lvgl.widget.refresh: sensor3_label
-      - lvgl.widget.refresh: sensor3_arc
-      - lvgl.widget.refresh: sensor3_obj
-      - lvgl.widget.refresh: sensors_headline
-      - lvgl.widget.refresh: sensor3_label2
-      - lvgl.widget.refresh: sensor3_obj2
-      - lvgl.widget.refresh: sensors_headline2
-      - lvgl.widget.refresh: sensors_obj2
+      - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor3_label2, sensor3_obj2, sensors_headline2, sensors_obj2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2789,18 +2750,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     update_interval: 3005s
-    lambda: |-
-      return (x[20]*10.0+x[21]/10.0);
+    lambda: 'return (x[20]*10.0+x[21]/10.0);'
     on_value:
       - lambda: id(sensor4_value) = x;
-      - lvgl.widget.refresh: sensor4_label
-      - lvgl.widget.refresh: sensor4_arc
-      - lvgl.widget.refresh: sensor4_obj
-      - lvgl.widget.refresh: sensors_headline
-      - lvgl.widget.refresh: sensor4_label2
-      - lvgl.widget.refresh: sensor4_obj2
-      - lvgl.widget.refresh: sensors_headline2
-      - lvgl.widget.refresh: sensors_obj2
+      - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor4_label2, sensor4_obj2, sensors_headline2, sensors_obj2]
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2813,18 +2767,10 @@ sensor:
     service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     update_interval: 3006s
-    lambda: |-
-      return (x[22]*256+x[23]);
+    lambda: 'return (x[22]*256+x[23]);'
     on_value:
       - lvgl.label.update:
-          id: gas_weight_label
-          text: !lambda |-
-            if(x >= 11000) {return ("11000 g");
-            } else {
-              return (to_string(static_cast<int>(x)) + " g").c_str();
-            }
-      - lvgl.label.update:
-          id: gas_weight_label2
+          id: [gas_weight_label, gas_weight_label2]
           text: !lambda |-
             if(x >= 11000) {return ("11000 g");
             } else {
@@ -2841,32 +2787,17 @@ sensor:
     service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     update_interval: 3007s
-    lambda: |-
-      return (x[31]);
+    lambda: 'return (x[31]);'
     on_value:
       - lvgl.label.update:
-          id: gas_percent_label
-          text: !lambda |-
-            if(x > 100) {return ("---");
-            } else {
-              return (to_string(static_cast<int>(x)) + " %").c_str();
-            }
-      - lvgl.label.update:
-          id: gas_percent_label2
+          id: [gas_percent_label, gas_percent_label2]
           text: !lambda |-
             if(x > 100) {return ("---");
             } else {
               return (to_string(static_cast<int>(x)) + " %").c_str();
             }
       - lvgl.bar.update:
-          id: gas_percent_bar
-          value: !lambda |-
-            if(x > 100) {return (100);
-            } else {
-              return (x);
-            }
-      - lvgl.bar.update:
-          id: gas_percent_bar2
+          id: [gas_percent_bar, gas_percent_bar2]
           value: !lambda |-
             if(x > 100) {return (100);
             } else {
@@ -2881,8 +2812,12 @@ sensor:
     service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     update_interval: 3008s
-    lambda: |-
-      return (x[24]);
+    lambda: 'return (x[24]);'
+    on_value:
+      - lvgl.label.update:
+          id: [firebox_open_label, firebox_open_label2]
+          hidden: !lambda return(!x);
+
 
   - platform: ble_client
     ble_client_id: ow_g32
@@ -2893,7 +2828,15 @@ sensor:
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     update_interval: 3009s
     lambda: |-
-      return (x[25]);
+      if(id(g32_Haube).state == 1) {
+        return (x[25]);
+      } else {
+        return 0;
+      }
+    on_value:
+      - lvgl.label.update:
+          id: [light_on_label, light_on_label2]
+          hidden: !lambda return(!x);
 
 
 binary_sensor:
@@ -2904,50 +2847,38 @@ binary_sensor:
     name: "G32 Licht"
     icon: "mdi:light-flood-down"
     lambda: |-
-     if (id(g32_Licht).state == 1) {
-     // G32 Haubenlicht ist AN.
-     return true;
-     } else {
-     // G32 Haubenlicht ist AUS.
-     return false;
-     }
+      if (id(g32_Licht).state == 1 && id(g32_Haube).state == 1) {
+        return true;
+      } else {
+        return false;
+      }
 
   - platform: template
     name: "G32 Haube"
     device_class: "door"
     icon: "mdi:door"
-    lambda: |-
-     if (id(g32_Haube).state == 1) {
-     // G32 Haube ist offen.
-     return true;
-     } else {
-     // G32 Haube ist geschlossen.
-     return false;
-     }
+    lambda: 'return(id(g32_Haube).state == 1);'
+#    lambda: |-
+#      if (id(g32_Haube).state == 1) {
+#      // G32 Haube ist offen.
+#        return true;
+#      } else {
+#      // G32 Haube ist geschlossen.
+#        return false;
+#      }
 
 script:
   - id: time_update
     then:
       - lvgl.label.update:
-          id: display_time
+          id: [display_time, display_time2]
           text: !lambda |-
             static char time_buf[16];
             auto now = id(ha_time).now();
             snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
             return time_buf;
       - lvgl.label.update:
-          id: display_time2
-          text: !lambda |-
-            static char time_buf[16];
-            auto now = id(ha_time).now();
-            snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
-            return time_buf;
-      - lvgl.label.update:
-          id: display_time
-          hidden: !lambda |-
-            return (!id(show_time));
-      - lvgl.label.update:
-          id: display_time2
+          id: [display_time, display_time2]
           hidden: !lambda |-
             return (!id(show_time));
 
