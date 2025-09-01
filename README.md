@@ -16,6 +16,7 @@ Die Benutzeroberfläche ist in zwei Hauptansichten unterteilt, zwischen denen du
 * Gas ist unter dem eingestellten Limit, daher in der Statuszeile das rote 'Ausrufungszeichen' und der Balken ist rot (ansonsten grün oder grau in der Zahlenansicht).
 * Der grüne 'Pfeil nach oben' in der Statuszeile zeigt eine offene Haube, der gelbe Blitz eine aktive Innebeleuchtung.
 * Daneben das grüne WIFI Symbol für die Verbindung zu Home Assistant und das Symbol für den zu 51% geladenen Akku.
+* Die Uhrzeit wird nur angezeigt, wenn eine aktive Verbindung zu einem Home Assistant besteht!
 
 ## ✨ Features
 
