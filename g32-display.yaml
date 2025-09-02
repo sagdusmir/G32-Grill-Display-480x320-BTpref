@@ -63,14 +63,14 @@ substitutions:
   Gas_Bar_Low_Color2: "0xff0000"  # 0xff0000 = Rot
 
 # Batteriesymbol komplett ausgeblenden (kein Akku vorhanden)? true = ausblenden, false = anzeigen :
-  Hide_Battery_Symbol: 'true'
-#  Hide_Battery_Symbol: 'false'
+#  Hide_Battery_Symbol: 'true'
+  Hide_Battery_Symbol: 'false'
 # SOC (in %) des Akkus festlegen, unterhalb dessen das Batteriesymbol in rot angezeigt wird:
   Min_SOC: "25"
 
 # sollen inaktive Sensoren komplett ausgeblendet werden? true = ausblenden, false = anzeigen:
-  Hide_Inactive_Sensors: 'true' # inaktive Sensoren werden ausgeblendet
-#  Hide_Inactive_Sensors: 'false' # inaktive Sensoren werden angezeigt
+#  Hide_Inactive_Sensors: 'true' # inaktive Sensoren werden ausgeblendet
+  Hide_Inactive_Sensors: 'false' # inaktive Sensoren werden angezeigt
 
 # sollen für Zonen und Sensoren Temperaturlimits gesetzt werden können? true = Ja, false = Nein
   Enable_Temperature_Limits: 'true'
@@ -97,6 +97,8 @@ substitutions:
   Show_Arcs_Page: 'true'
   Show_Numbers_Page: 'true'
 
+# Orientierung des Displays: ???
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
@@ -111,7 +113,7 @@ esphome:
 
   project:
     name: "g32.bt_display480_320"
-    version: "1.1.1"
+    version: "1.2.0"
 
 esp32:
 #  variant: esp32S3
@@ -241,7 +243,8 @@ display:
     cs_pin:
       number: 45
       ignore_strapping_warning: true
-    rotation: 90 # 90 for landscape
+    rotation: 90 # for landscape
+#    rotation: 270 # for landscape inverted
     auto_clear_enabled: false
 
 #-------------------------------------------
@@ -264,6 +267,10 @@ touchscreen:
       y_max: 310
     transform:
       swap_xy: true
+# for 270° inverted display orientation
+#      mirror_x: true
+#      mirror_y: false
+# for 90° normal display orientation
       mirror_x: false
       mirror_y: true
 #    on_touch:
@@ -2635,139 +2642,120 @@ sensor:
   - platform: ble_client
     ble_client_id: ow_g32
     type: characteristic
-    name: "G32 Zone 1"
-    id: g32_T_1
+    name: "G32 Datablock Read"
     service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
+    update_interval: 10s
+    lambda: |-
+      float t = (x[6]*10.0+x[7]/10.0);
+      id(g32_T_1).publish_state(t);
+      t = (x[8]*10.0+x[9]/10.0);
+      id(g32_T_2).publish_state(t);
+      t = (x[10]*10.0+x[11]/10.0);
+      id(g32_T_3).publish_state(t);
+      t = (x[12]*10.0+x[13]/10.0);
+      id(g32_T_4).publish_state(t);
+      t = (x[14]*10.0+x[15]/10.0);
+      id(g32_Ext_1).publish_state(t);
+      t = (x[16]*10.0+x[17]/10.0);
+      id(g32_Ext_2).publish_state(t);
+      t = (x[18]*10.0+x[19]/10.0);
+      id(g32_Ext_3).publish_state(t);
+      t = (x[20]*10.0+x[21]/10.0);
+      id(g32_Ext_4).publish_state(t);
+      t = (x[22]*256+x[23]);
+      id(g32_Gas_g).publish_state(t);
+      t = (x[24]);
+      id(g32_Haube).publish_state(t);
+      t = (x[25]);
+      id(g32_Licht).publish_state(t);
+      t = (x[31]);
+      id(g32_Gas).publish_state(t);
+      return (x[30]);
+
+  - platform: template
+    name: "G32 Zone 1"
+    id: g32_T_1
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 10s
-    lambda: 'return (x[6]*10.0+x[7]/10.0);'
     on_value:
       - lambda: id(zone1_value) = x;
       - lvgl.widget.refresh: [zone1_label, zone1_arc, zone1_label2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Zone 2"
     id: g32_T_2
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3000s
-    lambda: 'return (x[8]*10.0+x[9]/10.0);'
     on_value:
       - lambda: id(zone2_value) = x;
       - lvgl.widget.refresh: [zone2_label, zone2_arc, zone2_label2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Zone 3"
     id: g32_T_3
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3001s
-    lambda: 'return (x[10]*10.0+x[11]/10.0);'
     on_value:
       - lambda: id(zone3_value) = x;
       - lvgl.widget.refresh: [zone3_label, zone3_arc, zone3_label2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Zone 4"
     id: g32_T_4
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3002s
-    lambda: 'return (x[12]*10.0+x[13]/10.0);'
     on_value:
       - lambda: id(zone4_value) = x;
       - lvgl.widget.refresh: [zone4_label, zone4_arc, zone4_label2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Sensor 1"
     id: g32_Ext_1
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3003s
-    lambda: 'return (x[14]*10.0+x[15]/10.0);'
     on_value:
       - lambda: id(sensor1_value) = x;
       - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj, sensors_headline]
       - lvgl.widget.refresh: [sensor1_label2, sensor1_obj2, sensors_headline2, sensors_obj2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Sensor 2"
     id: g32_Ext_2
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3003s
-    lambda: 'return (x[16]*10.0+x[17]/10.0);'
     on_value:
       - lambda: id(sensor2_value) = x;
       - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj, sensors_headline]
       - lvgl.widget.refresh: [sensor2_label2, sensor2_obj2, sensors_headline2, sensors_obj2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Sensor 3"
     id: g32_Ext_3
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3004s
-    lambda: 'return (x[18]*10.0+x[19]/10.0);'
     on_value:
       - lambda: id(sensor3_value) = x;
       - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj, sensors_headline]
       - lvgl.widget.refresh: [sensor3_label2, sensor3_obj2, sensors_headline2, sensors_obj2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Sensor 4"
     id: g32_Ext_4
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     device_class: "temperature"
     unit_of_measurement: "°C"
-    update_interval: 3005s
-    lambda: 'return (x[20]*10.0+x[21]/10.0);'
     on_value:
       - lambda: id(sensor4_value) = x;
       - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj, sensors_headline]
       - lvgl.widget.refresh: [sensor4_label2, sensor4_obj2, sensors_headline2, sensors_obj2]
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Gasbuddy Füllstand in g"
     id: g32_Gas_g
     device_class: weight
     state_class: measurement
     unit_of_measurement: g
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
-    update_interval: 3006s
-    lambda: 'return (x[22]*256+x[23]);'
+    icon: "mdi:weight-gram"
     on_value:
       - lvgl.label.update:
           id: [gas_weight_label, gas_weight_label2]
@@ -2777,17 +2765,12 @@ sensor:
               return (to_string(static_cast<int>(x)) + " g").c_str();
             }
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
+  - platform: template
     name: "G32 Gasbuddy Füllstand in %"
+    id: g32_Gas
     state_class: measurement
     unit_of_measurement: "%"
-    id: g32_Gas
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
-    update_interval: 3007s
-    lambda: 'return (x[31]);'
+    icon: "mdi:gas-cylinder"
     on_value:
       - lvgl.label.update:
           id: [gas_percent_label, gas_percent_label2]
@@ -2804,40 +2787,6 @@ sensor:
               return (x);
             }
 
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
-    name: "G32 Haube"
-    id: g32_Haube
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
-    update_interval: 3008s
-    lambda: 'return (x[24]);'
-    on_value:
-      - lvgl.label.update:
-          id: [firebox_open_label, firebox_open_label2]
-          hidden: !lambda return(!x);
-
-
-  - platform: ble_client
-    ble_client_id: ow_g32
-    type: characteristic
-    name: "G32 Licht"
-    id: g32_Licht
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
-    update_interval: 3009s
-    lambda: |-
-      if(id(g32_Haube).state == 1) {
-        return (x[25]);
-      } else {
-        return 0;
-      }
-    on_value:
-      - lvgl.label.update:
-          id: [light_on_label, light_on_label2]
-          hidden: !lambda return(!x);
-
 
 binary_sensor:
   - platform: status
@@ -2845,27 +2794,22 @@ binary_sensor:
 
   - platform: template
     name: "G32 Licht"
+    id: g32_Licht
     icon: "mdi:light-flood-down"
-    lambda: |-
-      if (id(g32_Licht).state == 1 && id(g32_Haube).state == 1) {
-        return true;
-      } else {
-        return false;
-      }
+    on_state:
+      - lvgl.label.update:
+          id: [light_on_label, light_on_label2]
+          hidden: !lambda return(!x);
 
   - platform: template
     name: "G32 Haube"
+    id: g32_Haube
     device_class: "door"
     icon: "mdi:door"
-    lambda: 'return(id(g32_Haube).state == 1);'
-#    lambda: |-
-#      if (id(g32_Haube).state == 1) {
-#      // G32 Haube ist offen.
-#        return true;
-#      } else {
-#      // G32 Haube ist geschlossen.
-#        return false;
-#      }
+    on_state:
+      - lvgl.label.update:
+          id: [firebox_open_label, firebox_open_label2]
+          hidden: !lambda return(!x);
 
 script:
   - id: time_update
