@@ -10,6 +10,7 @@ Die Benutzeroberfläche ist in zwei Hauptansichten unterteilt, zwischen denen du
 2.  **Zahlen-Ansicht:** Eine schlichte, zahlenbasierte Ansicht, mit Ausnahme der Icons und Alarme grau-weiß.
 ![PXL_20250831_100641609 RAW-01 MP COVER](https://github.com/user-attachments/assets/cf56bf26-64fc-4241-9dc1-1dac0125bc5f)
 
+* (in Ermangelung guter Fotos sind dieses die Ansichten der HACS Variante. Daher fehlt das Bluetooth-Symbol!)
 * Hier sind für die Zonen 2 und 3 Temperaturlimits von 300°C gesetzt.
 * Die externen Sensoren 1 und 3 sind am Grill eingesteckt. 
 * Der Sensor 1 hat ein Temperaturlimit von 20°C und die aktuelle Temperatur von 29°C überschreitet das Limit, daher rot.
