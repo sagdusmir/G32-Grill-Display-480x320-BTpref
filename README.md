@@ -7,7 +7,7 @@ Die Benutzeroberfläche ist in zwei Hauptansichten unterteilt, zwischen denen du
 ![PXL_20250831_100654796 RAW-01 MP COVER](https://github.com/user-attachments/assets/9ac30cfc-e850-4c15-8dfb-55084be17deb)
 
 
-2.  **Zahlen-Ansicht:** Eine schlichte, zahlenbasierte Ansicht, weitgehend grau-weiß.
+2.  **Zahlen-Ansicht:** Eine schlichte, zahlenbasierte Ansicht, mit Ausnahme der Icons und Alarme grau-weiß.
 ![PXL_20250831_100641609 RAW-01 MP COVER](https://github.com/user-attachments/assets/cf56bf26-64fc-4241-9dc1-1dac0125bc5f)
 
 * Hier sind für die Zonen 2 und 3 Temperaturlimits von 300°C gesetzt.
