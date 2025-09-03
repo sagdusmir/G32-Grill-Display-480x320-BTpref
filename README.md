@@ -47,7 +47,12 @@ Folgende Bauteile werden für ein Display benötigt (da Links schnell veralten h
 * **Gehäuse:** 3D-Druck-Gehäuse. Sehr gut geeignet: [Standalone Case JC3248W535C](https://www.thingiverse.com/thing:7127557) Das Gehäuse erlaubt den Betrieb in steil stehender Form oder flach liegender Form (Anpassung in der Firmware erforderlich). Hinten im Gehäuse befindet sich ein 'Taster', mit dem bei Akkubetrieb das Display ausgeschaltet werden kann (Druck > 8 Sekunden). Und natürlich auch wieder eingeschaltet (Druck > 0.2 Sekunden).  
 * **(Optional) Akku:** Ein LiPo/Li-Ion-Akku zur mobilen Stromversorgung. Sehr gut verwendbar sind fertig konfektionierte Lithium Polymer Akkus mit z.B. 2000mAh mit JST 1.25mm Stecker. Bei Amozon suchen nach '2000mAh 1.25'. Bitte auf die 1.25mm Stecker achten und auf die Polung (mit dem Displayanschluß vergleichen). Alle von mir bestellten Akkus hatten bisher die korrekte Polarität, manche werden aber auch mit 'umgekehrte Polarität' beworben und sind **nicht** geeignet!
 Alternativ kann jede 18650 Akkuzelle verwendet werden. Diese gibt es mit Kapazitäten bis ~3500mAh. Benötigt wird dann zusätzlich ein kurzes (~10cm) Kabel mit JST 1.25mm Stecker (suchen nach 'JST 1.25 2 Pin'). 20-25 Stück kosten ~5-6€ (kaum einzeln verfügbar). Das Kabel am Display in den Akku-Anschluß einstecken und prüfen ob rot auf + und schwarz auf - liegt und den Akku polrichtig anlöten. Alle mir bekannten Kabel sind aber korrekt belegt gewesen.         
+![PXL_20250903_091438634 RAW-01 MP COVER~2](https://github.com/user-attachments/assets/aaad74f4-64f2-4646-80cb-e1179359a73b)
+![PXL_20250903_091349359 RAW-01 MP COVER~2](https://github.com/user-attachments/assets/a0c87e28-ff4e-4248-b31c-9414b14c771b)
+![PXL_20250903_091728889 RAW-01 MP COVER~2](https://github.com/user-attachments/assets/4084b44e-a9f4-45bb-be7f-6b9a92eb6f19)
+        
 * **(Optional) Beeper/Lautsprecher:** Ein kleiner passiver Piezo Beeper zur Ausgabe von Alarmtönen. Bei Amazon suchen nach 'Piezo 10085 passiv' oder 'Piezo 12085 passiv'. Geeignet sind nahezu alle **passiven** Buzzer, am Besten klein mit z.B. 10-12mm Durchmesser (10085 = 10mm, 12085 = 12mm). Auch hier gibt es meistens 5-50 Stück für 5-10€. Für den Anschluß benötigt man das gleiche Kabel wie für den Akku (JST 1.25 2 Pin 10cm Kabel). Das Kabel wird am Display auf die 2 Pins IO9 und IO14 von P2 gesteckt. 
+![PXL_20250903_091709205 RAW-01 MP COVER~2](https://github.com/user-attachments/assets/ea667a30-186e-4ed8-9ce8-83c288026678)
 
 ## ⚙️ Installation & Konfiguration
 
