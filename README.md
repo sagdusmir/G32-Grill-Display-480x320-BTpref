@@ -18,12 +18,14 @@ Die Benutzeroberfläche ist in zwei Hauptansichten unterteilt, zwischen denen du
 * Der grüne 'Pfeil nach oben' in der Statuszeile zeigt eine offene Haube, der gelbe Blitz eine aktive Innebeleuchtung.
 * Daneben das grüne WIFI Symbol für die Verbindung zu Home Assistant und das Symbol für den zu 51% geladenen Akku.
 * Die Uhrzeit wird nur angezeigt, wenn eine aktive Verbindung zu einem Home Assistant besteht!
+* ab V1.3.0: ein Timer (Anzeige 00:00:00) wird optional in der Zeile hinter 'Temperatursensoren' eingeblendet (hier nicht sichtbar)  
 
 ## ✨ Features
 
 * **Echtzeit-Überwachung:** Zeigt Temperaturen für bis zu 4 Grillzonen und 4 externe Temperatursensoren an.
 * **Gas-Level-Anzeige:** Überwacht den Füllstand des Gasbuddy in Prozent und Gramm, inklusive einer visuellen Leiste.
 * **Temperaturalarme:** Setzen Sie individuelle Temperaturlimits für jede Zone und jeden Sensor. Bei Überschreitung wird ein akustischer Alarm über den integrierten Beeper ausgelöst.
+* **Timer:** Setzen Sie einen Timer, der nach Ablauf einen akkustischen Alarm auslöst
 * **Zwei Display-Modi:** Wechseln Sie durch Wischen zwischen einer grafischen "Arc"-Ansicht und einer minimalistischen "Zahlen"-Ansicht.
 * **Status-Symbole:** Icons auf dem Display zeigen den Verbindungsstatus von WLAN und Bluetooth sowie den Zustand von Grillhaube und Licht an.
 * **Home Assistant Integration:** Nahtlose Einbindung in Home Assistant über die ESPHome API.
@@ -99,6 +101,7 @@ Passen Sie die folgenden Variablen in der YAML-Datei an:
 | `Sensor1_Max` | `"130"` | Maximale einstellbare Temperatur für Sensor 1 (z.B. für Kerntemperatur). |
 | `Beeper_interval`| `"5s"` | Das Zeitintervall für Alarmmeldungen des Lautsprechers. |
 | `Show_Time` | `'true'` | Setzen Sie auf `'true'`, um die Uhrzeit (von Home Assistant synchronisiert) anzuzeigen. |
+| `Disable_Timer` | `'false'` | Setzen Sie auf `'false'`, um einen Timer (max. 23h59m59s) zu verwenden. |
 | `Show_Arcs_Page` | `'true'` | Legt fest, ob die grafische "Arc"-Seite angezeigt werden soll. |
 | `Show_Numbers_Page`| `'true'` | Legt fest, ob die "Zahlen"-Seite angezeigt werden soll. |
 
