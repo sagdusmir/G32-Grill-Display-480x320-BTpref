@@ -4,7 +4,7 @@ substitutions:
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
-  device_description: "Monitor an OW G32 grill"
+  device_description: "Monitor an OW G32 grill" 
 
 # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
 # oder zum Auslesen unten den 'esp32_ble_tracker:' entkommentieren
