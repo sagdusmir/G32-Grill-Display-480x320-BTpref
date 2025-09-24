@@ -100,10 +100,12 @@ Passen Sie die folgenden Variablen in der YAML-Datei an:
 | `Enable_Temperature_Limits`| `'true'` | Setzen Sie auf `'false'`, um die Funktion zum Setzen von Temperaturlimits zu deaktivieren. |
 | `Sensor1_Max` | `"130"` | Maximale einstellbare Temperatur für Sensor 1 (z.B. für Kerntemperatur). |
 | `Beeper_interval`| `"5s"` | Das Zeitintervall für Alarmmeldungen des Lautsprechers. |
+| `Soundeffekte`| `diverse` | Soundeffekte für die diversen Meldungen und Alarme. |
 | `Show_Time` | `'true'` | Setzen Sie auf `'true'`, um die Uhrzeit (von Home Assistant synchronisiert) anzuzeigen. |
 | `Disable_Timer` | `'false'` | Setzen Sie auf `'false'`, um einen Timer (max. 23h59m59s) zu verwenden. |
 | `Show_Arcs_Page` | `'true'` | Legt fest, ob die grafische "Arc"-Seite angezeigt werden soll. |
 | `Show_Numbers_Page`| `'true'` | Legt fest, ob die "Zahlen"-Seite angezeigt werden soll. |
+| `Display_Timeout`| `"0"` | Bestimmt die Zeitdauer, nach der das Display automatisch ausgeschaltet werden soll (in Sekunden). Maximalwert 3600s, 0 bedeutet kein Timeout! |
 
 > **💡 So finden Sie die MAC-Adresse Ihres Grills:**
 > Wenn Sie die MAC-Adresse Ihres G32 nicht kennen, können Sie sie mit diesem Projekt selbst finden.
