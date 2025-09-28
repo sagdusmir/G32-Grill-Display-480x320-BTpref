@@ -1322,11 +1322,11 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}3 Temperaturlimit:";
+                          return "${Sensor_Text}4 Temperaturlimit:";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
-                          return (to_string(static_cast<int>(id(sensor3_limit_value)))+"°C").c_str();
+                          return (to_string(static_cast<int>(id(sensor4_limit_value)))+"°C").c_str();
                     - lvgl.widget.redraw:
                         id: sensor_limit_slider
                     - lvgl.page.show: sensor_limits_page
