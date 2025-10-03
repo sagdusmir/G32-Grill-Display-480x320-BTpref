@@ -3152,6 +3152,7 @@ script:
                 {
                   if( id(timer_h) > 0 )
                   {
+                    id(timer_s) = 59;
                     id(timer_m) = 59;
                     id(timer_h) = id(timer_h) - 1;
                   }
