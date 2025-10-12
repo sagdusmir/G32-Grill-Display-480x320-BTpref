@@ -2045,7 +2045,7 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: true
+                  clickable: ${Enable_Temperature_Limits}
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -2126,7 +2126,7 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: true
+                  clickable: ${Enable_Temperature_Limits}
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -2207,7 +2207,7 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: true
+                  clickable: ${Enable_Temperature_Limits}
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
