@@ -210,13 +210,18 @@ wifi:
 #            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
 #            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
 #          }
-#          else if (x.get_name().rfind("MEATER+", 0) == 0) {
+#          if (x.get_name().rfind("MEATER+", 0) == 0) {
 #            ESP_LOGI("ble_adv", "Meater+ gefunden");
 #            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
 #            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
 #          }
-#          else if (x.get_name().rfind("MEATER", 0) == 0) {
+#          if (x.get_name() == "MEATER") {
 #            ESP_LOGI("ble_adv", "Meater gefunden");
+#            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+#            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+#          }
+#          if (x.get_name() == "MEATER BLOCK") {
+#            ESP_LOGI("ble_adv", "Meater Block gefunden");
 #            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
 #            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
 #          }
