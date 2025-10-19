@@ -11,7 +11,7 @@ Was ist anders?
 
 * kein Fokus auf die Anbindung an Home Asssistant
 * Anpassungen an der Software sind nicht zwingend notwendig
-* vieles lässt sich direkt über das Tochdisplay am Gerät konfigureren
+* vieles lässt sich direkt über das Tochdisplay am Gerät konfigurieren
 * Anpassungen an der Benutzeroberfläche
 
 
