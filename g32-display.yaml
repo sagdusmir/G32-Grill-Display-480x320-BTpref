@@ -572,7 +572,6 @@ globals:
   - id: settings_g32_mac_address
     type: std::string
     initial_value: ""
-    restore_value: true
   - id: settings_min_gas_value_persistent
     type: int
     initial_value: ${Min_Gas}
