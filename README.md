@@ -31,7 +31,7 @@ Was ist anders?
 * **Meater:** Verwendung von Meater / Meater+ Temperatursensoren
 
 ## Historie
-* [2025-10-19] BTpref 1.5.0
+* [2025-10-19] BTpref 1.5.1
    - feststehende Statusanzeige oben / unten
    - Timer ist mit der optionalen Uhrzeitanzeige (oben mittig) vereint
    - andere UI zum Einstellen von Temperaturalarmen
