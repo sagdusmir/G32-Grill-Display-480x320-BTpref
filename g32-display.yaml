@@ -9,8 +9,8 @@ substitutions:
   version: "BTpref 1.5.1"
 
   # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
+  g32_mac_address: 94:E6:86:00:00:00
   # g32_mac_address: !secret g32_mac_address  # oder optional als secret konfigurieren
-  g32_mac_address: !secret g32_mac_address  # oder optional als secret konfigurieren
 
   # Credentials des eigenen Wifi Netzwerks
   wifi_ssid: "wifi_ssid"
@@ -79,6 +79,8 @@ substitutions:
   Beeper_interval: "5s"
 
 # Soundeffekte (in RTTTL syntax):
+  G32_Connect_Sound: "pling2:d=16,o=6,b=140:e6,32p,d6"
+  G32_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
   Wifi_Connect_Sound: "dadi:d=16,o=6,b=140:d6,32p,e6"
   Wifi_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
   Timer_Alarm_Sound: "didididi:d=16,o=6,b=140:e6,32p,e6,32p,e6,32p,e6"
@@ -236,13 +238,14 @@ esp32_ble_tracker:
             ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
           }
       - lvgl.widget.refresh: settings_mac_address_label
+
 ble_client:
   - mac_address: ${g32_mac_address}  # must be dynamically applied later
     id: ow_g32
     on_connect:
       then:
         - lvgl.widget.show: g32bt_connect_label
-        - rtttl.play: 'Pling2:d=16,o=6,b=140:e6,32p,d6'
+        - rtttl.play: ${G32_Connect_Sound}
         - globals.set:
             id: g32_connected
             value: 'true'
@@ -254,7 +257,7 @@ ble_client:
         - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
         - lvgl.widget.hide: [gas_percent_label, gas_weight_label, gas_percent_bar]
-        - rtttl.play: 'siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e'
+        - rtttl.play: ${G32_Disconnect_Sound}
         - globals.set:
             id: g32_connected
             value: 'false'
