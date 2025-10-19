@@ -1,22 +1,22 @@
 substitutions:
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# bitte nur in diesen nächsten Zeilen Änderungen vornehmen                    #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # bitte nur in diesen nächsten Zeilen Änderungen vornehmen                    #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
-  device_description: "Monitor an OW G32 grill" 
+  device_description: "Monitor an OW G32 grill"
+  version: "BTpref 1.5.0"
 
-# Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
-# oder zum Auslesen unten den 'esp32_ble_tracker:' entkommentieren
-  g32_mac_address: 94:E6:86:0A:27:52
+  # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
+  # g32_mac_address: !secret g32_mac_address  # oder optional als secret konfigurieren
+  g32_mac_address: !secret g32_mac_address  # oder optional als secret konfigurieren
 
-# Credentials des eigenen Wifi Netzwerks einfügen:
-#  wifi_ssid: "my_wifi_ssid"
-#  wifi_password: "my_wifi_password"
-
-# oder die Werte aus der secrets.yaml benutzen:
-  wifi_ssid: !secret wifi_ssid
-  wifi_password: !secret wifi_password
+  # Credentials des eigenen Wifi Netzwerks
+  wifi_ssid: "wifi_ssid"
+  wifi_password: "password"
+  # wifi_ssid: !secret wifi_ssid  # oder optional als secret konfigurieren
+  # wifi_password: !secret wifi_password  # oder optional als secret konfigurieren
 
 # hier die Daten aus dem neu erstellten ESPHome Gerät einfügen. Beispiel:
 # Enable Home Assistant API
@@ -31,14 +31,6 @@ substitutions:
 #     password: "7fdf9f656d36180bfba92d596c9e7db3"
 # das angezeiget password einfügen:
   ota_password: "7fdf9f656d36180bfba92d596c9e7db3"
-
-#   # Enable fallback hotspot (captive portal) in case wifi connection fails
-#   ap:
-#     ssid: "Hztht Fallback Hotspot"
-#     password: "rXlU1NZRut9K"
-# ssid: und passord: einfügen:
-  ap_ssid: "G32 Display Fallback Hotspot"
-  ap_password: "4Lytxfy25DNh"
 
 # benutzerdefinierbare Displayelemente  (nur noch für die Limits-Page!)
 # Texte festlegen für Zonen und Sensoren (max. 8 Zeichen):
@@ -61,7 +53,6 @@ substitutions:
   Gas_Bar_Low_Color2: "0xff0000"  # 0xff0000 = Rot
 
 # Batteriesymbol komplett ausgeblenden (kein Akku vorhanden)? true = ausblenden, false = anzeigen :
-#  Hide_Battery_Symbol: 'true'
   Hide_Battery_Symbol: 'false'
 # SOC (in %) des Akkus festlegen, unterhalb dessen das Batteriesymbol in rot angezeigt wird:
   Min_SOC: "25"
@@ -70,13 +61,12 @@ substitutions:
   Min_Gas: "20"
 
 # sollen inaktive Sensoren komplett ausgeblendet werden? true = ausblenden, false = anzeigen:
-#  Hide_Inactive_Sensors: 'true' # inaktive Sensoren werden ausgeblendet
   Hide_Inactive_Sensors: 'false' # inaktive Sensoren werden angezeigt
 
 # sollen für Zonen und Sensoren Temperaturlimits gesetzt werden können? true = Ja, false = Nein
   Enable_Temperature_Limits: 'true'
 
-# Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 300 für Garraum:
+# Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 500 für Garraum:
   Sensor1_Max: "130"
   Sensor2_Max: "130"
   Sensor3_Max: "130"
@@ -94,7 +84,7 @@ substitutions:
   Timer_Alarm_Sound: "didididi:d=16,o=6,b=140:e6,32p,e6,32p,e6,32p,e6"
   Zone_Limit_Alarm_Sound: "dadidadi:d=8,o=5,b=150:d,e,d,e,d,e,d,e"
   Sensor_Limit_Alarm_Sound: "didadida:d=8,o=5,b=150:e,d,e,d,e,d,e,d"
-
+  New_MAC_Sound: "click:d=32,o=6,b=120:32c,32p"
 
 # Uhrzeit 11:32:45 oben in der Mitte der Statuszeile anzeigen? true = Ja, false = Nein
 # nur sinnvoll in Verbindung mit Home Assistant, da die Uhrzeit von dort kommt
@@ -114,8 +104,7 @@ substitutions:
 # Display_Timeout: "300"
   Display_Timeout: "0"
 
-# Orientierung des Displays: todo ???
-# not possible at the moment
+  Invalid_Sensor_Value: '1500' # 1500 means invalid
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -132,21 +121,27 @@ esphome:
 
   project:
     name: "g32.bt_display480_320"
-    version: "1.4.0"
+    version: ${version}
+
+  on_boot:
+    priority: 1100 # stay above 1000 and below 1500!
+    then:
+      - lambda: id(boot_start_time) = millis();
 
 esp32:
-# use either board: or variant:
   board: esp32-s3-devkitc-1
-#  variant: esp32S3
+  # variant: esp32S3  # use either board: or varian
   flash_size: 16MB
   framework:
     type: esp-idf
     sdkconfig_options:
+      # CONFIG_ESP_TASK_WDT_EN: n  # Disables Task Watchdog Timer (TWDT)
+      # CONFIG_ESP_INT_WDT: n      # Disables Interrupt Watchdog Timer (IWDT)
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
       CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
       CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
-      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
-      CONFIG_SPIRAM_RODATA: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: "y"
+      CONFIG_SPIRAM_RODATA: "y"
 
 psram:
   mode: octal
@@ -160,87 +155,100 @@ logger:
 api:
   encryption:
     key: ${api_encryption_key}
+  reboot_timeout: 0s
 
 ota:
   - platform: esphome
     password: ${ota_password}
 
 wifi:
-  ssid: ${wifi_ssid}
-  password: ${wifi_password}
+  id: my_wifi
+  ssid: ${wifi_ssid}  # must be dynamically applied later
+  password: ${wifi_password}  # must be dynamically applied later
   fast_connect: True
+  reboot_timeout: 0s
   on_connect:
     then:
       - lvgl.widget.update:
-          id: [wifi_connect_label, wifi_connect_label2]
+          id: wifi_connect_label
           hidden: false
       - rtttl.play: ${Wifi_Connect_Sound}
       - globals.set:
           id: wifi_connected
           value: 'true'
-      - if:
-          condition:
-            lambda: 'return id(show_arcs_page) == true;'
-          then:
-            - lvgl.page.show: arcs_page
-          else:
-            - lvgl.page.show: numbers_page
-      - lvgl.widget.hide: boot_screen
+      - globals.set:
+          id: apply_wifi_started_by_user
+          value: 'false'
   on_disconnect:
     then:
       - lvgl.widget.update:
-          id: [wifi_connect_label, wifi_connect_label2]
+          id: wifi_connect_label
           hidden: true
-      - rtttl.play: ${Wifi_Disconnect_Sound}
+      - if: # no sound if user updated credentials
+          condition:
+            - lambda: |-
+                return !(id(apply_wifi_started_by_user));
+          then:
+            - rtttl.play: ${Wifi_Disconnect_Sound}
       - globals.set:
           id: wifi_connected
           value: 'false'
 
-# Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: ${ap_ssid}
-    password: ${ap_password}
+esp32_ble_tracker:
+  on_ble_advertise:
+    then:
+      - lambda: |-
+          if (x.get_name().rfind("OWG-G32C", 0) == 0 && id(ble_scan_started_by_user)) {
+            id(settings_g32_mac_address) = x.address_str();
+            id(my_rtttl).play("${New_MAC_Sound}");
+            ESP_LOGI("ble_adv", "MAC address: %s", x.address_str().c_str());
+            id(ble_scan_stop).execute();
+          }
 
-#esp32_ble_tracker:
-#  on_ble_advertise:
-#    then:
-#      - lambda: |-
-#          if (x.get_name().rfind("OWG-G32C", 0) == 0) {
-#            ESP_LOGI("ble_adv", "G32 gefunden");
-#            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-#            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-#          }
-#          if (x.get_name().rfind("MEATER+", 0) == 0) {
-#            ESP_LOGI("ble_adv", "Meater+ gefunden");
-#            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-#            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-#          }
+          // TODO raus. Nur zum Testen.
+          if (x.get_name().rfind("MEATER", 0) == 0 && id(ble_scan_started_by_user)) {
+            id(settings_g32_mac_address) = x.address_str();
+            id(my_rtttl).play("${New_MAC_Sound}");
+            ESP_LOGI("ble_adv", "MAC address: %s", x.address_str().c_str());
+            id(ble_scan_stop).execute();
+          }
 
+          // some logging
+          if (x.get_name().rfind("OWG-G32C", 0) == 0) {
+            ESP_LOGI("ble_adv", "G32 gefunden");
+            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          }
+          if (x.get_name().rfind("MEATER+", 0) == 0) {
+            ESP_LOGI("ble_adv", "Meater+ gefunden");
+            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          }
+          if (x.get_name() == "MEATER") {
+            ESP_LOGI("ble_adv", "Meater gefunden");
+            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          }
+          if (x.get_name() == "MEATER BLOCK") {
+            ESP_LOGI("ble_adv", "Meater Block gefunden");
+            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          }
+      - lvgl.widget.refresh: settings_mac_address_label
 ble_client:
-  - mac_address: ${g32_mac_address}
+  - mac_address: ${g32_mac_address}  # must be dynamically applied later
     id: ow_g32
     on_connect:
       then:
-        - lvgl.widget.update:
-            id: [g32bt_connect_label, g32bt_connect_label2]
-            hidden: false
         - lvgl.widget.show: g32bt_connect_label
         - rtttl.play: 'Pling2:d=16,o=6,b=140:e6,32p,d6'
         - globals.set:
             id: g32_connected
             value: 'true'
-        - if:
-            condition:
-              lambda: 'return id(show_arcs_page) == true;'
-            then:
-              - lvgl.page.show: arcs_page
-            else:
-              - lvgl.page.show: numbers_page
-        - lvgl.widget.hide: boot_screen
     on_disconnect:
       then:
         - lvgl.widget.update:
-            id: [g32bt_connect_label, g32bt_connect_label2]
+            id: g32bt_connect_label
             hidden: true
         - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
@@ -319,13 +327,8 @@ touchscreen:
           condition: lvgl.is_paused
           then:
             - logger.log: "Display is resuming"
-            - if:
-                condition:
-                  lambda: 'return id(show_arcs_page) == true;'
-                then:
-                  - lvgl.page.show: arcs_page
-                else:
-                  - lvgl.page.show: numbers_page
+            # commented: stay where you are
+            # - script.execute: show_temperatures_page
             - lvgl.resume:
             - lvgl.widget.redraw:
             - light.turn_on: backlight
@@ -391,6 +394,15 @@ interval:
           else if( id(timer_alarm) == true ) {
             id(my_rtttl).play("${Timer_Alarm_Sound}");
           }
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            and:
+              - lambda: 'return !id(boot_screen_hidden);'
+              - lambda: 'return millis() - id(boot_start_time) >= 3000;'
+          then:
+            - script.execute: hide_boot_screen
 
 #-------------------------------------------
 # Global varaibles
@@ -403,6 +415,37 @@ globals:
     type: bool
     initial_value: 'false'
 
+  - id: ble_scan_started_by_user  # for managing "scan" button status
+    type: bool
+    initial_value: 'false'
+  - id: apply_wifi_started_by_user  # for supressing sounds
+    type: bool
+    initial_value: 'false'
+
+  - id: settings_wifi_ssid_persistent
+    type: std::string
+    restore_value: true
+    initial_value: '"${wifi_ssid}"'  # sses your existing secret as initial default
+    max_restore_data_length: 32  # max SSID length
+  - id: settings_wifi_ssid
+    type: std::string
+    initial_value: " "
+  - id: settings_wifi_password_persistent
+    type: std::string
+    restore_value: true
+    initial_value: '"${wifi_password}"'  # sses your existing secret as initial default
+    max_restore_data_length: 64  # max password length
+  - id: settings_wifi_password
+    type: std::string
+    initial_value: " "
+
+  - id: boot_start_time
+    type: uint32_t
+    initial_value: '0'
+  - id: boot_screen_hidden
+    type: bool
+    initial_value: 'false'
+
   - id: show_arcs_page
     type: bool
     initial_value: ${Show_Arcs_Page}
@@ -410,46 +453,35 @@ globals:
     type: bool
     initial_value: ${Show_Numbers_Page}
 
-  - id: hide_inactive_sensors
-    type: bool
-    initial_value: ${Hide_Inactive_Sensors}
   - id: active_sensors      # bits set/reset for every active/inactive Sensor
     type: int
     initial_value: '0'
 
-  - id: hide_battery_symbol
-    type: bool
-    initial_value: ${Hide_Battery_Symbol}
-
-  - id: show_time           # enables/disables time (HOUR:MINUT) display
-    type: bool
-    initial_value: ${Show_Time}
-
   - id: zone1_value         # the value used for Zone temperature labels and arcs
     type: int
-    initial_value: '1500'   # 1500 means invalid
+    initial_value: ${Invalid_Sensor_Value}
   - id: zone2_value
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
   - id: zone3_value
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
   - id: zone4_value
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
 
   - id: sensor1_value       # the value used for Sensor temperature labels and arcs
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
   - id: sensor2_value
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
   - id: sensor3_value
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
   - id: sensor4_value
     type: int
-    initial_value: '1500'
+    initial_value: ${Invalid_Sensor_Value}
 
   - id: zone1_limit_value   # the value used for Zone limit labels and arcs
     type: int
@@ -480,14 +512,6 @@ globals:
   - id: battery_soc_value
     type: int
     initial_value: '0'
-
-  - id: min_soc_value
-    type: int
-    initial_value: ${Min_SOC}
-
-  - id: min_gas_value
-    type: int
-    initial_value: ${Min_Gas}
 
   - id: page_index          # parameter for page
     type: int
@@ -528,35 +552,96 @@ globals:
     type: int
     initial_value: '0'
 
+  - id: last_sensor_lower_digits  # set limits page
+    type: int
+    initial_value: '0'
 
-#-------------------------------------------
-# for screen timeout
-#-------------------------------------------
-number:
-  - platform: template
-    name: Screen timeout
-    optimistic: true
-    id: display_timeout
-    unit_of_measurement: "s"
+  # settings: persisted and temporary values
+  # stick ton the _persistent value for usage.
+  # the temporary value is intended for the
+  # settings page only.
+  - id: settings_g32_mac_address_persistent
+    type: std::string
+    initial_value: '"${g32_mac_address}"' 
+    restore_value: true
+    max_restore_data_length: 17
+  - id: settings_g32_mac_address
+    type: std::string
+    initial_value: ""
+    restore_value: true
+  - id: settings_min_gas_value_persistent
+    type: int
+    initial_value: ${Min_Gas}
+    restore_value: true
+  - id: settings_min_gas_value
+    type: int
+    initial_value: '0'
+  - id: settings_min_soc_value_persistent
+    type: int
+    initial_value: ${Min_SOC}
+    restore_value: true
+  - id: settings_min_soc_value
+    type: int
+    initial_value: '0'
+  - id: settings_hide_soc_persistent
+    type: bool
+    initial_value: ${Hide_Battery_Symbol}
+    restore_value: true
+  - id: settings_hide_soc
+    type: bool
+    initial_value: 'false'
+  - id: settings_enable_temperature_limits_persistent
+    type: bool
+    initial_value: ${Enable_Temperature_Limits}
+    restore_value: true
+  - id: settings_enable_temperature_limits
+    type: bool
+    initial_value: 'true'
+  - id: settings_hide_inactive_sensors_persistent
+    type: bool
+    initial_value: ${Hide_Inactive_Sensors}
+    restore_value: true
+  - id: settings_hide_inactive_sensors
+    type: bool
+    initial_value: 'false'
+  - id: settings_show_time_persistent
+    type: bool
+    initial_value: ${Show_Time}
+    restore_value: true
+  - id: settings_show_time
+    type: bool
+    initial_value: 'true'
+  - id: settings_hide_timer_persistent
+    type: bool
+    initial_value: ${Disable_Timer}
+    restore_value: true
+  - id: settings_hide_timer
+    type: bool
+    initial_value: 'false'
+  - id: settings_display_timeout_value_persistent
+    type: int
     initial_value: ${Display_Timeout}
     restore_value: true
-    min_value: 0 # 0 means 'no timeout'
-    max_value: 3600
-    step: 5
-    mode: box
+  - id: settings_display_timeout_value
+    type: int
+    initial_value: '0'
+
 
 #-------------------------------------------
 # Homeassistant or SNTP Time platform
 #-------------------------------------------
 time:
-#  platform: sntp
-#  id: ha_time
-#  servers:
-#   - ntp0.ntp-servers.net
-#   - ntp1.ntp-servers.net
-#   - ntp2.ntp-servers.net
-  platform: homeassistant
+  platform: sntp
   id: ha_time
+  servers:
+    - ntp0.ntp-servers.net
+    - ntp1.ntp-servers.net
+    - ntp2.ntp-servers.net
+
+  # alternatively
+  # platform: homeassistant
+  # id: ha_time
+
   timezone: Europe/Berlin
   on_time_sync:
     - script.execute: time_update
@@ -579,7 +664,7 @@ lvgl:
     label:
       text_color: 0xFFFFFF
       bg_color: 0
-      bg_opa: TRANSP
+      bg_opa: COVER
       width: 120
       text_align: center
     bar:
@@ -645,8 +730,8 @@ lvgl:
 
       # style for gas
     - id: gas_obj_style
-      width: 478
-      height: 25
+      width: 480
+      height: 22
       bg_color: 0
       text_color: 0xffffff
       pad_all: 0
@@ -671,11 +756,11 @@ lvgl:
 
   # send display to idle state after timeout
   on_idle:
-    timeout: !lambda "return(id(display_timeout).state * 1000);"
+    timeout: !lambda "return(id(settings_display_timeout_value_persistent) * 1000);"
     then:
     - if:
         condition:
-        - lambda: "return id(display_timeout).state > 0;"
+          - lambda: "return id(settings_display_timeout_value_persistent) > 0;"
         then:
           - logger.log: "Display is idle"
           - light.turn_off: backlight
@@ -700,15 +785,316 @@ lvgl:
                 align: CENTER
                 spin_time: 1s
                 arc_length: 60deg
-                arc_width: 12
+                arc_width: 6
+                arc_color: 0
                 indicator:
                   arc_color: 0x00ff00
-                  arc_width: 12
+                  arc_width: 6
+      - obj:
+          id: status_bar_top
+          x: 0
+          y: 0
+          width: 480
+          height: 22
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          hidden: "true"
+          radius: 0
+          widgets:            
+            - label: # symbol for enetering settings
+                x: 12
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xffffff
+                text_align: LEFT
+                width: 180
+                text: "G32 Connected"
 
+                clickable: true
+                on_press:
+                  - if:
+                      condition:
+                        or:
+                          - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
+                          - lambda: 'return lv_scr_act() == id(numbers_page)->obj;'
+                      then:
+                        - lambda: |-
+                            id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
+                        - lvgl.page.show: settings_page
+
+            - obj: # symbol for batter low warning
+                id: battery_symbol_obj
+                x: 420
+                y: 0
+                width: 60
+                height: 22
+                bg_color: 0
+                pad_all: 0
+                outline_width: 0
+                border_width: 0
+                border_side: NONE
+                radius: 0
+                hidden: !lambda |-
+                  return id(settings_hide_soc_persistent);
+                widgets:
+                  # symbol for battery low warning
+                  - line:
+                      id: battery_symbol
+                      points:
+                        - 12, 2
+                        - 18, 2
+                        - 17, 2
+                        - 17, 4
+                        - 17, 3
+                        - 20, 3
+                        - 19, 3
+                        - 19, 20
+                        - 19, 19
+                        - 10, 19
+                        - 11, 19
+                        - 11, 2
+                        - 11, 3
+                        - 14, 3
+                      line_width: 2
+                      line_rounded: false
+                      line_color: !lambda |-
+                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) { return lv_color_hex(0xff0000); } else { return lv_color_hex(0x00ff00); }
+                  - bar:
+                      id: battery_bar
+                      x: 12
+                      y: 3
+                      height: 15
+                      width: 6
+                      radius: 0
+                      min_value: 0
+                      max_value: 100
+                      bg_color: 0
+                      # for some unknown reason this code does not work!
+                      indicator:
+                        bg_color:  !lambda |-
+                          if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
+                            return lv_color_hex(0xff0000); // red
+                            } else {
+                            return lv_color_hex(0x00ff00); // green
+                          }
+                        radius: 0
+                      # end of not working code!
+                      value: !lambda return id(battery_soc_value);
+                  - label:
+                      id: battery_soc_label
+                      x: 25
+                      y: 3
+                      text_font: MONTSERRAT_14
+                      text_align: CENTER
+                      width: 35
+                      text_color: !lambda |-
+                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
+                          return lv_color_hex(0xff0000); // red
+                          } else {
+                          return lv_color_hex(0x00ff00); // green
+                        }
+                      text: !lambda |-
+                        return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
+            - label: # symbol for successfull BT connection
+                id: g32bt_connect_label
+                x: 396
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0x00ff00
+                text_align: CENTER
+                width: 30
+                text: "\uF293" # BT symbol
+                hidden: true
+            - label: # symbol for successfull WIFI connection
+                id: wifi_connect_label
+                x: 367
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0x00ff00
+                text_align: CENTER
+                width: 30
+                text: "\uF1EB" # WIFI symbol
+                hidden: true
+            - label: # symbol for 'light on'
+                id: light_on_label
+                x: 337
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xffff00
+                text_align: CENTER
+                width: 30
+                text: "\uF0E7" # lightning
+                hidden: true
+            - label: # symbol for 'firebox open'
+                id: firebox_open_label
+                x: 307
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0x00ff00
+                text_align: CENTER
+                width: 30
+                text: "\uF093" # arrow up
+                hidden: true
+            - label: # symbol for gas low warning
+                id: g32_warning_label
+                x: 277
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xff0000
+                text_align: CENTER
+                width: 30
+                text: "\uF071" # invertiertes Ausrufungszeichen
+                hidden: true
+            - label: # time hours:minutes:seconds
+                id: display_time
+                x: 194
+                y: 0
+                text_font: MONTSERRAT_20
+                text_color: 0xffffff
+                text_align: LEFT # wenige Bewegung
+                bg_color: 0
+                width: 88
+                text: "00:00:00"
+                hidden: !lambda |-
+                  return (!id(settings_show_time_persistent) && id(settings_hide_timer_persistent));
+                clickable: true
+                on_press:
+                  - if:
+                      condition:
+                        lambda: 'return !id(settings_hide_timer_persistent);'
+                      then:
+                        - if:
+                            condition:
+                              or:
+                                - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
+                                - lambda: 'return lv_scr_act() == id(numbers_page)->obj;'
+                            then:
+                              - lambda: |-
+                                  id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
+                              - lvgl.page.show: timer_page
+            - label:
+                id: timer_value
+                x: 194
+                y: 0
+                width: 88
+                bg_opa: COVER
+                text_font: MONTSERRAT_20
+                text_align: LEFT # wenige Bewegung
+                text: "00:00:00"
+                hidden: true
+                clickable: 'true'
+                on_press:
+                  - if:
+                      condition:
+                        or:
+                          - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
+                          - lambda: 'return lv_scr_act() == id(numbers_page)->obj;'
+                      then:
+                        - lambda: |-
+                            id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
+                        - lvgl.page.show: timer_page                
+
+      - obj:
+          id: status_bar_bottom
+          x: 0
+          y: 298
+          width: 480
+          height: 22
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          radius: 0
+          hidden: "true"
+          widgets:
+            # gas object with gas values in % and g
+            - obj:
+                id: gas_obj
+                x: 0
+                y: 0
+                styles: gas_obj_style
+                widgets:
+                  - label:
+                      x: 24
+                      y: 0
+                      text_font: MONTSERRAT_18
+                      text_align: LEFT
+                      text: 'Gas:'
+                  - label:
+                      id: gas_percent_label
+                      x: 260
+                      y: 0
+                      text_font: MONTSERRAT_18
+                      text: '-- %'
+                  - label:
+                      id: gas_weight_label
+                      x: 358
+                      y: 0
+                      text_font: MONTSERRAT_18
+                      text: '--- g'
+                  - bar:
+                      id: gas_percent_bar
+                      x: 80
+                      y: 5
+                      height: 12
+                      width: 200
+                      radius: 5
+                      min_value: 1
+                      max_value: 100
+                      bg_color: 0xffffff
+                      indicator:
+                        bg_color: ${Gas_Bar_Color}
+                      value: 0
+
+      - obj:
+          id: settings_status_bar_top
+          x: 0
+          y: 0
+          width: 480
+          height: 22
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          hidden: "true"
+          radius: 0
+          widgets:            
+            - label:
+                x: 0
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xffffff
+                text_align: CENTER
+                width: 480
+                text: "Einstellungen"
+                clickable: true
+                on_press:
+                  - script.execute: apply_mac_address
+                  - script.execute: show_temperatures_page
+
+            - label: # version
+                x: 360
+                y: 4
+                width: 120
+                text_font: MONTSERRAT_14
+                text_align: RIGHT
+                text_color: 0x555555
+                text: ${version}
+
+      - keyboard:
+          id: my_keyboard
+          align: BOTTOM_MID
+          hidden: true
+          on_ready:
+            - lvgl.widget.hide: my_keyboard
   # pages
   pages:
     # main page with arcs
     - id: arcs_page
+      bg_color: 0
+      bg_opa: COVER
       pad_all: 0
       on_swipe_left:
         then:
@@ -731,19 +1117,11 @@ lvgl:
                   animation: OUT_RIGHT
                   time: 600ms
       widgets:
-        # one common headline for all temperature zones
-        - label:
-            x: 12
-            y: 0
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Zonen"
-
         # zone 1 object with Headline, Labels and Arc
         - obj:
             id: zone1_obj
             x: 0
-            y: 30
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -767,7 +1145,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -779,7 +1158,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}1 Temperaturlimit:";
+                          return "${Zone_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -812,7 +1191,7 @@ lvgl:
         - obj:
             id: zone2_obj
             x: 120
-            y: 30
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -836,7 +1215,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -848,7 +1228,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}2 Temperaturlimit:";
+                          return "${Zone_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -881,7 +1261,7 @@ lvgl:
         - obj:
             id: zone3_obj
             x: 240
-            y: 30
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -905,7 +1285,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -917,7 +1298,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}3 Temperaturlimit:";
+                          return "${Zone_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -950,7 +1331,7 @@ lvgl:
         - obj:
             id: zone4_obj
             x: 360
-            y: 30
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -974,7 +1355,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -986,7 +1368,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}4 Temperaturlimit:";
+                          return "${Zone_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1015,42 +1397,14 @@ lvgl:
                       return 0;
                     }
 
-        # one common headline for all sensors
-        - label:
-            id: sensors_headline
-            x: 12
-            y: 140
-            width: 460
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Temperatursensoren"
-            hidden: !lambda return (id(active_sensors) == 0);
-
-        # timer
-        - label:
-            id: timer_value
-            x: 380
-            y: 140
-            width: 100
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "--:--:--"
-            hidden: ${Disable_Timer}
-            clickable: 'true'
-            on_press:
-              - lambda: |-
-                  id(page_index) = 1;
-              - lvgl.page.show: timer_page
-
         # sensor 1 object with Headline, Labels and Arc
         - obj:
             id: sensor1_obj
             x: 0
-            y: 176
+            y: 191
             styles: temp_obj_style
-            radius: 50
             hidden: !lambda |-
-              if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x01;
                 return false;
               } else {
@@ -1079,7 +1433,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -1091,7 +1446,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}1 Temperaturlimit:";
+                          return "${Sensor_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1124,10 +1479,10 @@ lvgl:
         - obj:
             id: sensor2_obj
             x: 120
-            y: 176
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x02;
                 return false;
               } else {
@@ -1156,7 +1511,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -1168,7 +1524,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}2 Temperaturlimit:";
+                          return "${Sensor_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1201,10 +1557,10 @@ lvgl:
         - obj:
             id: sensor3_obj
             x: 240
-            y: 176
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x04;
                 return false;
               } else {
@@ -1233,7 +1589,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -1245,7 +1602,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}3 Temperaturlimit:";
+                          return "${Sensor_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1278,10 +1635,10 @@ lvgl:
         - obj:
             id: sensor4_obj
             x: 360
-            y: 176
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x08;
                 return false;
               } else {
@@ -1310,7 +1667,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_press:
                     - lambda: |-
                         id(page_index) = 1;
@@ -1322,7 +1680,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}4 Temperaturlimit:";
+                          return "${Sensor_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1351,200 +1709,29 @@ lvgl:
                       return (0);
                     }
 
-        # gas object with gas values in % and g
-        - obj:
-            id: gas_obj
-            x: 0
-            y: 294
-            styles: gas_obj_style
-            widgets:
-              - label:
-                  x: 24
-                  y: 0
-                  text_font: MONTSERRAT_18
-                  text_align: LEFT
-                  text: 'Gas:'
-              - label:
-                  id: gas_percent_label
-                  x: 260
-                  y: 0
-                  text_font: MONTSERRAT_18
-                  text: '-- %'
-              - label:
-                  id: gas_weight_label
-                  x: 358
-                  y: 0
-                  text_font: MONTSERRAT_18
-                  text: '--- g'
-              - bar:
-                  id: gas_percent_bar
-                  x: 80
-                  y: 5
-                  height: 12
-                  width: 200
-                  radius: 5
-                  min_value: 1
-                  max_value: 100
-                  bg_color: 0xffffff
-                  indicator:
-                    bg_color: ${Gas_Bar_Color}
-                  value: 0
-
-        # symbol for battery low warning
-        - obj:
-            id: battery_symbol_obj
-            x: 420
-            y: 0
-            width: 60
-            height: 24
-            bg_color: 0
-            pad_all: 0
-            outline_width: 0
-            outline_color: 0
-            border_width: 0
-            border_color: 0
-            border_side: NONE
-            outline_pad: 0
-            radius: 0
-            hidden: ${Hide_Battery_Symbol}
-            widgets:
-              - line:
-                  id: battery_symbol
-                  points:
-                    - 12, 2
-                    - 18, 2
-                    - 17, 2
-                    - 17, 4
-                    - 17, 3
-                    - 20, 3
-                    - 19, 3
-                    - 19, 20
-                    - 19, 19
-                    - 10, 19
-                    - 11, 19
-                    - 11, 2
-                    - 11, 3
-                    - 14, 3
-                  line_width: 2
-                  line_rounded: false
-                  line_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0x00ff00); // green
-                    }
-              - bar:
-                  id: battery_bar
-                  x: 12
-                  y: 3
-                  height: 15
-                  width: 6
-                  radius: 0
-                  min_value: 0
-                  max_value: 100
-                  bg_color: 0
-                  # for some unknown reason this code does not work!
-                  indicator:
-                    bg_color:  !lambda |-
-                      if( id(battery_soc_value) <= id(min_soc_value) ) {
-                        return lv_color_hex(0xff0000); // red
-                        } else {
-                        return lv_color_hex(0x00ff00); // green
-                      }
-                    radius: 0
-                  # end of not working code!
-                  value: !lambda return id(battery_soc_value);
-              - label:
-                  id: battery_soc_label
-                  x: 25
-                  y: 3
-                  text_font: MONTSERRAT_14
-                  text_align: CENTER
-                  width: 35
-                  text_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0x00ff00); // green
-                    }
-                  text: !lambda |-
-                    return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
-
-        # symbol for successfull BT connection
+        # common headlines zones and sensors
         - label:
-            id: g32bt_connect_label
-            x: 390
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF293" # BT symbol
-            hidden: true
-
-        # symbol for successfull WIFI connection
+            x: 12
+            y: 23
+            bg_opa: COVER
+            text_font: MONTSERRAT_16
+            text_align: left
+            text: "Zonen"
         - label:
-            id: wifi_connect_label
-            x: 360
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF1EB" # WIFI symbol
-            hidden: true
-
-        # symbol for 'light on'
-        - label:
-            id: light_on_label
-            x: 330
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xffff00
-            text_align: CENTER
-            width: 30
-            text: "\uF0E7" # lightning
-            hidden: true
-
-        # symbol for 'firebox open'
-        - label:
-            id: firebox_open_label
-            x: 300
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF093" # arrow up
-            hidden: true
-
-        # symbol for gas low warning
-        - label:
-            id: g32_warning_label
-            x: 120
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xff0000
-            text_align: CENTER
-            width: 30
-            text: "\uF071" # invertiertes Ausrufungszeichen
-            hidden: true
-
-          # time string hours:minutes
-        - label:
-            id: display_time
-            x: 200
-            y: 0
-            text_font: MONTSERRAT_20
-            text_color: 0xffffff
-            text_align: LEFT
-            width: 100
-            text: "00:00:00"
-            hidden: true
+            id: sensors_headline
+            x: 12
+            y: 160
+            bg_opa: COVER
+            width: 460
+            text_font: MONTSERRAT_16
+            text_align: left
+            text: "Temperatursensoren"
+            hidden: !lambda return (id(active_sensors) == 0);
 
     # main page with numbers
     - id: numbers_page
       pad_all: 0
+      bg_opa: COVER
       on_swipe_left:
         then:
           if:
@@ -1566,19 +1753,11 @@ lvgl:
                   animation: OUT_RIGHT
                   time: 600ms
       widgets:
-        # one common headline for all zones
-        - label:
-            x: 12
-            y: 0
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Zonen"
-
         # zone 1 object with Labels and line
         - obj:
             id: zone1_obj2
             x: 6
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1592,14 +1771,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone1_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone1_limit_value) == 0) || (id(zone1_value) < id(zone1_limit_value)) ) {
@@ -1612,7 +1793,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -1624,7 +1806,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}1 Temperaturlimit:";
+                          return "${Zone_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1634,9 +1816,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone1_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1650,7 +1833,7 @@ lvgl:
         - obj:
             id: zone2_obj2
             x: 126
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1664,14 +1847,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone2_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone2_limit_value) == 0) || (id(zone2_value) < id(zone2_limit_value)) ) {
@@ -1684,7 +1869,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -1696,7 +1882,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}2 Temperaturlimit:";
+                          return "${Zone_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1706,9 +1892,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone2_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1722,7 +1909,7 @@ lvgl:
         - obj:
             id: zone3_obj2
             x: 246
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1736,14 +1923,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone3_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone3_limit_value) == 0) || (id(zone3_value) < id(zone3_limit_value)) ) {
@@ -1756,7 +1945,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -1768,7 +1958,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}3 Temperaturlimit:";
+                          return "${Zone_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1778,9 +1968,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone3_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1794,7 +1985,7 @@ lvgl:
         - obj:
             id: zone4_obj2
             x: 366
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1808,14 +1999,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone4_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone4_limit_value) == 0) || (id(zone4_value) < id(zone4_limit_value)) ) {
@@ -1828,7 +2021,8 @@ lvgl:
                     } else {
                       return ("---");
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -1840,7 +2034,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}4 Temperaturlimit:";
+                          return "${Zone_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1850,9 +2044,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone4_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1862,45 +2057,14 @@ lvgl:
                       return ("---");
                     }
 
-        # one common headline for all sensors
-        - label:
-            id: sensors_headline2
-            x: 12
-            y: 140
-            width: 460
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Temperatursensoren"
-            hidden: !lambda |-
-              if( id(active_sensors) == 0 ) {
-                return true;
-              } else {
-                return false;
-              }
-
-        # timer
-        - label:
-            id: timer_value2
-            x: 380
-            y: 140
-            width: 100
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "--:--:--"
-            hidden: ${Disable_Timer}
-            clickable: 'true'
-            on_press:
-              - lambda: |-
-                  id(page_index) = 2;
-              - lvgl.page.show: timer_page
-
         # grey rectangle which combines the sensor objects
         - obj:
             id: sensors_obj2
             x: 6
-            y: 168
+            y: 184
             width: 464
             height: 112
+            bg_opa: COVER
             bg_color: 0x333333
             pad_all: 0
             outline_width: 0
@@ -1910,21 +2074,16 @@ lvgl:
             border_side: NONE
             outline_pad: 0
             radius: 10
-            hidden: !lambda |-
-              if( id(active_sensors) == 0 ) {
-                return true;
-              } else {
-                return false;
-              }
+            hidden: !lambda return (id(active_sensors) == 0);
 
         # sensor 1 object with Labels and line
         - obj:
             id: sensor1_obj2
             x: 10
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x01;
                 return false;
               } else {
@@ -1943,6 +2102,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -1951,6 +2111,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor1_value) < 1500) && (id(sensor1_value) > 0) ) {
@@ -1964,7 +2125,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: ${Enable_Temperature_Limits}
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -1976,7 +2138,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}1 Temperaturlimit:";
+                          return "${Sensor_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1989,6 +2151,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2002,10 +2165,10 @@ lvgl:
         - obj:
             id: sensor2_obj2
             x: 127
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x02;
                 return false;
               } else {
@@ -2024,6 +2187,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -2032,6 +2196,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor2_value) < 1500) && (id(sensor2_value) > 0) ) {
@@ -2045,7 +2210,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: true
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -2057,7 +2223,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}2 Temperaturlimit:";
+                          return "${Sensor_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2070,6 +2236,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2083,10 +2250,10 @@ lvgl:
         - obj:
             id: sensor3_obj2
             x: 245
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x04;
                 return false;
               } else {
@@ -2105,6 +2272,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -2113,6 +2281,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor3_value) < 1500) && (id(sensor3_value) > 0) ) {
@@ -2126,7 +2295,9 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: true
+
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -2138,7 +2309,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}3 Temperaturlimit:";
+                          return "${Sensor_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2151,6 +2322,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2164,10 +2336,10 @@ lvgl:
         - obj:
             id: sensor4_obj2
             x: 362
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
+              if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x08;
                 return false;
               } else {
@@ -2186,6 +2358,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -2194,6 +2367,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor4_value) < 1500) && (id(sensor4_value) > 0) ) {
@@ -2207,7 +2381,8 @@ lvgl:
                     } else {
                       return lv_color_hex(0xff0000); // Red
                     }
-                  clickable: true
+                  clickable: !lambda |-
+                    return id(settings_enable_temperature_limits_persistent);
                   on_click:
                     - lambda: |-
                         id(page_index) = 2;
@@ -2219,7 +2394,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}4 Temperaturlimit:";
+                          return "${Sensor_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2232,6 +2407,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2241,196 +2417,24 @@ lvgl:
                       return ("---");
                     }
 
-        # gas object with gas values in % and g
-        - obj:
-            id: gas_obj2
-            x: 0
-            y: 294
-            styles: gas_obj_style
-            widgets:
-              - label:
-                  x: 12
-                  y: 0
-                  text_font: MONTSERRAT_20
-                  text_align: LEFT
-                  text: 'Gas:'
-              - label:
-                  id: gas_percent_label2
-                  x: 260
-                  y: 0
-                  text_font: MONTSERRAT_20
-                  text: '-- %'
-              - label:
-                  id: gas_weight_label2
-                  x: 344
-                  y: 0
-                  text_font: MONTSERRAT_20
-                  text_align: right
-                  text: '--- g'
-              - bar:
-                  id: gas_percent_bar2
-                  x: 80
-                  y: 6
-                  height: 12
-                  width: 200
-                  radius: 5
-                  min_value: 1
-                  max_value: 100
-                  bg_color: 0xffffff
-                  indicator:
-                    bg_color: ${Gas_Bar_Color2}
-                  value: 0
-
-        # symbol for battery low warning
-        - obj:
-            id: battery_symbol_obj2
-            x: 420
-            y: 0
-            width: 60
-            height: 24
-            bg_color: 0
-            pad_all: 0
-            outline_width: 0
-            outline_color: 0
-            border_width: 0
-            border_color: 0
-            border_side: NONE
-            outline_pad: 0
-            radius: 0
-            hidden: ${Hide_Battery_Symbol}
-            widgets:
-              - line:
-                  id: battery_symbol2
-                  points:
-                    - 12, 2
-                    - 18, 2
-                    - 17, 2
-                    - 17, 4
-                    - 17, 3
-                    - 20, 3
-                    - 19, 3
-                    - 19, 20
-                    - 19, 19
-                    - 10, 19
-                    - 11, 19
-                    - 11, 2
-                    - 11, 3
-                    - 14, 3
-                  line_width: 2
-                  line_rounded: false
-                  line_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0xffffff); // white
-                    }
-              - bar:
-                  id: battery_bar2
-                  x: 12
-                  y: 3
-                  height: 15
-                  width: 6
-                  radius: 0
-                  min_value: 0
-                  max_value: 100
-                  bg_color: 0
-                  indicator:
-                    radius: 0
-                    bg_color:  !lambda |-
-                      if( id(battery_soc_value) <= id(min_soc_value) ) {
-                        return lv_color_hex(0xff0000); // red
-                        } else {
-                        return lv_color_hex(0xffffff); // white
-                      }
-                  value: !lambda return id(battery_soc_value);
-              - label:
-                  id: battery_soc_label2
-                  x: 25
-                  y: 3
-                  text_font: MONTSERRAT_14
-                  text_align: CENTER
-                  width: 35
-                  text_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0xffffff); // white
-                    }
-                  text: !lambda |-
-                    return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
-
-        # symbol for successfull BT connection
+        # common headlines zones and sensors
         - label:
-            id: g32bt_connect_label2
-            x: 390
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF293" # BT symbol
-            hidden: true
-
-        # symbol for successfull WIFI connection
+            x: 12
+            y: 23
+            bg_opa: COVER
+            text_font: MONTSERRAT_16
+            text_align: left
+            text: "Zonen"
         - label:
-            id: wifi_connect_label2
-            x: 360
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF1EB" # WIFI symbol
-            hidden: true
-
-        # symbol for 'light on'
-        - label:
-            id: light_on_label2
-            x: 330
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xffff00
-            text_align: CENTER
-            width: 30
-            text: "\uF0E7" # lightning
-            hidden: true
-
-        # symbol for 'firebox open'
-        - label:
-            id: firebox_open_label2
-            x: 300
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF093" # arrow up
-            hidden: true
-
-        # time string hours:minutes
-        - label:
-            id: display_time2
-            x: 200
-            y: 0
-            text_font: MONTSERRAT_20
-            text_color: 0xffffff
-            text_align: LEFT
-            width: 100
-            text: "00:00:00"
-            hidden: true
-
-        # symbol for gas low warning
-        - label:
-            id: g32_warning_label2
-            x: 120
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xff0000
-            text_align: CENTER
-            width: 30
-            text: "\uF071" # invertiertes Ausrufungszeichen
-            hidden: true
-
+            id: sensors_headline2
+            x: 12
+            y: 160
+            bg_opa: COVER
+            width: 460
+            text_font: MONTSERRAT_16
+            text_align: left
+            text: "Temperatursensoren"
+            hidden: !lambda return (id(active_sensors) == 0);
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: timer_page
       skip: true
@@ -2439,32 +2443,47 @@ lvgl:
         - label:
             id: timer_headline_label
             x: 0
-            y: 10
-            width: 440
-            text_font: MONTSERRAT_26
-            text_align: LEFT
-            text: "Timer:"
-
-        - roller:
-            id: timer_roller_h
-            x: 135
-            y: 100
-            width: 50
+            y: 40
+            width: 480
             text_font: MONTSERRAT_20
-#            options: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
-            options: ['00','01','02','03','04','05','06','07','08','09',10,11,12,13,14,15,16,17,18,19,20,21,22,23]
-            selected:
-              bg_color: 0x555555
-            on_value:
-              - lambda: |-
-                  id(helper_h) = x;
+            text_align: CENTER
+            text: "Timer"
+
         - label:
-            x: 135
+            x: 125
             y: 70
             width: 50
             text_font: MONTSERRAT_20
             text_align: CENTER
             text: "H"
+        - label:
+            x: 220
+            y: 70
+            width: 50
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "M"
+        - label:
+            x: 315
+            y: 70
+            width: 50
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "S"
+
+        - roller:
+            id: timer_roller_h
+            x: 120
+            y: 100
+            width: 60
+            text_font: MONTSERRAT_20
+            options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
+            selected:
+              bg_color: 0x555555
+            on_value:
+              - lambda: |-
+                  id(helper_h) = x;
+
         - label:
             x: 185
             y: 154
@@ -2477,23 +2496,16 @@ lvgl:
             id: timer_roller_m
             x: 215
             y: 100
-            width: 50
+            width: 60
             text_font: MONTSERRAT_20
-            options: ['00','01','02','03','04','05','06','07','08','09',10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
+            options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             selected:
               bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_m) = x;
         - label:
-            x: 215
-            y: 70
-            width: 50
-            text_font: MONTSERRAT_20
-            text_align: CENTER
-            text: "M"
-        - label:
-            x: 265
+            x: 280
             y: 154
             width: 30
             text_font: MONTSERRAT_20
@@ -2502,35 +2514,29 @@ lvgl:
 
         - roller:
             id: timer_roller_s
-            x: 295
+            x: 310
             y: 100
-            width: 50
+            width: 60
             text_font: MONTSERRAT_20
-            options: ['00','01','02','03','04','05','06','07','08','09',10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
+            options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             selected:
               bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_s) = x;
-        - label:
-            x: 295
-            y: 70
-            width: 50
-            text_font: MONTSERRAT_20
-            text_align: CENTER
-            text: "S"
 
         - button:
-            x: 200
-            y: 260
-            width: 80
-            height: 40
+            x: 12
+            y: 60
+            width: 70
+            height: 200
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "CLR"
+                  bg_color: 0x555555
             on_click:
               then:
                 - lvgl.roller.update:
@@ -2542,18 +2548,22 @@ lvgl:
                     id(helper_s) = 0;
                     id(timer_alarm) = false;
                     id(timer_active) = false;
-
+                - lvgl.label.update:
+                    id: timer_value
+                    hidden: !lambda |-
+                      return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
         - button:
-            x: 370
-            y: 260
-            width: 80
-            height: 40
+            x: 398
+            y: 60
+            width: 70
+            height: 200
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "OK"
+                  bg_color: 0x555555                  
             on_click:
               - lambda: |-
                   id(timer_h) = id(helper_h);
@@ -2563,40 +2573,137 @@ lvgl:
                     id(timer_active) = true;
                     id(timer_alarm) = false;
                   }
-              - if:
-                  condition:
-                    lambda: 'return id(page_index) == 1;'
-                  then:
-                    - lvgl.page.show: arcs_page
-                  else:
-                    - lvgl.page.show: numbers_page
+              - script.execute: show_temperatures_page
+              - lvgl.label.update:
+                  id: timer_value
+                  hidden: !lambda |-
+                    return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: sensor_limits_page
+      # Most of these on_load lambdas of the sensor_limits_page are AI generated to finally
+      # make this work. Just some notes to keep in mind in case someone wants to get rid of
+      # the AI generated chunks od code:
+      # - roller options get dynamically generated to match sensor_max_value (which differs
+      #   for zones and sensors)
+      # - roller options get also dynamically updated once the selected value get nera the
+      #   sensor_max_value so you should not be able to slect values tha exceed the maximum
+      #   value that is allowed.
+      # - this is synced with the horizontal slider as an alternative way to set the quickly
+      #   set the value.
+      # - unfortunately the roller component forgets its value when the options are changed,
+      #   though it does not seem like it because the visual representation suggests otherwise.
+      # - rollers and sliders are restored when the page is loaded, and reset on pressing "CLR"
+      # - finally: the sensor_limit_label is included in the UI for debugging but invisible
+      #   by default.
       skip: true
       pad_all: 0
+      on_load:
+        then:
+          - lvgl.widget.refresh: sensor_limits_max_value
+          - lambda: |-
+              // Clamp sensor_limit_value to sensor_max_value if needed
+              if (id(sensor_limit_value) > id(sensor_max_value)) {
+                id(sensor_limit_value) = id(sensor_max_value);
+              }
+              int max_val = id(sensor_max_value);
+              int max_h = max_val / 100;
+              // Set hundreds options (0 to max_h)
+              std::string h_opts = "";
+              for (int i = 0; i <= max_h; i++) {
+                h_opts += std::to_string(i);
+                if (i < max_h) h_opts += "\n";
+              }
+              if (h_opts.empty()) h_opts = "0"; // Fallback for max_val < 100
+              lv_roller_set_options(id(sensor_limits_hundreds_roller)->obj, h_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+              // Set tens and ones to full 0-9 initially
+              std::string d_opts = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
+              lv_roller_set_options(id(sensor_limits_tens_roller)->obj, d_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+              lv_roller_set_options(id(sensor_limits_ones_roller)->obj, d_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+              // Set initial selected indices based on current sensor_limit_value
+              int cur_val = id(sensor_limit_value);
+              lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, cur_val / 100, LV_ANIM_OFF);
+              int h = lv_roller_get_selected(id(sensor_limits_hundreds_roller)->obj); // get actual after possible clamp
+              int intended_t = (cur_val / 10) % 10;
+              lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, intended_t, LV_ANIM_OFF);
+              int intended_o = cur_val % 10;
+              lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, intended_o, LV_ANIM_OFF);
+              // Trigger hundreds on_value to apply any initial constraints to tens/ones
+              int max_t = 9;
+              if (h == max_val / 100) {
+                max_t = (max_val % 100) / 10;
+              }
+              std::string t_opts = "";
+              for (int i = 0; i <= max_t; i++) {
+                t_opts += std::to_string(i);
+                if (i < max_t) t_opts += "\n";
+              }
+              if (t_opts.empty()) t_opts = "0";
+              const char* current_t = lv_roller_get_options(id(sensor_limits_tens_roller)->obj);
+              if (t_opts != std::string(current_t)) {
+                lv_roller_set_options(id(sensor_limits_tens_roller)->obj, t_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                // Set back to intended after possible reset
+                int clamped_t = std::min(intended_t, max_t);
+                lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, clamped_t, LV_ANIM_OFF);
+              }
+              int cur_t = lv_roller_get_selected(id(sensor_limits_tens_roller)->obj);
+              int max_o = 9;
+              if (h == max_val / 100 && cur_t == (max_val % 100) / 10) {
+                max_o = max_val % 10;
+              }
+              std::string o_opts = "";
+              for (int i = 0; i <= max_o; i++) {
+                o_opts += std::to_string(i);
+                if (i < max_o) o_opts += "\n";
+              }
+              if (o_opts.empty()) o_opts = "0";
+              const char* current_o = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+              if (o_opts != std::string(current_o)) {
+                lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                // Set back to intended after possible reset
+                int clamped_o = std::min(intended_o, max_o);
+                lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, clamped_o, LV_ANIM_OFF);
+              }
+              int cur_o = lv_roller_get_selected(id(sensor_limits_ones_roller)->obj);
+              // Update value/slider if clamped
+              if (cur_t != intended_t || cur_o != intended_o) {
+                cur_val = h * 100 + cur_t * 10 + cur_o;
+                id(sensor_limit_value) = cur_val;
+              }
+              lv_slider_set_value(sensor_limit_slider, id(sensor_limit_value), LV_ANIM_OFF);
+              lv_label_set_text(sensor_limit_label, (std::to_string(id(sensor_limit_value)) + "°C").c_str());
+              id(last_sensor_lower_digits) = id(sensor_limit_value) % 100;
       widgets:
         - label:
             id: sensor_limit_headline_label
             x: 0
-            y: 10
-            width: 440
-            text_font: MONTSERRAT_26
-            text_align: LEFT
-            text: "Sensor x Temperaturlimit:"
+            y: 40
+            width: 480
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "Sensor x Alarm"
         - label:
-            id: sensor_limit_label
-            x: 350
-            y: 10
-            text_font: MONTSERRAT_26
-            text_align: RIGHT
-            text: "0°C"
+            x: 22
+            y: 110
+            width: 40
+            text_font: MONTSERRAT_16
+            text_align: CENTER
+            text: "0"
+        - label:
+            id: sensor_limits_max_value
+            x: 418
+            y: 110
+            width: 40
+            text_font: MONTSERRAT_16
+            text_align: CENTER
+            text: !lambda |-
+              return to_string(static_cast<int>(id(sensor_max_value)));
         - slider:
             id: sensor_limit_slider
-            x: 115
-            y: 100
+            x: 42
+            y: 80
             height: 20
-            width: 250
+            width: 396
             radius: 5
             min_value: 0
             max_value: 500
@@ -2612,175 +2719,228 @@ lvgl:
               - lvgl.label.update:
                   id: sensor_limit_label
                   text: !lambda |-
-                    if( x <= id(sensor_max_value) ) {
-                      return (to_string(static_cast<int>(x))+"°C").c_str();
-                    } else {
-                      return (to_string(static_cast<int>(id(sensor_max_value)))+"°C").c_str();
-                    }
-        - button:
-            x: 30
-            y: 90
-            width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "-1"
-            on_click:
+                    return (to_string(static_cast<int>(id(sensor_limit_value))) + "°C").c_str();
               - lambda: |-
-                  if (id(sensor_limit_value) > 0) {
-                    id(sensor_limit_value) -= 1;
-                  } else {
-                    id(sensor_limit_value) = 0;
-                  }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 30
-            y: 140
-            width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "-10"
-            on_click:
+                  int val = id(sensor_limit_value);
+                  lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, val / 100, LV_ANIM_OFF);
+                  lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, (val / 10) % 10, LV_ANIM_OFF);
+                  lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, val % 10, LV_ANIM_OFF);
               - lambda: |-
-                  if (id(sensor_limit_value) >= 10) {
-                    id(sensor_limit_value) -= 10;
-                  } else {
-                    id(sensor_limit_value) = 0;
+                  int val = id(sensor_limit_value);
+                  int h = val / 100;
+                  int max_val = id(sensor_max_value);
+                  int max_t = 9;
+                  if (h == max_val / 100) {
+                    max_t = (max_val % 100) / 10;
                   }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 30
-            y: 190
+                  int intended_t = (val / 10) % 10;
+                  std::string t_opts = "";
+                  for (int i = 0; i <= max_t; i++) {
+                    t_opts += std::to_string(i);
+                    if (i < max_t) t_opts += "\n";
+                  }
+                  if (t_opts.empty()) t_opts = "0";
+                  const char* current_t = lv_roller_get_options(id(sensor_limits_tens_roller)->obj);
+                  if (t_opts != std::string(current_t)) {
+                    lv_roller_set_options(id(sensor_limits_tens_roller)->obj, t_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                    int clamped_t = std::min(intended_t, max_t);
+                    lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, clamped_t, LV_ANIM_OFF);
+                  }
+                  int cur_t = lv_roller_get_selected(id(sensor_limits_tens_roller)->obj);
+                  int max_o = 9;
+                  if (h == max_val / 100 && cur_t == (max_val % 100) / 10) {
+                    max_o = max_val % 10;
+                  }
+                  int intended_o = val % 10;
+                  std::string o_opts = "";
+                  for (int i = 0; i <= max_o; i++) {
+                    o_opts += std::to_string(i);
+                    if (i < max_o) o_opts += "\n";
+                  }
+                  if (o_opts.empty()) o_opts = "0";
+                  const char* current_o = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+                  if (o_opts != std::string(current_o)) {
+                    lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                    int clamped_o = std::min(intended_o, max_o);
+                    lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, clamped_o, LV_ANIM_OFF);
+                  }
+                  int cur_o = lv_roller_get_selected(id(sensor_limits_ones_roller)->obj);
+                  // Update value/slider if clamped
+                  if (cur_t != intended_t || cur_o != intended_o) {
+                    val = h * 100 + cur_t * 10 + cur_o;
+                    id(sensor_limit_value) = val;
+                    lv_slider_set_value(sensor_limit_slider, val, LV_ANIM_OFF);
+                    lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
+                  }
+              - lambda: id(last_sensor_lower_digits) = id(sensor_limit_value) % 100;
+
+        - roller:
+            id: sensor_limits_hundreds_roller
+            x: 145
+            y: 130
             width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "-100"
-            on_click:
+            text_font: MONTSERRAT_20
+            options: [] # dynamically set
+            selected:
+              bg_color: 0x555555
+            on_value:
               - lambda: |-
-                  if (id(sensor_limit_value) >= 100) {
-                    id(sensor_limit_value) -= 100;
-                  } else {
-                    id(sensor_limit_value) = 0;
+                  int new_h = x;
+                  int max_val = id(sensor_max_value);
+                  int lower = id(last_sensor_lower_digits);
+                  int intended = new_h * 100 + lower;
+                  bool clamped = false;
+                  if (intended > max_val) {
+                    intended = max_val;
+                    clamped = true;
                   }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 390
-            y: 90
+                  id(sensor_limit_value) = intended;
+                  int max_t = 9;
+                  if (new_h == max_val / 100) {
+                    max_t = (max_val % 100) / 10;
+                  }
+                  std::string t_opts = "";
+                  for (int i = 0; i <= max_t; i++) {
+                    t_opts += std::to_string(i);
+                    if (i < max_t) t_opts += "\n";
+                  }
+                  if (t_opts.empty()) t_opts = "0";
+                  const char* current_t_opts = lv_roller_get_options(id(sensor_limits_tens_roller)->obj);
+                  if (t_opts != std::string(current_t_opts)) {
+                    lv_roller_set_options(id(sensor_limits_tens_roller)->obj, t_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                  }
+                  int new_t = (intended / 10) % 10;
+                  lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, new_t, LV_ANIM_OFF);
+                  int cur_t = new_t;
+                  int max_o = 9;
+                  if (new_h == max_val / 100 && cur_t == (max_val % 100) / 10) {
+                    max_o = max_val % 10;
+                  }
+                  std::string o_opts = "";
+                  for (int i = 0; i <= max_o; i++) {
+                    o_opts += std::to_string(i);
+                    if (i < max_o) o_opts += "\n";
+                  }
+                  if (o_opts.empty()) o_opts = "0";
+                  const char* current_o_opts = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+                  if (o_opts != std::string(current_o_opts)) {
+                    lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                  }
+                  int new_o = intended % 10;
+                  lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, new_o, LV_ANIM_OFF);
+                  lv_slider_set_value(sensor_limit_slider, intended, LV_ANIM_OFF);
+                  lv_label_set_text(sensor_limit_label, (std::to_string(intended) + "°C").c_str());
+                  if (!clamped) {
+                    id(last_sensor_lower_digits) = intended % 100;
+                  }
+        - roller:
+            id: sensor_limits_tens_roller
+            x: 210
+            y: 130
             width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "+1"
-            on_click:
+            text_font: MONTSERRAT_20
+            options: [] # dynamically set
+            selected:
+              bg_color: 0x555555
+            on_value:
               - lambda: |-
-                  if (id(sensor_limit_value) < id(sensor_max_value)) {
-                    id(sensor_limit_value) += 1;
-                  } else {
-                    id(sensor_limit_value) = id(sensor_max_value);
+                  int t = x;
+                  int h = lv_roller_get_selected(id(sensor_limits_hundreds_roller)->obj);
+                  int max_val = id(sensor_max_value);
+                  int max_o = 9;
+                  if (h == max_val / 100 && t == (max_val % 100) / 10) {
+                    max_o = max_val % 10;
                   }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 390
-            y: 140
+                  int prev_o = lv_roller_get_selected(id(sensor_limits_ones_roller)->obj);
+                  std::string o_opts = "";
+                  for (int i = 0; i <= max_o; i++) {
+                    o_opts += std::to_string(i);
+                    if (i < max_o) o_opts += "\n";
+                  }
+                  if (o_opts.empty()) o_opts = "0";
+                  const char* current_o_opts = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+                  if (o_opts != std::string(current_o_opts)) {
+                    lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                  }
+                  int clamped_o = std::min(prev_o, max_o);
+                  lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, clamped_o, LV_ANIM_OFF);
+                  int cur_o = clamped_o;
+                  int val = h * 100 + t * 10 + cur_o;
+                  id(sensor_limit_value) = val;
+                  lv_slider_set_value(sensor_limit_slider, val, LV_ANIM_OFF);
+                  lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
+                  id(last_sensor_lower_digits) = val % 100;
+        - roller:
+            id: sensor_limits_ones_roller
+            x: 275
+            y: 130
             width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "+10"
-            on_click:
+            text_font: MONTSERRAT_20
+            options: [] # dynamically set
+            selected:
+              bg_color: 0x555555
+            on_value:
               - lambda: |-
-                  if (id(sensor_limit_value) <= (id(sensor_max_value)-10)) {
-                    id(sensor_limit_value) += 10;
-                  } else {
-                    id(sensor_limit_value) = id(sensor_max_value);
-                  }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
+                  int o = x;
+                  int h = lv_roller_get_selected(id(sensor_limits_hundreds_roller)->obj);
+                  int t = lv_roller_get_selected(id(sensor_limits_tens_roller)->obj);
+                  int val = h * 100 + t * 10 + o;
+                  id(sensor_limit_value) = val;
+                  lv_slider_set_value(sensor_limit_slider, val, LV_ANIM_OFF);
+                  lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
+                  id(last_sensor_lower_digits) = val % 100;
+        - label:
+            x: 340
+            y: 183
+            text_font: MONTSERRAT_20
+            text_align: LEFT
+            text: "°C"
+
+        - label:
+            id: sensor_limit_label
+            x: 350
+            y: 130
+            text_font: MONTSERRAT_26
+            text_align: RIGHT
+            text: "0°C"
+            text_color: 0 # not visible - for debugging slider + rollers + stored value
 
         - button:
-            x: 390
-            y: 190
-            width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "+100"
-            on_click:
-              - lambda: |-
-                  if (id(sensor_limit_value) <= (id(sensor_max_value)-100) ) {
-                    id(sensor_limit_value) += 100;
-                  } else {
-                    id(sensor_limit_value) = id(sensor_max_value);
-                  }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-
-        - button:
-            x: 200
-            y: 260
-            width: 80
-            height: 40
+            x: 12
+            y: 160
+            width: 70
+            height: 100
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "CLR"
+                  bg_color: 0x555555
             on_click:
               then:
-              - lambda: |-
-                  id(sensor_limit_value) = 0;
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-
+                - lambda: |-
+                    id(sensor_limit_value) = 0;
+                    id(last_sensor_lower_digits) = 0;
+                - lvgl.slider.update:
+                    id: sensor_limit_slider
+                    value: !lambda return id(sensor_limit_value);
+                - lambda: |-
+                    lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, 0, LV_ANIM_ON);
+                    lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, 0, LV_ANIM_ON);
+                    lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, 0, LV_ANIM_ON);
         - button:
-            x: 370
-            y: 260
-            width: 80
-            height: 40
+            x: 398
+            y: 160
+            width: 70
+            height: 100
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "OK"
+                  bg_color: 0x555555
             on_click:
               then:
               - lambda: |-
@@ -2829,15 +2989,678 @@ lvgl:
               - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
               - lvgl.widget.refresh: sensors_headline2
               - lvgl.widget.redraw:
-              - if:
-                  condition:
-                    lambda: 'return id(page_index) == 1;'
-                  then:
-                    - lvgl.page.show: arcs_page
-                  else:
-                    - lvgl.page.show: numbers_page
+              - script.execute: show_temperatures_page
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    - id: settings_page
+      skip: true
+      pad_all: 0
+      on_load:
+        then:
+          - lvgl.widget.show: settings_status_bar_top
+          - lvgl.widget.hide: status_bar_bottom
+          - lambda: |-
+              id(settings_g32_mac_address) = id(settings_g32_mac_address_persistent);
+
+              id(settings_wifi_ssid) = id(settings_wifi_ssid_persistent);
+              id(settings_wifi_password) = id(settings_wifi_password_persistent);              
+
+              id(settings_min_gas_value) = id(settings_min_gas_value_persistent);
+              id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
+
+              id(settings_hide_soc) = id(settings_hide_soc_persistent);
+              id(settings_show_time) = id(settings_show_time_persistent);
+              id(settings_hide_timer) = id(settings_hide_timer_persistent);
+              id(settings_enable_temperature_limits) = id(settings_enable_temperature_limits_persistent);
+              id(settings_hide_inactive_sensors) = id(settings_hide_inactive_sensors_persistent);
+
+              // Restore gas roller by value
+              char gas_target[3];
+              int gas_val = id(settings_min_gas_value);
+              snprintf(gas_target, sizeof(gas_target), "%02d", gas_val);  // Format with leading zero if <10
+              const char* opts = lv_roller_get_options(id(settings_min_gas_roller)->obj);
+              const char* pos = opts;
+              int index = 0;
+              while (*pos) {
+                char gas_opt_buf[3];
+                int len = 0;
+                while (*pos && *pos != '\n' && len < 2) {
+                  gas_opt_buf[len++] = *pos++;
+                }
+                gas_opt_buf[len] = '\0';
+                if (*pos == '\n') pos++;
+                if (strcmp(gas_opt_buf, gas_target) == 0) {
+                  lv_roller_set_selected(id(settings_min_gas_roller)->obj, index, LV_ANIM_OFF);
+                  break;
+                }
+                index++;
+              }   
+
+              // Restore soc roller by value (no leading zero needed since all >=10, but using same pattern for consistency)
+              char soc_target[3];
+              int soc_val = id(settings_min_soc_value);
+              snprintf(soc_target, sizeof(soc_target), "%02d", soc_val);  // Format with leading zero if <10
+              opts = lv_roller_get_options(id(settings_min_soc_roller)->obj);
+              pos = opts;
+              index = 0;
+              while (*pos) {
+                char soc_opt_buf[3];
+                int len = 0;
+                while (*pos && *pos != '\n' && len < 2) {
+                  soc_opt_buf[len++] = *pos++;
+                }
+                soc_opt_buf[len] = '\0';
+                if (*pos == '\n') pos++;
+                if (strcmp(soc_opt_buf, soc_target) == 0) {
+                  lv_roller_set_selected(id(settings_min_soc_roller)->obj, index, LV_ANIM_OFF);
+                  break;
+                }
+                index++;
+              }   
+
+              // Restore display timeout roller by value
+              char timeout_target[4];
+              int timeout_val = id(settings_display_timeout_value);
+              snprintf(timeout_target, sizeof(timeout_target), "%03d", timeout_val);  // Format with leading zero if <10
+              opts = lv_roller_get_options(id(settings_display_timeout_roller)->obj);
+              pos = opts;
+              index = 0;
+              while (*pos) {
+                char display_timeout_opt_buf[4];
+                int len = 0;
+                while (*pos && *pos != '\n' && len < 3) {
+                  display_timeout_opt_buf[len++] = *pos++;
+                }
+                display_timeout_opt_buf[len] = '\0';
+                if (*pos == '\n') pos++;
+                if (strcmp(display_timeout_opt_buf, timeout_target) == 0) {
+                  lv_roller_set_selected(id(settings_display_timeout_roller)->obj, index, LV_ANIM_OFF);
+                  break;
+                }
+                index++;
+              }
+          - lvgl.widget.refresh: [settings_wifi_ssid_textarea, settings_wifi_password_textarea]
+          - lvgl.widget.update:
+              id: settings_hide_soc_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_hide_soc) == 0;
+          - lvgl.widget.update:
+              id: settings_show_time_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_show_time);
+          - lvgl.widget.update:
+              id: settings_hide_timer_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_hide_timer) == 0;
+          - lvgl.widget.update:
+              id: settings_enable_temperature_limits_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_enable_temperature_limits);
+          - lvgl.widget.update:
+              id: settings_hide_inactive_sensors_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_hide_inactive_sensors);
+          - lvgl.widget.refresh: settings_mac_address_label
+      widgets:
+        - obj:
+            id: settings_menu
+            x: 0
+            y: 23
+            height: 297
+            width: 480
+            border_width: 0
+            pad_all: 0
+            bg_color: 0
+            radius: 0
+            hidden: false
+            widgets:
+              - tabview:
+                  id: settings_tabview
+                  position: left
+                  x: 0
+                  y: 0
+                  width: 480
+                  height: 297
+                  text_color: 0xffffff
+                  pad_all: 0
+                  content_style:
+                    scrollable: false
+                    bg_color: 0
+                  tab_style:
+                    border_width: 0
+                    bg_color: 0
+                    width: 50
+                    items:
+                      text_color: 0x555555
+                  on_value:
+                    - lvgl.widget.hide: my_keyboard
+                  tabs:
+                    - name: "\uF293"  # BT
+                      id: settings_tab_ble_mac
+                      pad_all: 0
+                      widgets:
+                        - obj:  # mac_address
+                            x: 0
+                            y: 0
+                            width: 380
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 0
+                                  y: 35
+                                  width: 380
+                                  text_font: MONTSERRAT_14
+                                  text_align: CENTER
+                                  text: "MAC Adresse\ndes G32 Connected"
+                              - label:
+                                  id: settings_mac_address_label
+                                  x: 0
+                                  y: 90
+                                  width: 380
+                                  text_font: MONTSERRAT_18
+                                  text_align: CENTER
+                                  text: !lambda |-
+                                    return id(settings_g32_mac_address);
+                              - button:
+                                  id: settings_g32_mac_address_search_button
+                                  x: 120
+                                  y: 155
+                                  width: 140
+                                  height: 50
+                                  bg_color: 0x555555
+                                  widgets:
+                                    - label:
+                                        align: CENTER
+                                        text_font: MONTSERRAT_20
+                                        text: "Suchen"
+                                        bg_color: 0x555555
+                                  on_click:
+                                    then:
+                                      - script.execute: ble_scan_start
+                              - button:
+                                  id: settings_g32_mac_address_abort_button
+                                  x: 120
+                                  y: 155
+                                  width: 140
+                                  height: 50
+                                  bg_color: 0x555555
+                                  hidden: true
+                                  widgets:
+                                    - label:
+                                        align: CENTER
+                                        text_font: MONTSERRAT_20
+                                        text: "Stopp"
+                                        bg_color: 0x555555
+                                  on_click:
+                                    then:
+                                      - script.execute: ble_scan_stop
+
+                    - name: "\uF1EB"  #  wifi
+                      id: settings_tab_wifi
+                      pad_all: 0
+                      widgets:
+                        - obj: # wifi credentials
+                            x: 0
+                            y: 0
+                            width: 380
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 0
+                                  y: 30
+                                  width: 380
+                                  text_font: MONTSERRAT_14
+                                  text_align: CENTER
+                                  text: "WIFI Zugansdaten"
+                              - textarea:
+                                  id: settings_wifi_ssid_textarea
+                                  x: 20
+                                  y: 60
+                                  width: 340
+                                  height: 30
+                                  text_font: MONTSERRAT_18
+                                  placeholder_text: "SSID"
+                                  one_line: true
+                                  bg_color: 0xffffff
+                                  text_color: 0
+                                  border_width: 1
+                                  border_color: 0
+                                  text: !lambda |-
+                                    return id(settings_wifi_ssid);
+                                  on_click:
+                                    - lambda: lv_keyboard_set_textarea(id(my_keyboard)->obj, settings_wifi_ssid_textarea);
+                                    - lvgl.widget.show: my_keyboard
+                              - textarea:
+                                  id: settings_wifi_password_textarea
+                                  x: 20
+                                  y: 100
+                                  width: 340
+                                  height: 30
+                                  text_font: MONTSERRAT_18
+                                  placeholder_text: "Passwort"
+                                  one_line: true
+                                  password_mode: true
+                                  bg_color: 0xffffff
+                                  text_color: 0
+                                  border_width: 1
+                                  border_color: 0
+                                  text: !lambda |-
+                                    return id(settings_wifi_password);
+                                  on_click:
+                                    - lambda: lv_keyboard_set_textarea(id(my_keyboard)->obj, settings_wifi_password_textarea);
+                                    - lvgl.widget.show: my_keyboard
+
+                    - name: "\uF0C9"  #  settings
+                      id: settings_tab_settings
+                      pad_all: 0
+                      widgets:
+                        - obj: # switches
+                            x: 0
+                            y: 0
+                            width: 380
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 110
+                                  y: 29
+                                  width: 220
+                                  text_font: MONTSERRAT_14
+                                  text_align: LEFT
+                                  text: "Batterie Level"
+                              - switch:
+                                  id: settings_hide_soc_switch
+                                  x: 40
+                                  y: 25
+                                  width: 50
+                                  height: 25
+                                  bg_color: 0x555555
+                                  indicator:
+                                    checked:
+                                      bg_color: 0x00ff00
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_hide_soc) == 0;
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_hide_soc) = (x == 0);
+
+                              - label:
+                                  x: 110
+                                  y: 74
+                                  width: 220
+                                  text_font: MONTSERRAT_14
+                                  text_align: LEFT
+                                  text: "Uhrzeit (erfordert WIFI)"
+                              - switch:
+                                  id: settings_show_time_switch
+                                  x: 40
+                                  y: 70
+                                  width: 50
+                                  height: 25
+                                  bg_color: 0x555555
+                                  indicator:
+                                    checked:
+                                      bg_color: 0x00ff00
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_show_time);
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_show_time) = x;
+
+                              - label:
+                                  x: 110
+                                  y: 119
+                                  width: 220
+                                  text_font: MONTSERRAT_14
+                                  text_align: LEFT
+                                  text: "Timer"
+                              - switch:
+                                  id: settings_hide_timer_switch
+                                  x: 40
+                                  y: 115
+                                  width: 50
+                                  height: 25
+                                  bg_color: 0x555555
+                                  indicator:
+                                    checked:
+                                      bg_color: 0x00ff00
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_hide_timer) == 0;
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_hide_timer) = (x == 0);
+
+                              - label:
+                                  x: 110
+                                  y: 164
+                                  width: 220
+                                  text_font: MONTSERRAT_14
+                                  text_align: LEFT
+                                  text: "Temp. Limits"
+                              - switch:
+                                  id: settings_enable_temperature_limits_switch
+                                  x: 40
+                                  y: 160
+                                  width: 50
+                                  height: 25
+                                  bg_color: 0x555555
+                                  indicator:
+                                    checked:
+                                      bg_color: 0x00ff00
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_enable_temperature_limits);
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_enable_temperature_limits) = x;
+
+                              - label:
+                                  x: 110
+                                  y: 209
+                                  width: 220
+                                  text_font: MONTSERRAT_14
+                                  text_align: LEFT
+                                  text: "nur aktive Sensoren"
+                              - switch:
+                                  id: settings_hide_inactive_sensors_switch
+                                  x: 40
+                                  y: 205
+                                  width: 50
+                                  height: 25
+                                  bg_color: 0x555555
+                                  indicator:
+                                    checked:
+                                      bg_color: 0x00ff00
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_hide_inactive_sensors);
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_hide_inactive_sensors) = x;
+
+                    - name: "\uF071"  # warnings
+                      id: settings_tab_warnings
+                      pad_all: 0
+                      widgets:
+                        - obj:  # min_gas
+                            x: 0
+                            y: 0
+                            width: 190
+                            height: 297
+                            border_width: 0
+                            bg_color: 0
+                            pad_all: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 0
+                                  y: 35
+                                  width: 190
+                                  text_font: MONTSERRAT_14
+                                  text_align: CENTER
+                                  text: "Warnung\nGas Level"
+                              - label:
+                                  x: 127
+                                  y: 144
+                                  width: 20
+                                  text_font: MONTSERRAT_20
+                                  text_align: CENTER
+                                  text: "%"
+                              - roller:
+                                  id: settings_min_gas_roller
+                                  x: 65
+                                  y: 90
+                                  width: 60
+                                  text_font: MONTSERRAT_20
+                                  options: ['60','55','50','45','40','35','30','25','20','15','10','05']
+                                  selected:
+                                    bg_color: 0x555555
+                                  on_value:
+                                    - lambda: |-
+                                        int val = atoi(text.c_str());
+                                        id(settings_min_gas_value) = val;
 
 
+                        - obj: # min_soc
+                            x: 190
+                            y: 0
+                            width: 190
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 0
+                                  y: 35
+                                  width: 190
+                                  text_font: MONTSERRAT_14
+                                  text_align: CENTER
+                                  text: "Warnung\nBatterie Level"
+                              - label:
+                                  x: 127
+                                  y: 144
+                                  width: 20
+                                  text_font: MONTSERRAT_20
+                                  text_align: CENTER
+                                  text: "%"
+                              - roller:
+                                  id: settings_min_soc_roller
+                                  x: 65
+                                  y: 90
+                                  width: 60
+                                  text_font: MONTSERRAT_20
+                                  options: ['50','40','30','20','10']
+                                  selected:
+                                    bg_color: 0x555555
+                                  on_value:
+                                    - lambda: |-
+                                        int val = atoi(text.c_str());
+                                        id(settings_min_soc_value) = val;
+
+
+                    - name: "\uF06E"  # display
+                      id: settings_tab_display
+                      pad_all: 0
+                      widgets:
+                        - obj: # display_timeout
+                            x: 0
+                            y: 0
+                            width: 380
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 0
+                                  y: 35
+                                  width: 380
+                                  text_font: MONTSERRAT_14
+                                  text_align: CENTER
+                                  text: "Display\nDeaktivierung"
+                              - label:
+                                  x: 222
+                                  y: 144
+                                  width: 20
+                                  text_font: MONTSERRAT_20
+                                  text_align: CENTER
+                                  text: "s"
+                              - roller:
+                                  id: settings_display_timeout_roller
+                                  x: 160
+                                  y: 90
+                                  width: 60
+                                  text_font: MONTSERRAT_20
+                                  options: ['0','600','300','240','180','60']
+                                  selected:
+                                    bg_color: 0x555555
+                                  on_value:
+                                    - lambda: |-
+                                        int val = atoi(text.c_str());
+                                        id(settings_display_timeout_value) = val;
+                                        // ESP_LOGI("debug", "display_imeout=%d", id(settings_display_timeout_value));
+
+
+
+              - obj:  # okay / abort 
+                  x: 430
+                  y: 0
+                  width: 50
+                  height: 297
+                  pad_all: 0
+                  border_width: 0
+                  bg_color: 0
+                  radius: 0
+                  widgets:
+                    - button:  # okay
+                        x: 0
+                        y: 50
+                        width: 50
+                        height: 90
+                        bg_color: 0x555555
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "\uF0C7"
+                              bg_color: 0x555555
+                        on_click:
+                          - lvgl.widget.hide: my_keyboard
+                          - lambda: |-
+                              id(settings_g32_mac_address_persistent) = id(settings_g32_mac_address);
+
+                              id(settings_wifi_ssid) = std::string(lv_textarea_get_text(settings_wifi_ssid_textarea));
+                              id(settings_wifi_password) = std::string(lv_textarea_get_text(settings_wifi_password_textarea));
+                              id(settings_wifi_ssid_persistent) = id(settings_wifi_ssid);
+                              id(settings_wifi_password_persistent) = id(settings_wifi_password);
+
+                              id(settings_min_gas_value_persistent) = id(settings_min_gas_value);
+                              id(settings_min_soc_value_persistent) = id(settings_min_soc_value);
+                              id(settings_display_timeout_value_persistent) = id(settings_display_timeout_value);
+
+                              id(settings_hide_soc_persistent) = id(settings_hide_soc);
+                              id(settings_show_time_persistent) = id(settings_show_time);
+                              id(settings_hide_timer_persistent) = id(settings_hide_timer);
+                              id(settings_enable_temperature_limits_persistent) = id(settings_enable_temperature_limits);
+                              id(settings_hide_inactive_sensors_persistent) = id(settings_hide_inactive_sensors);
+
+                              ESP_LOGI("settings", "g32_mac_address: %s", id(settings_g32_mac_address_persistent).c_str());
+                              ESP_LOGI("settings", "min_gas_value: %d", id(settings_min_gas_value_persistent));
+                              ESP_LOGI("settings", "min_soc_value: %d", id(settings_min_soc_value_persistent));
+                              ESP_LOGI("settings", "display_timeout_value: %d", id(settings_display_timeout_value_persistent));
+                              ESP_LOGI("settings", "hide_soc: %s", id(settings_hide_soc_persistent) ? "true" : "false");
+
+                              ESP_LOGI("settings", "show_time: %s", id(settings_show_time_persistent) ? "true" : "false");
+                              ESP_LOGI("settings", "hide_timer: %s", id(settings_hide_timer_persistent) ? "true" : "false");
+                              ESP_LOGI("settings", "enable_temperature_limits: %s", id(settings_enable_temperature_limits_persistent) ? "true" : "false");
+                              ESP_LOGI("settings", "hide_inactive_sensors: %s", id(settings_hide_inactive_sensors_persistent) ? "true" : "false");
+
+                              if (!id(settings_enable_temperature_limits_persistent)) {
+                                id(zone1_limit_value) = 0;
+                                id(zone2_limit_value) = 0;
+                                id(zone3_limit_value) = 0;
+                                id(zone4_limit_value) = 0;
+                                id(sensor1_limit_value) = 0;
+                                id(sensor2_limit_value) = 0;
+                                id(sensor3_limit_value) = 0;
+                                id(sensor4_limit_value) = 0;
+                              }
+                          - lvgl.widget.refresh: [battery_symbol_obj, display_time]
+                          - script.execute: apply_wifi
+                          - script.execute: apply_mac_address
+
+                          # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
+                          - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
+                          - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
+                          - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+                          - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
+                          - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
+                          - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
+                          - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
+                          - lvgl.widget.refresh: [sensor1_limit_label2, sensor2_limit_label2, sensor3_limit_label2, sensor4_limit_label2]
+                          - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
+                          - lvgl.widget.refresh: [sensor1_obj2, sensor2_obj2, sensor3_obj2, sensor4_obj2]
+
+                          - lvgl.widget.show: settings_persist_hint
+
+                    - button:  # abort
+                        x: 0
+                        y: 155
+                        width: 50
+                        height: 90
+                        bg_color: 0x555555
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "\uF00D"
+                              bg_color: 0x555555
+                        on_click:
+                          - lvgl.widget.hide: my_keyboard
+                          - script.execute: apply_mac_address
+                          - script.execute: show_temperatures_page
+
+              - obj:
+                  id: settings_persist_hint
+                  x: 0
+                  y: 0
+                  width: 480
+                  height: 297
+                  text_color: 0xffffff
+                  radius: 0
+                  border_width: 0
+                  border_color: 0
+                  pad_all: 0
+                  bg_color: 0
+                  hidden: true
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 35
+                        width: 480
+                        text_font: MONTSERRAT_14
+                        text_align: CENTER
+                        text: "Achtung:\nDas dauerhafte Speichern der\nEinstellungen kann bis zu\n60 Sekunden dauern!"
+                    - button:
+                        id: settings_persist_hint_button
+                        x: 120
+                        y: 155
+                        width: 240
+                        height: 50
+                        bg_color: 0x555555
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "Verstanden"
+                              bg_color: 0x555555
+                        on_click:
+                          then:
+                            - script.execute: show_temperatures_page
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 sensor:
   - platform: adc
     pin: 5
@@ -2874,24 +3697,14 @@ sensor:
     on_value:
       - lambda: id(battery_soc_value) = x;
       - lvgl.widget.refresh: [battery_soc_label, battery_symbol, battery_bar]
-      - lvgl.widget.refresh: [battery_soc_label2, battery_symbol2, battery_bar2]
       - lvgl.bar.update:
           id: battery_bar
           indicator:
             bg_color:  !lambda |-
-              if( id(battery_soc_value) <= id(min_soc_value) ) {
+              if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
                 return lv_color_hex(0xff0000); // red
                 } else {
                 return lv_color_hex(0x00ff00); // green
-              }
-      - lvgl.bar.update:
-          id: battery_bar2
-          indicator:
-            bg_color:  !lambda |-
-              if( id(battery_soc_value) <= id(min_soc_value) ) {
-                return lv_color_hex(0xff0000); // red
-                } else {
-                return lv_color_hex(0xffffff); // white
               }
 
   - platform: ble_rssi
@@ -2912,6 +3725,10 @@ sensor:
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     update_interval: 10s
     lambda: |-
+      if (x.size() < 32) {
+        ESP_LOGW("ble", "Received invalid BLE data (size: %d), skipping.", x.size());
+        return {};
+      }
       float t = (x[6]*10.0+x[7]/10.0);
       id(g32_zone1).publish_state(t);
       t = (x[8]*10.0+x[9]/10.0);
@@ -3028,7 +3845,7 @@ sensor:
     icon: "mdi:weight-gram"
     on_value:
       - lvgl.label.update:
-          id: [gas_weight_label, gas_weight_label2]
+          id: gas_weight_label
           text: !lambda |-
             if(x >= 11000) {return ("11000 g");
             } else {
@@ -3043,14 +3860,14 @@ sensor:
     icon: "mdi:gas-cylinder"
     on_value:
       - lvgl.label.update:
-          id: [gas_percent_label, gas_percent_label2]
+          id: gas_percent_label
           text: !lambda |-
             if(x > 100) {return ("---");
             } else {
               return (to_string(static_cast<int>(x)) + " %").c_str();
             }
       - lvgl.bar.update:
-          id: [gas_percent_bar, gas_percent_bar2]
+          id: gas_percent_bar
           value: !lambda |-
             if(x > 100) {return (100);
             } else {
@@ -3060,21 +3877,12 @@ sensor:
           id: gas_percent_bar
           indicator:
             bg_color: !lambda |-
-              if( x <= id(min_gas_value) ) {
+              if( x <= id(settings_min_gas_value_persistent) ) {
                 return lv_color_hex(${Gas_Bar_Low_Color});
               } else {
                 return lv_color_hex(${Gas_Bar_Color});
               }
-      - lvgl.bar.update:
-          id: gas_percent_bar2
-          indicator:
-            bg_color: !lambda |-
-              if( x <= id(min_gas_value) ) {
-                return lv_color_hex(${Gas_Bar_Low_Color2});
-              } else {
-                return lv_color_hex(${Gas_Bar_Color2});
-              }
-
+    
 
 binary_sensor:
   - platform: gpio
@@ -3103,7 +3911,7 @@ binary_sensor:
     icon: "mdi:light-flood-down"
     on_state:
       - lvgl.label.update:
-          id: [light_on_label, light_on_label2]
+          id: light_on_label
           hidden: !lambda return(!x);
 
   - platform: template
@@ -3113,23 +3921,34 @@ binary_sensor:
     icon: "mdi:door"
     on_state:
       - lvgl.label.update:
-          id: [firebox_open_label, firebox_open_label2]
+          id: firebox_open_label
           hidden: !lambda return(!x);
 
 script:
   - id: time_update
     then:
-      - lvgl.label.update:
-          id: [display_time, display_time2]
-          text: !lambda |-
-            static char time_buf[16];
-            auto now = id(ha_time).now();
-            snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
-            return time_buf;
-      - lvgl.label.update:
-          id: [display_time, display_time2]
-          hidden: !lambda |-
-            return (!id(show_time));
+      - if:
+          condition:
+            lambda: 'return id(settings_show_time_persistent);'
+          then:
+            - lvgl.label.update:
+                id: display_time
+                text: !lambda |-
+                  static char time_buf[16];
+                  auto now = id(ha_time).now();
+                  snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
+                  return time_buf;
+            - lvgl.label.update:
+                id: display_time
+                hidden: !lambda |-
+                  return (!id(settings_show_time_persistent) && id(settings_hide_timer_persistent));
+      - if:
+          condition:
+            lambda: 'return (!id(settings_show_time_persistent) && !id(settings_hide_timer_persistent));'
+          then:
+            - lvgl.label.update:
+                id: display_time
+                text: "00:00:00"
 
   - id: timer_update
     then:
@@ -3152,6 +3971,7 @@ script:
                 {
                   if( id(timer_h) > 0 )
                   {
+                    id(timer_s) = 59;
                     id(timer_m) = 59;
                     id(timer_h) = id(timer_h) - 1;
                   }
@@ -3172,7 +3992,7 @@ script:
                 return ("00:00:00");
               }
             } else {
-              return ("-- : -- : --");
+              return ("");
             }
       - lvgl.label.update:
           id: timer_value
@@ -3182,25 +4002,89 @@ script:
             } else {
               return lv_color_hex(0xffffff);
             }
-      - lvgl.label.update:
-          id: timer_value2
-          text: !lambda |-
-            if( id(timer_active) == true ) {
-              if( id(timer_alarm) == false ) {
-                static char time_buf[16];
-                snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", id(timer_h), id(timer_m), id(timer_s));
-                return time_buf;
-              } else {
-                return ("00:00:00");
-              }
-            } else {
-              return ("-- : -- : --");
-            }
-          text_color: !lambda |-
-            if( id(timer_alarm) == true ) {
-              return lv_color_hex(0xff0000);
-            } else {
-              return lv_color_hex(0xffffff);
-            }
 
+  - id: apply_mac_address
+    then:
+        # this ensures the ble_client changes MAC at runtime
+        - lambda: !lambda |-
+            uint64_t addr = 0;
+            uint64_t b1, b2, b3, b4, b5, b6;
+            if (sscanf(id(settings_g32_mac_address_persistent).c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+              addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+            }
+            id(ow_g32).set_address(addr);
+            ESP_LOGI("settings", "set G32 MAC address to %s", id(settings_g32_mac_address_persistent).c_str());
 
+  - id: apply_wifi
+    then:
+      - globals.set:
+          id: apply_wifi_started_by_user
+          value: 'true'
+      - wifi.disable:
+      - delay: 1s
+      - wifi.configure:
+          ssid: !lambda |-
+            return id(settings_wifi_ssid_persistent);
+          password: !lambda |-
+            return id(settings_wifi_password_persistent);
+      - wifi.enable:
+
+  - id: hide_boot_screen
+    then:
+      - if:
+          condition:
+            lambda: 'return !id(boot_screen_hidden);'
+          then:
+            - script.execute: apply_mac_address
+            - script.execute: apply_wifi
+            - lvgl.widget.hide: boot_screen
+            - lvgl.widget.show: [status_bar_top, status_bar_bottom]
+
+            # some things to refresh from persisted settings
+            - lvgl.widget.refresh: [battery_symbol_obj, display_time]
+
+            # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
+            - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
+            - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
+            - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+            - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
+            - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
+            - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
+            - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
+            - lvgl.widget.refresh: [sensor1_limit_label2, sensor2_limit_label2, sensor3_limit_label2, sensor4_limit_label2]
+            - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
+            - lvgl.widget.refresh: [sensor1_obj2, sensor2_obj2, sensor3_obj2, sensor4_obj2]
+            - globals.set:
+                id: boot_screen_hidden
+                value: 'true'
+
+  - id: show_temperatures_page
+    then:
+      - lvgl.widget.hide: [settings_status_bar_top, my_keyboard]
+      - lvgl.widget.show: status_bar_bottom
+      - if:
+          condition:
+            lambda: 'return id(page_index) == 1;'
+          then:
+            - lvgl.page.show: arcs_page
+          else:
+            - lvgl.page.show: numbers_page              
+      - script.execute: ble_scan_stop
+      - lvgl.widget.hide: settings_persist_hint
+
+  - id: ble_scan_start
+    then:
+      - globals.set:
+          id: ble_scan_started_by_user
+          value: 'true'
+      - lvgl.widget.show: settings_g32_mac_address_abort_button
+      - lvgl.widget.hide: settings_g32_mac_address_search_button
+
+  - id: ble_scan_stop
+    then:
+      - globals.set:
+          id: ble_scan_started_by_user
+          value: 'false'
+      - lvgl.widget.hide: settings_g32_mac_address_abort_button
+      - lvgl.widget.show: settings_g32_mac_address_search_button
+      - lvgl.widget.refresh: settings_mac_address_label
