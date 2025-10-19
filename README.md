@@ -27,8 +27,8 @@ Was ist anders?
 
 
 ## Was fehlt?
-* **Gas Buddy:** Einmessen der Gasflasch
-* **Meater:** Verwendung von Meater / Meater+ Temperatursensoren
+* **Gas Buddy:** Einmessen der Gasflasche
+* **Meater:** Verwendung von Meater / Meater+ als Temperatursensoren
 
 ## Historie
 * [2025-10-19] BTpref 1.5.1
