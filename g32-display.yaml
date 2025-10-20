@@ -3227,7 +3227,7 @@ lvgl:
                                   width: 380
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "WIFI Zugansdaten"
+                                  text: "WIFI Zugangsdaten"
                               - textarea:
                                   id: settings_wifi_ssid_textarea
                                   x: 20
