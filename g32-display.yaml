@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref 1.5.2"
+  version: "BTpref 1.5.3"
 
   # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
   g32_mac_address: 94:E6:86:00:00:00
