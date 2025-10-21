@@ -22,7 +22,7 @@ Was ist anders?
 * **Alarme:** Für Zonen und Sensoren lassen sich Temperatur-Alarme setzen, die auch über einen integrierten Beeper akkustisch signalisiert werden
 * **Timer:** Festlegen einer Zeit, nach der ein akkustischer Alarm ertönt
 * **Darstellungsarten:** zwei unterschiedlichen Ansichten
-* **Status:** Auf dem Display zeigen werden neben Verbindungsstatus (WLAN/BLE) vom Grill Monitor auch Informationen des Grills angezeigt
+* **Status:** Auf dem Display werden neben Verbindungsstatus (WLAN/BLE) vom Grill Monitor auch Informationen des Grills angezeigt
 * **Akku (Optional):** Der Ladezustand (SOC) eines optional angeschlossenen Akkus kann angezeigt werden
 
 
