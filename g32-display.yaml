@@ -101,7 +101,8 @@ substitutions:
 
 # welche Anzeigen sollen aktiv sein, die bunten 'Arcs' und/oder die grauen 'Zahlen'?
 # Wenn beide aktiv, dann Wechsel zwischen den Anzeigen durch 'Swipen' nach rechts oder links
-# anzeigen: 'true', nicht anzeigen: 'false' (mindestens eins sollte 'true' sein!)  Show_Arcs_Page: 'true'
+# anzeigen: 'true', nicht anzeigen: 'false' (mindestens eins sollte 'true' sein!)
+  Show_Arcs_Page: 'true'
   Show_Numbers_Page: 'true'
 
 # Display Timeout (schont Akku und Display). Touch reaktiviert das Display.
@@ -367,7 +368,8 @@ display:
   - platform: mipi_spi
     model: JC3248W535
 #  - platform: qspi_dbi
-#    model: axs15231    data_rate: 40MHz
+#    model: axs15231
+    data_rate: 40MHz
     id: my_display
     spi_id: display_qspi
     dimensions:
@@ -436,17 +438,18 @@ output:
     platform: ledc
     pin: 1
 
-  - id: helper_low_tilt
-    platform: ledc
-    pin: 17
-
+  # either a simple beeper
   - id: helper_low_beeper
     platform: ledc
     pin: 14
-
   - platform: ledc
     pin: 9
     id: rtttl_out
+
+  # or a beeper with a transisitor for amplification
+  # - platform: ledc
+  #   pin: 17
+  #   id: rtttl_out
 
 #-------------------------------------------
 # Internal lights
