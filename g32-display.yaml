@@ -72,14 +72,14 @@ substitutions:
   Sensor3_Max: "130"
   Sensor4_Max: "130"
 
-# Lautsprecher (Beeper) Lautsrtärke festlegen 1.0 = Maximum, 0.1 = sehr leise.
-# Hohe Werte können zu aber clipping führen. Ausprobieren.
+  # Lautsprecher (Beeper) Lautsrtärke festlegen 1.0 = Maximum, 0.1 = sehr leise.
+  # Hohe Werte können zu clipping führen. Ausprobieren.
   Beeper_Max: "0.8"
 
-# Zeitinterval für Lautsprecher (Beeper) Alarmmeldungen festlegen Default: 5s
+  # Zeitinterval für Lautsprecher (Beeper) Alarmmeldungen festlegen Default: 5s
   Beeper_interval: "5s"
 
-# Soundeffekte (in RTTTL syntax):
+  # Soundeffekte (in RTTTL syntax):
   G32_Connect_Sound: "pling2:d=16,o=6,b=140:e6,32p,d6"
   G32_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
   Wifi_Connect_Sound: "dadi:d=16,o=6,b=140:d6,32p,e6"
@@ -89,11 +89,10 @@ substitutions:
   Sensor_Limit_Alarm_Sound: "didadida:d=8,o=5,b=150:e,d,e,d,e,d,e,d"
   New_MAC_Sound: "click:d=32,o=6,b=120:32c,32p"
 
-# Uhrzeit 11:32:45 oben in der Mitte der Statuszeile anzeigen?
-# nur sinnvoll in Verbindung mit WLAN wegen Zugriff auf sntp Server
-  Show_Time: 'true'
+  # Uhrzeit 11:32:45 oben in der Mitte der Statuszeile anzeigen?
+  Show_Time: 'true'  # requires wifi
 
-# # Timer ausblenden? true = Timer ausblenden, false = Timer anzeigen
+  # Timer ausblenden?
   Disable_Timer: 'false'
 
 # welche Anzeigen sollen aktiv sein, die bunten 'Arcs' und/oder die grauen 'Zahlen'?
@@ -205,7 +204,7 @@ esp32_ble_tracker:
           if (x.get_name().rfind("OWG-G32C", 0) == 0 && id(ble_g32_scan_started_by_user)) {
             id(settings_g32_mac_address) = x.address_str();
             id(my_rtttl).play("${New_MAC_Sound}");
-            ESP_LOGI("ble_adv", "MAC address: %s", x.address_str().c_str());
+            ESP_LOGI("ble_adv", "G32 MAC address: %s", x.address_str().c_str());
             id(ble_g32_scan_stop).execute();
           }
 
@@ -276,8 +275,7 @@ display:
   - platform: mipi_spi
     model: JC3248W535
 #  - platform: qspi_dbi
-#    model: axs15231
-    data_rate: 40MHz
+#    model: axs15231    data_rate: 40MHz
     id: my_display
     spi_id: display_qspi
     dimensions:
