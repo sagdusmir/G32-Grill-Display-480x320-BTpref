@@ -84,8 +84,8 @@ substitutions:
   # Soundeffekte (in RTTTL syntax):
   G32_Connect_Sound: "pling2:d=16,o=6,b=140:e6,32p,d6"
   G32_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
-  MT_Connect_Sound: "Pling4:d=16,o=5,b=100:a6,32p,a5"
-  MT_Disconnect_Sound: "plonk:d=16,o=5,b=100:c"
+  MT_Connect_Sound: "Pling4:d=16,o=5,b=100:a5,32p,a6"
+  MT_Disconnect_Sound: "plonk:d=16,o=5,b=100:a6,32p,a5"
   Wifi_Connect_Sound: "dadi:d=16,o=6,b=140:d6,32p,e6"
   Wifi_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
   Timer_Alarm_Sound: "didididi:d=16,o=6,b=140:e6,32p,e6,32p,e6,32p,e6"
@@ -101,8 +101,7 @@ substitutions:
 
 # welche Anzeigen sollen aktiv sein, die bunten 'Arcs' und/oder die grauen 'Zahlen'?
 # Wenn beide aktiv, dann Wechsel zwischen den Anzeigen durch 'Swipen' nach rechts oder links
-# anzeigen: 'true', nicht anzeigen: 'false' (mindestens eins sollte 'true' sein!)
-  Show_Arcs_Page: 'true'
+# anzeigen: 'true', nicht anzeigen: 'false' (mindestens eins sollte 'true' sein!)  Show_Arcs_Page: 'true'
   Show_Numbers_Page: 'true'
 
 # Display Timeout (schont Akku und Display). Touch reaktiviert das Display.
@@ -282,7 +281,7 @@ esp32_ble_tracker:
           // }
 
       - lvgl.widget.refresh: settings_mac_address_label
-      - lvgl.widget.refresh: [settings_meater1_label, settings_meater2_label, settings_meater3_label, settings_meater4_label]
+      - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
 
 ble_client:
   - mac_address: ${g32_mac_address}  # must be dynamically applied later
@@ -307,7 +306,7 @@ ble_client:
             id: g32_connected
             value: 'false'
   - mac_address: ${meater_mac_address}
-    id: meater1
+    id: meater0
     on_connect:
       then:
         - lambda: |-
@@ -319,7 +318,7 @@ ble_client:
             id(active_sensors) &= ~0x01;
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
-    id: meater2
+    id: meater1
     on_connect:
       then:
         - lambda: |-
@@ -331,7 +330,7 @@ ble_client:
             id(active_sensors) &= ~0x02;
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
-    id: meater3
+    id: meater2
     on_connect:
       then:
         - lambda: |-
@@ -343,7 +342,7 @@ ble_client:
             id(active_sensors) &= ~0x03;
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
-    id: meater4
+    id: meater3
     on_connect:
       then:
         - lambda: |-
@@ -679,7 +678,7 @@ globals:
     type: std::string
     initial_value: '"${meater_mac_address},${meater_mac_address},${meater_mac_address},${meater_mac_address}"'
     restore_value: true
-    max_restore_data_length: 68
+    max_restore_data_length: 72
   - id: settings_meater_mac_addresses
     type: std::array<std::string, 4>
     initial_value: '{"00:00:00:00:00:00","00:00:00:00:00:00","00:00:00:00:00:00","00:00:00:00:00:00"}'
@@ -3675,7 +3674,7 @@ lvgl:
                                   text_align: CENTER
                                   text: "MAC Adressen der MEATER(R)"
                               - label:
-                                  id: settings_meater1_label
+                                  id: settings_meater0_label
                                   x: 35
                                   y: 75
                                   width: 170
@@ -3683,8 +3682,14 @@ lvgl:
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[0];
+                                  clickable: true
+                                  on_click:
+                                    then:
+                                      - script.execute:
+                                          id: ble_meater_clear_mac
+                                          probe_id: 0
                               - button:
-                                  id: settings_meater1_mac_address_search_button
+                                  id: settings_meater0_mac_address_search_button
                                   x: 230
                                   y: 70
                                   width: 120
@@ -3702,7 +3707,7 @@ lvgl:
                                           id: ble_meater_scan_start
                                           probe_id: 0
                               - button:
-                                  id: settings_meater1_mac_address_abort_button
+                                  id: settings_meater0_mac_address_abort_button
                                   x: 230
                                   y: 70
                                   width: 120
@@ -3719,7 +3724,7 @@ lvgl:
                                     then:
                                       - script.execute: ble_meater_scan_stop
                               - label:
-                                  id: settings_meater2_label
+                                  id: settings_meater1_label
                                   x: 35
                                   y: 125
                                   width: 170
@@ -3727,8 +3732,14 @@ lvgl:
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[1];
+                                  clickable: true
+                                  on_click:
+                                    then:
+                                      - script.execute:
+                                          id: ble_meater_clear_mac
+                                          probe_id: 1
                               - button:
-                                  id: settings_meater2_mac_address_search_button
+                                  id: settings_meater1_mac_address_search_button
                                   x: 230
                                   y: 120
                                   width: 120
@@ -3746,7 +3757,7 @@ lvgl:
                                           id: ble_meater_scan_start
                                           probe_id: 1
                               - button:
-                                  id: settings_meater2_mac_address_abort_button
+                                  id: settings_meater1_mac_address_abort_button
                                   x: 230
                                   y: 120
                                   width: 120
@@ -3763,7 +3774,7 @@ lvgl:
                                     then:
                                       - script.execute: ble_meater_scan_stop
                               - label:
-                                  id: settings_meater3_label
+                                  id: settings_meater2_label
                                   x: 35
                                   y: 175
                                   width: 170
@@ -3771,8 +3782,14 @@ lvgl:
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[2];
+                                  clickable: true
+                                  on_click:
+                                    then:
+                                      - script.execute:
+                                          id: ble_meater_clear_mac
+                                          probe_id: 2
                               - button:
-                                  id: settings_meater3_mac_address_search_button
+                                  id: settings_meater2_mac_address_search_button
                                   x: 230
                                   y: 170
                                   width: 120
@@ -3790,7 +3807,7 @@ lvgl:
                                           id: ble_meater_scan_start
                                           probe_id: 2
                               - button:
-                                  id: settings_meater3_mac_address_abort_button
+                                  id: settings_meater2_mac_address_abort_button
                                   x: 230
                                   y: 170
                                   width: 120
@@ -3807,7 +3824,7 @@ lvgl:
                                     then:
                                       - script.execute: ble_meater_scan_stop
                               - label:
-                                  id: settings_meater4_label
+                                  id: settings_meater3_label
                                   x: 35
                                   y: 225
                                   width: 170
@@ -3815,8 +3832,14 @@ lvgl:
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[3];
+                                  clickable: true
+                                  on_click:
+                                    then:
+                                      - script.execute:
+                                          id: ble_meater_clear_mac
+                                          probe_id: 3
                               - button:
-                                  id: settings_meater4_mac_address_search_button
+                                  id: settings_meater3_mac_address_search_button
                                   x: 230
                                   y: 220
                                   width: 120
@@ -3834,7 +3857,7 @@ lvgl:
                                           id: ble_meater_scan_start
                                           probe_id: 3
                               - button:
-                                  id: settings_meater4_mac_address_abort_button
+                                  id: settings_meater3_mac_address_abort_button
                                   x: 230
                                   y: 220
                                   width: 120
@@ -3925,6 +3948,7 @@ lvgl:
                           - lvgl.widget.refresh: [battery_symbol_obj, display_time]
                           - script.execute: apply_wifi
                           - script.execute: apply_mac_address
+                          - script.execute: apply_meater_mac_addresses                          
 
                           # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
                           - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
@@ -4364,6 +4388,23 @@ script:
             return id(settings_wifi_password_persistent);
       - wifi.enable:
 
+  - id: apply_meater_mac_addresses
+    then:
+        # this ensures the ble_client changes MAC at runtime
+        - lambda: !lambda |-
+            std::array<esphome::ble_client::BLEClient *, 4> meaters = {id(meater0), id(meater1), id(meater2), id(meater3)};
+            std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
+            for (int i = 0; i < 4; i++) {
+              std::string mac = t_meater_mac_addresses.substr(i * 18, 17);
+              uint64_t addr = 0;
+              uint64_t b1, b2, b3, b4, b5, b6;
+              if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+                addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+              }
+              meaters[i]->set_address(addr);
+              ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
+            }
+
   - id: hide_boot_screen
     then:
       - if:
@@ -4372,6 +4413,7 @@ script:
           then:
             - script.execute: apply_mac_address
             - script.execute: apply_wifi
+            - script.execute: apply_meater_mac_addresses
             - lvgl.widget.hide: boot_screen
             - lvgl.widget.show: [status_bar_top, status_bar_bottom]
 
@@ -4433,21 +4475,21 @@ script:
           value: 'true'
       - lambda: |-
           id(ble_meater_scan_probe_id) = probe_id;
-      - lvgl.widget.hide: [settings_meater1_mac_address_abort_button, settings_meater2_mac_address_abort_button, settings_meater3_mac_address_abort_button, settings_meater4_mac_address_abort_button]
-      - lvgl.widget.hide: [settings_meater1_mac_address_search_button, settings_meater2_mac_address_search_button, settings_meater3_mac_address_search_button, settings_meater4_mac_address_search_button]
+      - lvgl.widget.hide: [settings_meater0_mac_address_abort_button, settings_meater1_mac_address_abort_button, settings_meater2_mac_address_abort_button, settings_meater3_mac_address_abort_button]
+      - lvgl.widget.hide: [settings_meater0_mac_address_search_button, settings_meater1_mac_address_search_button, settings_meater2_mac_address_search_button, settings_meater3_mac_address_search_button]
       - lambda: |-
           switch (probe_id) {
             case 0:
-              lv_obj_clear_flag(id(settings_meater1_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_clear_flag(id(settings_meater0_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
               break;
             case 1:
-              lv_obj_clear_flag(id(settings_meater2_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_clear_flag(id(settings_meater1_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
               break;
             case 2:
-              lv_obj_clear_flag(id(settings_meater3_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_clear_flag(id(settings_meater2_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
               break;
             case 3:
-              lv_obj_clear_flag(id(settings_meater4_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_clear_flag(id(settings_meater3_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
               break;
           }
   - id: ble_meater_scan_stop
@@ -4455,5 +4497,13 @@ script:
       - globals.set:
           id: ble_meater_scan_started_by_user
           value: 'false'
-      - lvgl.widget.hide: [settings_meater1_mac_address_abort_button, settings_meater2_mac_address_abort_button, settings_meater3_mac_address_abort_button, settings_meater4_mac_address_abort_button]
-      - lvgl.widget.show: [settings_meater1_mac_address_search_button, settings_meater2_mac_address_search_button, settings_meater3_mac_address_search_button, settings_meater4_mac_address_search_button]
+      - lvgl.widget.hide: [settings_meater0_mac_address_abort_button, settings_meater1_mac_address_abort_button, settings_meater2_mac_address_abort_button, settings_meater3_mac_address_abort_button]
+      - lvgl.widget.show: [settings_meater0_mac_address_search_button, settings_meater1_mac_address_search_button, settings_meater2_mac_address_search_button, settings_meater3_mac_address_search_button]
+
+  - id: ble_meater_clear_mac
+    parameters:
+      probe_id: int
+    then:
+      - lambda: |-
+          id(settings_meater_mac_addresses)[probe_id] = "${meater_mac_address}";
+      - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
