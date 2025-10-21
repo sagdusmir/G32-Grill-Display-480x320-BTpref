@@ -24,6 +24,7 @@ Was ist anders?
 * **Darstellungsarten:** zwei unterschiedlichen Ansichten
 * **Status:** Auf dem Display werden neben Verbindungsstatus (WLAN/BLE) vom Grill Monitor auch Informationen des Grills angezeigt
 * **Akku (Optional):** Der Ladezustand (SOC) eines optional angeschlossenen Akkus kann angezeigt werden
+* **Konfiguration:** Diverse Einstellungen sind über den Touchscreen des Grill Monitors selbst vornehmbar
 
 
 ## Was fehlt?
@@ -37,7 +38,7 @@ Was ist anders?
    - feststehende Statusanzeige oben / unten
    - Timer ist mit der optionalen Uhrzeitanzeige (oben mittig) vereint
    - andere UI zum Einstellen von Temperaturalarmen
-   - Konfiguration an Gerät selbst über "G32 Connected" Schriftzug in der oberen Statuszeile
+   - Konfiguration am Gerät selbst über "G32 Connected" Schriftzug in der oberen Statuszeile
    - HA Integration ist weitestgehend noch vorhanden – ungetestet
 
 Vorherige Releases siehe https://github.com/JBecker32/G32-Display-480x320-BT/releases
