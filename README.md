@@ -1,4 +1,4 @@
-# G32 Connected Grill Monitor Display
+# Otto Wilde G32 Connected Grill Monitor Display
 
 Dies is ein Fork von https://github.com/JBecker32/G32-Display-480x320-BT.
 
