@@ -32,6 +32,8 @@ Was ist anders?
 * **Meater:** Verwendung von Meater® / Meater®+ als Temperatursensoren
 
 ## Historie
+* [2025-10-23] BTpref 1.5.4
+   - Anzeige, falls G32 MAC Scan erfolgreich war
 * [2025-10-20] BTpref 1.5.3
    - Tippfelhler in der UI der WIFI Einstellungen
 * [2025-10-19] BTpref 1.5.2

@@ -203,6 +203,7 @@ esp32_ble_tracker:
       - lambda: |-
           if (x.get_name().rfind("OWG-G32C", 0) == 0 && id(ble_g32_scan_started_by_user)) {
             id(settings_g32_mac_address) = x.address_str();
+            lv_obj_clear_flag(id(settings_mac_address_updated), LV_OBJ_FLAG_HIDDEN);
             id(my_rtttl).play("${New_MAC_Sound}");
             ESP_LOGI("ble_adv", "G32 MAC address: %s", x.address_str().c_str());
             id(ble_g32_scan_stop).execute();
@@ -217,26 +218,61 @@ esp32_ble_tracker:
           // }
 
           // some logging
-          if (x.get_name().rfind("OWG-G32C", 0) == 0) {
-            ESP_LOGI("ble_adv", "G32 gefunden");
-            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-          }
-          if (x.get_name().rfind("MEATER+", 0) == 0) {
-            ESP_LOGI("ble_adv", "Meater+ gefunden");
-            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-          }
-          if (x.get_name() == "MEATER") {
-            ESP_LOGI("ble_adv", "Meater gefunden");
-            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-          }
-          if (x.get_name() == "MEATER BLOCK") {
-            ESP_LOGI("ble_adv", "Meater Block gefunden");
-            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-          }
+          // if (x.get_name().rfind("OWG-G32C", 0) == 0) {
+          //   ESP_LOGI("ble_adv", "G32 gefunden");
+          //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          // }
+          // if (x.get_name().rfind("MEATER+", 0) == 0) {
+          //   ESP_LOGI("ble_adv", "Meater+ gefunden");
+          //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          // }
+          // if (x.get_name() == "MEATER") {
+          //   ESP_LOGI("ble_adv", "Meater gefunden");
+          //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          // }
+          // if (x.get_name() == "MEATER BLOCK") {
+          //   ESP_LOGI("ble_adv", "Meater Block gefunden");
+          //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          // }
+
+          // log everything we get on advertise
+          // ESP_LOGD("ble_adv", "New BLE device");
+          // ESP_LOGD("ble_adv", "  address: %s", x.address_str().c_str());
+          // ESP_LOGD("ble_adv", "  RSSI: %d", x.get_rssi());
+          // ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());
+          // ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
+          // for (auto uuid : x.get_service_uuids()) {
+          //   ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
+          // }
+          // ESP_LOGD("ble_adv", "  Advertised service data:");
+          // for (auto data : x.get_service_datas()) {
+          //   ESP_LOGD("ble_adv", "    - %s: (length %i)", data.uuid.to_string().c_str(), data.data.size());
+          //   // To log the actual data bytes, you can add a loop here
+          //   std::string hex_data;
+          //   for (auto byte : data.data) {
+          //       char buf[3];
+          //       sprintf(buf, "%02X ", byte);
+          //       hex_data += buf;
+          //     }
+          //   ESP_LOGD("ble_adv", "      data: %s", hex_data.c_str());
+          // }
+          // ESP_LOGD("ble_adv", "  Advertised manufacturer data:");
+          // for (auto data : x.get_manufacturer_datas()) {
+          //   ESP_LOGD("ble_adv", "    - %s: (length %i)", data.uuid.to_string().c_str(), data.data.size());
+          //   // Similarly, log the data bytes
+          //   std::string hex_data;
+          //   for (auto byte : data.data) {
+          //       char buf[3];
+          //       sprintf(buf, "%02X ", byte);
+          //       hex_data += buf;
+          //     }
+          //   ESP_LOGD("ble_adv", "      data: %s", hex_data.c_str());
+          // }
+
       - lvgl.widget.refresh: settings_mac_address_label
 
 ble_client:
@@ -3108,6 +3144,7 @@ lvgl:
                 checked: !lambda |-
                   return id(settings_hide_inactive_sensors);
           - lvgl.widget.refresh: settings_mac_address_label
+          - lvgl.widget.hide: settings_mac_address_updated
       widgets:
         - obj:
             id: settings_menu
@@ -3165,13 +3202,22 @@ lvgl:
                                   text: "MAC Adresse\ndes G32 Connected"
                               - label:
                                   id: settings_mac_address_label
-                                  x: 0
+                                  x: 105
                                   y: 90
-                                  width: 380
+                                  width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: CENTER
                                   text: !lambda |-
                                     return id(settings_g32_mac_address);
+                              - label:
+                                  id: settings_mac_address_updated
+                                  x: 285
+                                  y: 90
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
+                                  hidden: true
                               - button:
                                   id: settings_g32_mac_address_search_button
                                   x: 120
@@ -4080,7 +4126,7 @@ script:
           id: ble_g32_scan_started_by_user
           value: 'true'
       - lvgl.widget.show: settings_g32_mac_address_abort_button
-      - lvgl.widget.hide: settings_g32_mac_address_search_button
+      - lvgl.widget.hide: [settings_g32_mac_address_search_button, settings_mac_address_updated]
 
   - id: ble_g32_scan_stop
     then:
