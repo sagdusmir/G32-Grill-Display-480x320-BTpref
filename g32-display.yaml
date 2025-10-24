@@ -12,8 +12,6 @@ substitutions:
   g32_mac_address: 94:E6:86:00:00:00
   # g32_mac_address: !secret g32_mac_address  # oder optional als secret konfigurieren
 
-  meater_mac_address: B8:1F:5E:00:00:00  # do not change
-
   # Credentials des eigenen Wifi Netzwerks
   wifi_ssid: "wifi_ssid"
   wifi_password: "password"
@@ -113,9 +111,13 @@ substitutions:
   Invalid_Sensor_Value: '1500' # 1500 means invalid
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  meater_mac_address: B8:1F:5E:00:00:00  # do not change
+
+
 esphome:
   name: ${name}
   build_path: /tmp/esphome_build
@@ -395,8 +397,7 @@ display:
       ignore_strapping_warning: true
     rotation: 90 # for landscape
 #    rotation: 270 # for landscape inverted
-#   auto_clear has to be seit to 'false' for lvgl!:
-    auto_clear_enabled: false
+    auto_clear_enabled: false  # has to be seit to 'false' for lvgl!
 
 #-------------------------------------------
 # Touchscreen gt911 i2c
