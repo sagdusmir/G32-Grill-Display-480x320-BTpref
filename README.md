@@ -25,6 +25,7 @@ Was ist anders?
 * **Status:** Auf dem Display werden neben Verbindungsstatus (WLAN/BLE) vom Grill Monitor auch Informationen des Grills angezeigt
 * **Akku (Optional):** Der Ladezustand (SOC) eines optional angeschlossenen Akkus kann angezeigt werden
 * **Konfiguration:** Diverse Einstellungen sind über den Touchscreen des Grill Monitors selbst vornehmbar
+* **MEATER®** Kerntemperaturen verbundener Sensoren werden anstelle der Werte des G32 dargestellt
 
 
 ## Was fehlt?
@@ -32,6 +33,8 @@ Was ist anders?
 * **Meater:** Verwendung von Meater® / Meater®+ als Temperatursensoren
 
 ## Historie
+* [2025-10-23] BTpref 1.6.0
+   - Meater Unterstützung (Meater "Plus" sollten auch funktionieren)
 * [2025-10-23] BTpref 1.5.4
    - Anzeige, falls G32 MAC Scan erfolgreich war
 * [2025-10-20] BTpref 1.5.3
@@ -54,3 +57,4 @@ Vorherige Releases siehe https://github.com/JBecker32/G32-Display-480x320-BT/rel
 ![BTpref1 5 0-options](https://github.com/user-attachments/assets/e239b53a-f514-45f7-bb1e-a49f2928d9c0)
 ![BTpref1 5 0-warnings](https://github.com/user-attachments/assets/640a62a2-c2cb-423e-9729-244513d95b0e)
 ![BTpref1 5 0-display](https://github.com/user-attachments/assets/628dbb8d-dd4b-4a6f-ab9b-d35b26bd6fbc)
+![BTpref1 6 0-meater](https://github.com/user-attachments/assets/37d671f4-4aa4-48b3-984d-0332f5cd7c76)

@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref 1.5.3"
+  version: "BTpref 1.6.0"
 
   # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
   g32_mac_address: 94:E6:86:00:00:00
@@ -82,6 +82,8 @@ substitutions:
   # Soundeffekte (in RTTTL syntax):
   G32_Connect_Sound: "pling2:d=16,o=6,b=140:e6,32p,d6"
   G32_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
+  MT_Connect_Sound: "Pling4:d=16,o=5,b=100:a5,32p,a6"
+  MT_Disconnect_Sound: "plonk:d=16,o=5,b=100:a6,32p,a5"
   Wifi_Connect_Sound: "dadi:d=16,o=6,b=140:d6,32p,e6"
   Wifi_Disconnect_Sound: "siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e"
   Timer_Alarm_Sound: "didididi:d=16,o=6,b=140:e6,32p,e6,32p,e6,32p,e6"
@@ -109,9 +111,13 @@ substitutions:
   Invalid_Sensor_Value: '1500' # 1500 means invalid
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  meater_mac_address: B8:1F:5E:00:00:00  # do not change
+
+
 esphome:
   name: ${name}
   build_path: /tmp/esphome_build
@@ -197,7 +203,12 @@ wifi:
           id: wifi_connected
           value: 'false'
 
+# esp32_ble:
+#   # 1xG32, 4xMeater probes -> maximum 5 connections
+#   max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
+
 esp32_ble_tracker:
+  max_connections: 5  # before 2025-10-15. Recently moved to esp32_ble component!
   on_ble_advertise:
     then:
       - lambda: |-
@@ -209,13 +220,27 @@ esp32_ble_tracker:
             id(ble_g32_scan_stop).execute();
           }
 
-          // TODO raus. Nur zum Testen.
-          // if (x.get_name().rfind("MEATER", 0) == 0 && id(ble_g32_scan_started_by_user)) {
-          //   id(settings_g32_mac_address) = x.address_str();
-          //   id(my_rtttl).play("${New_MAC_Sound}");
-          //   ESP_LOGI("ble_adv", "MAC address: %s", x.address_str().c_str());
-          //   id(ble_g32_scan_stop).execute();
-          // }
+          if ((x.get_name() == "MEATER" || x.get_name() == "MEATER+") && id(ble_meater_scan_started_by_user)) {
+            if (id(ble_meaters_found) < 15) {
+              int probe_id = x.get_manufacturer_datas()[0].data[0];  // first data byte
+              if (probe_id > 0 && probe_id < 5) {
+                int idx = probe_id-1;
+                if ((id(ble_meaters_found) & (1 << idx)) == 0) {
+                  id(ble_meaters_found) |= (1 << idx);
+                  id(my_rtttl).play("${New_MAC_Sound}");
+                  ESP_LOGI("ble_adv", "Meater MAC address: %s", x.address_str().c_str());
+                  id(settings_meater_mac_addresses)[idx] = x.address_str();
+                  std::array<lv_obj_t *, 4> meater_labels = {id(settings_meater0_label), id(settings_meater1_label), id(settings_meater2_label), id(settings_meater3_label)};
+                  std::array<lv_obj_t *, 4> meater_updated = {id(settings_meater0_updated), id(settings_meater1_updated), id(settings_meater2_updated), id(settings_meater3_updated)};
+                  lv_obj_clear_flag(meater_updated[idx], LV_OBJ_FLAG_HIDDEN);
+                  lv_label_set_text(meater_labels[idx], x.address_str().c_str());
+                }
+              }
+            }
+            if (id(ble_meaters_found) >= 15) {
+              id(ble_meater_scan_stop).execute();           
+            }
+          } 
 
           // some logging
           // if (x.get_name().rfind("OWG-G32C", 0) == 0) {
@@ -240,40 +265,44 @@ esp32_ble_tracker:
           // }
 
           // log everything we get on advertise
-          // ESP_LOGD("ble_adv", "New BLE device");
-          // ESP_LOGD("ble_adv", "  address: %s", x.address_str().c_str());
-          // ESP_LOGD("ble_adv", "  RSSI: %d", x.get_rssi());
-          // ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());
-          // ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
-          // for (auto uuid : x.get_service_uuids()) {
-          //   ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
-          // }
-          // ESP_LOGD("ble_adv", "  Advertised service data:");
-          // for (auto data : x.get_service_datas()) {
-          //   ESP_LOGD("ble_adv", "    - %s: (length %i)", data.uuid.to_string().c_str(), data.data.size());
-          //   // To log the actual data bytes, you can add a loop here
-          //   std::string hex_data;
-          //   for (auto byte : data.data) {
-          //       char buf[3];
-          //       sprintf(buf, "%02X ", byte);
-          //       hex_data += buf;
-          //     }
-          //   ESP_LOGD("ble_adv", "      data: %s", hex_data.c_str());
-          // }
-          // ESP_LOGD("ble_adv", "  Advertised manufacturer data:");
-          // for (auto data : x.get_manufacturer_datas()) {
-          //   ESP_LOGD("ble_adv", "    - %s: (length %i)", data.uuid.to_string().c_str(), data.data.size());
-          //   // Similarly, log the data bytes
-          //   std::string hex_data;
-          //   for (auto byte : data.data) {
-          //       char buf[3];
-          //       sprintf(buf, "%02X ", byte);
-          //       hex_data += buf;
-          //     }
-          //   ESP_LOGD("ble_adv", "      data: %s", hex_data.c_str());
-          // }
+          if (0) {
+            ESP_LOGD("ble_adv", "New BLE device");
+            ESP_LOGD("ble_adv", "  address: %s", x.address_str().c_str());
+            ESP_LOGD("ble_adv", "  RSSI: %d", x.get_rssi());
+            ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());
+            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
+            for (auto uuid : x.get_service_uuids()) {
+              ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
+            }
+            ESP_LOGD("ble_adv", "  Advertised service data:");
+            for (auto data : x.get_service_datas()) {
+              ESP_LOGD("ble_adv", "    - %s: (length %i)", data.uuid.to_string().c_str(), data.data.size());
+              // To log the actual data bytes, you can add a loop here
+              std::string hex_data;
+              for (auto byte : data.data) {
+                  char buf[3];
+                  sprintf(buf, "%02X ", byte);
+                  hex_data += buf;
+                }
+              ESP_LOGD("ble_adv", "      data: %s", hex_data.c_str());
+            }
+            ESP_LOGD("ble_adv", "  Advertised manufacturer data:");
+            for (auto data : x.get_manufacturer_datas()) {
+              ESP_LOGD("ble_adv", "    - %s: (length %i)", data.uuid.to_string().c_str(), data.data.size());
+              // Similarly, log the data bytes
+              std::string hex_data;
+              for (auto byte : data.data) {
+                  char buf[3];
+                  sprintf(buf, "%02X ", byte);
+                  hex_data += buf;
+                }
+              ESP_LOGD("ble_adv", "      data: %s", hex_data.c_str());
+            }
+          }
+
 
       - lvgl.widget.refresh: settings_mac_address_label
+      - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
 
 ble_client:
   - mac_address: ${g32_mac_address}  # must be dynamically applied later
@@ -297,6 +326,62 @@ ble_client:
         - globals.set:
             id: g32_connected
             value: 'false'
+  - mac_address: ${meater_mac_address}
+    id: meater0
+    on_connect:
+      then:
+        - lambda: |-
+            id(active_meaters) |= 0x01;
+        - rtttl.play: ${MT_Connect_Sound}
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(g32_probe1).publish_state(${Invalid_Sensor_Value});
+        - lambda: |-
+            id(active_meaters) &= ~0x01;
+        - rtttl.play: ${MT_Disconnect_Sound}
+  - mac_address: ${meater_mac_address}
+    id: meater1
+    on_connect:
+      then:
+        - lambda: |-
+            id(active_meaters) |= 0x02;
+        - rtttl.play: ${MT_Connect_Sound}
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(g32_probe2).publish_state(${Invalid_Sensor_Value});
+        - lambda: |-
+            id(active_meaters) &= ~0x02;
+        - rtttl.play: ${MT_Disconnect_Sound}
+  - mac_address: ${meater_mac_address}
+    id: meater2
+    on_connect:
+      then:
+        - lambda: |-
+            id(active_meaters) |= 0x04;
+        - rtttl.play: ${MT_Connect_Sound}
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(g32_probe3).publish_state(${Invalid_Sensor_Value});
+        - lambda: |-
+            id(active_meaters) &= ~0x04;
+        - rtttl.play: ${MT_Disconnect_Sound}
+  - mac_address: ${meater_mac_address}
+    id: meater3
+    on_connect:
+      then:
+        - lambda: |-
+            id(active_meaters) |= 0x08;
+        - rtttl.play: ${MT_Connect_Sound}
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(g32_probe4).publish_state(${Invalid_Sensor_Value});
+        - lambda: |-
+            id(active_meaters) &= ~0x08;
+        - rtttl.play: ${MT_Disconnect_Sound}
 
 #-------------------------------------------
 # Display qspi
@@ -311,7 +396,8 @@ display:
   - platform: mipi_spi
     model: JC3248W535
 #  - platform: qspi_dbi
-#    model: axs15231    data_rate: 40MHz
+#    model: axs15231
+    data_rate: 40MHz
     id: my_display
     spi_id: display_qspi
     dimensions:
@@ -322,8 +408,7 @@ display:
       ignore_strapping_warning: true
     rotation: 90 # for landscape
 #    rotation: 270 # for landscape inverted
-#   auto_clear has to be seit to 'false' for lvgl!:
-    auto_clear_enabled: false
+    auto_clear_enabled: false  # has to be seit to 'false' for lvgl!
 
 #-------------------------------------------
 # Touchscreen gt911 i2c
@@ -380,17 +465,18 @@ output:
     platform: ledc
     pin: 1
 
-  - id: helper_low_tilt
-    platform: ledc
-    pin: 17
-
+  # either a simple beeper
   - id: helper_low_beeper
     platform: ledc
     pin: 14
-
   - platform: ledc
     pin: 9
     id: rtttl_out
+
+  # or a beeper with a transisitor for amplification
+  # - platform: ledc
+  #   pin: 17
+  #   id: rtttl_out
 
 #-------------------------------------------
 # Internal lights
@@ -457,6 +543,12 @@ globals:
   - id: ble_g32_scan_started_by_user  # for managing "scan" button status
     type: bool
     initial_value: 'false'
+  - id: ble_meater_scan_started_by_user  # for managing "scan" button status
+    type: bool
+    initial_value: 'false'
+  - id: ble_meaters_found  # bits set/reset for every active/inactive Meater probe
+    type: int
+    initial_value: '0'
   - id: apply_wifi_started_by_user  # for supressing sounds
     type: bool
     initial_value: 'false'
@@ -493,6 +585,10 @@ globals:
     initial_value: ${Show_Numbers_Page}
 
   - id: active_sensors      # bits set/reset for every active/inactive Sensor
+    type: int
+    initial_value: '0'
+
+  - id: active_meaters      # bits set/reset for every active/inactive Meater probe
     type: int
     initial_value: '0'
 
@@ -547,6 +643,13 @@ globals:
   - id: sensor4_limit_value
     type: int
     initial_value: '0'
+
+  - id: meater_values_tip
+    type: std::array<int, 4>
+    initial_value: '{0,0,0,0}'
+  - id: meater_values_ambient
+    type: std::array<int, 4>
+    initial_value: '{0,0,0,0}'
 
   - id: battery_soc_value
     type: int
@@ -607,6 +710,16 @@ globals:
   - id: settings_g32_mac_address
     type: std::string
     initial_value: ""
+
+  - id: settings_meater_mac_addresses_persistent
+    type: std::string
+    initial_value: '"${meater_mac_address},${meater_mac_address},${meater_mac_address},${meater_mac_address}"'
+    restore_value: true
+    max_restore_data_length: 72
+  - id: settings_meater_mac_addresses
+    type: std::array<std::string, 4>
+    initial_value: '{"00:00:00:00:00:00","00:00:00:00:00:00","00:00:00:00:00:00","00:00:00:00:00:00"}'
+
   - id: settings_min_gas_value_persistent
     type: int
     initial_value: ${Min_Gas}
@@ -3040,6 +3153,13 @@ lvgl:
           - lambda: |-
               id(settings_g32_mac_address) = id(settings_g32_mac_address_persistent);
 
+              std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
+              int idx = 0;
+              while (idx < 4) {
+                id(settings_meater_mac_addresses)[idx] = t_meater_mac_addresses.substr(idx * 18, 17);
+                idx++;
+              }
+
               id(settings_wifi_ssid) = id(settings_wifi_ssid_persistent);
               id(settings_wifi_password) = id(settings_wifi_password_persistent);              
 
@@ -3145,6 +3265,8 @@ lvgl:
                   return id(settings_hide_inactive_sensors);
           - lvgl.widget.refresh: settings_mac_address_label
           - lvgl.widget.hide: settings_mac_address_updated
+          - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
+          - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
       widgets:
         - obj:
             id: settings_menu
@@ -3569,8 +3691,132 @@ lvgl:
                                         int val = atoi(text.c_str());
                                         id(settings_display_timeout_value) = val;
                                         // ESP_LOGI("debug", "display_imeout=%d", id(settings_display_timeout_value));
-
-
+                    - name: "MT"  # Meater
+                      id: settings_tab_ble_meater
+                      pad_all: 0
+                      widgets:
+                        - obj:  # meater mac_addresses
+                            x: 0
+                            y: 0
+                            width: 380
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  x: 0
+                                  y: 35
+                                  width: 380
+                                  text_font: MONTSERRAT_14
+                                  text_align: CENTER
+                                  text: "MAC Adressen der MEATER(R)"
+                              - label:
+                                  id: settings_meater0_label
+                                  x: 30
+                                  y: 75
+                                  width: 170
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: !lambda |-
+                                    return id(settings_meater_mac_addresses)[0];
+                              - label:
+                                  id: settings_meater0_updated
+                                  x: 195
+                                  y: 75
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
+                                  hidden: true
+                              - label:
+                                  id: settings_meater1_label
+                                  x: 30
+                                  y: 125
+                                  width: 170
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: !lambda |-
+                                    return id(settings_meater_mac_addresses)[1];
+                              - label:
+                                  id: settings_meater1_updated
+                                  x: 195
+                                  y: 125
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
+                                  hidden: true
+                              - label:
+                                  id: settings_meater2_label
+                                  x: 30
+                                  y: 175
+                                  width: 170
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: !lambda |-
+                                    return id(settings_meater_mac_addresses)[2];
+                              - label:
+                                  id: settings_meater2_updated
+                                  x: 195
+                                  y: 175
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
+                                  hidden: true
+                              - label:
+                                  id: settings_meater3_label
+                                  x: 30
+                                  y: 225
+                                  width: 170
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: !lambda |-
+                                    return id(settings_meater_mac_addresses)[3];
+                              - label:
+                                  id: settings_meater3_updated
+                                  x: 195
+                                  y: 225
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
+                                  hidden: true
+                              - button:
+                                  id: settings_meater_mac_addresses_search_button
+                                  x: 230
+                                  y: 70
+                                  width: 120
+                                  height: 180
+                                  bg_color: 0x555555
+                                  widgets:
+                                    - label:
+                                        align: CENTER
+                                        text_font: MONTSERRAT_20
+                                        text: "Suchen"
+                                        bg_color: 0x555555
+                                  on_click:
+                                    then:
+                                      - script.execute: ble_meater_scan_start
+                              - button:
+                                  id: settings_meater_mac_addresses_abort_button
+                                  x: 230
+                                  y: 70
+                                  width: 120
+                                  height: 180
+                                  bg_color: 0x555555
+                                  hidden: true
+                                  widgets:
+                                    - label:
+                                        align: CENTER
+                                        text_font: MONTSERRAT_20
+                                        text: "Stopp"
+                                        bg_color: 0x555555
+                                  on_click:
+                                    then:
+                                      - script.execute: ble_meater_scan_stop
 
               - obj:  # okay / abort 
                   x: 430
@@ -3598,6 +3844,14 @@ lvgl:
                           - lvgl.widget.hide: my_keyboard
                           - lambda: |-
                               id(settings_g32_mac_address_persistent) = id(settings_g32_mac_address);
+
+                              std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
+                              int idx = 0;
+                              while (idx < 4) {
+                                t_meater_mac_addresses.replace(idx * 18, 17, id(settings_meater_mac_addresses)[idx]);
+                                idx++;
+                              }
+                              id(settings_meater_mac_addresses_persistent) = t_meater_mac_addresses;
 
                               id(settings_wifi_ssid) = std::string(lv_textarea_get_text(settings_wifi_ssid_textarea));
                               id(settings_wifi_password) = std::string(lv_textarea_get_text(settings_wifi_password_textarea));
@@ -3638,6 +3892,7 @@ lvgl:
                           - lvgl.widget.refresh: [battery_symbol_obj, display_time]
                           - script.execute: apply_wifi
                           - script.execute: apply_mac_address
+                          - script.execute: apply_meater_mac_addresses                          
 
                           # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
                           - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
@@ -3785,14 +4040,23 @@ sensor:
       id(g32_zone3).publish_state(t);
       t = (x[12]*10.0+x[13]/10.0);
       id(g32_zone4).publish_state(t);
-      t = (x[14]*10.0+x[15]/10.0);
-      id(g32_probe1).publish_state(t);
-      t = (x[16]*10.0+x[17]/10.0);
-      id(g32_probe2).publish_state(t);
-      t = (x[18]*10.0+x[19]/10.0);
-      id(g32_probe3).publish_state(t);
-      t = (x[20]*10.0+x[21]/10.0);
-      id(g32_probe4).publish_state(t);
+
+      if ((id(active_meaters) & (1 << 0)) == 0) {
+        t = (x[14]*10.0+x[15]/10.0);
+        id(g32_probe1).publish_state(t);
+      }                  
+      if ((id(active_meaters) & (1 << 1)) == 0) {
+        t = (x[16]*10.0+x[17]/10.0);
+        id(g32_probe2).publish_state(t);
+      }                  
+      if ((id(active_meaters) & (1 << 2)) == 0) {
+        t = (x[18]*10.0+x[19]/10.0);
+        id(g32_probe3).publish_state(t);
+      }                  
+      if ((id(active_meaters) & (1 << 3)) == 0) {
+        t = (x[20]*10.0+x[21]/10.0);
+        id(g32_probe4).publish_state(t);
+      }                  
       t = (x[22]*256+x[23]);
       id(g32_gas_weight).publish_state(t);
       t = (x[24]);
@@ -3931,7 +4195,50 @@ sensor:
                 return lv_color_hex(${Gas_Bar_Color});
               }
     
-
+  - platform: ble_client
+    ble_client_id: meater0
+    type: characteristic
+    name: "Meater0 Datablock Read"
+    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
+    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    update_interval: 10s
+    lambda: |-
+      int t = (x[0]+x[1]*256.0)/16.0;
+      id(g32_probe1).publish_state(t);
+      return t;
+  - platform: ble_client
+    ble_client_id: meater1
+    type: characteristic
+    name: "Meater1 Datablock Read"
+    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
+    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    update_interval: 10s
+    lambda: |-
+      int t = (x[0]+x[1]*256.0)/16.0;
+      id(g32_probe2).publish_state(t);
+      return t;
+  - platform: ble_client
+    ble_client_id: meater2
+    type: characteristic
+    name: "Meater02Datablock Read"
+    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
+    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    update_interval: 10s
+    lambda: |-
+      int t = (x[0]+x[1]*256.0)/16.0;
+      id(g32_probe3).publish_state(t);
+      return t;
+  - platform: ble_client
+    ble_client_id: meater3
+    type: characteristic
+    name: "Meater3 Datablock Read"
+    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
+    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    update_interval: 10s
+    lambda: |-
+      int t = (x[0]+x[1]*256.0)/16.0;
+      id(g32_probe4).publish_state(t);
+      return t;
 binary_sensor:
   - platform: gpio
     name: "Display Tilt Sensor"
@@ -4077,6 +4384,23 @@ script:
             return id(settings_wifi_password_persistent);
       - wifi.enable:
 
+  - id: apply_meater_mac_addresses
+    then:
+        # this ensures the ble_client changes MAC at runtime
+        - lambda: !lambda |-
+            std::array<esphome::ble_client::BLEClient *, 4> meaters = {id(meater0), id(meater1), id(meater2), id(meater3)};
+            std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
+            for (int i = 0; i < 4; i++) {
+              std::string mac = t_meater_mac_addresses.substr(i * 18, 17);
+              uint64_t addr = 0;
+              uint64_t b1, b2, b3, b4, b5, b6;
+              if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+                addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+              }
+              meaters[i]->set_address(addr);
+              ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
+            }
+
   - id: hide_boot_screen
     then:
       - if:
@@ -4085,6 +4409,7 @@ script:
           then:
             - script.execute: apply_mac_address
             - script.execute: apply_wifi
+            - script.execute: apply_meater_mac_addresses
             - lvgl.widget.hide: boot_screen
             - lvgl.widget.show: [status_bar_top, status_bar_bottom]
 
@@ -4118,6 +4443,7 @@ script:
           else:
             - lvgl.page.show: numbers_page              
       - script.execute: ble_g32_scan_stop
+      - script.execute: ble_meater_scan_stop
       - lvgl.widget.hide: settings_persist_hint
 
   - id: ble_g32_scan_start
@@ -4136,3 +4462,31 @@ script:
       - lvgl.widget.hide: settings_g32_mac_address_abort_button
       - lvgl.widget.show: settings_g32_mac_address_search_button
       - lvgl.widget.refresh: settings_mac_address_label
+
+  - id: ble_meater_scan_start
+    then:
+      - globals.set:
+          id: ble_meater_scan_started_by_user
+          value: 'true'
+      - globals.set:
+          id: ble_meaters_found
+          value: '0'
+      - lambda: |-
+          id(settings_meater_mac_addresses) = {
+            "${meater_mac_address}",
+            "${meater_mac_address}",
+            "${meater_mac_address}",
+            "${meater_mac_address}"
+          };
+      - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
+      - lvgl.widget.hide: settings_meater_mac_addresses_search_button
+      - lvgl.widget.show: settings_meater_mac_addresses_abort_button
+      - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
+
+  - id: ble_meater_scan_stop
+    then:
+      - globals.set:
+          id: ble_meater_scan_started_by_user
+          value: 'false'
+      - lvgl.widget.show: settings_meater_mac_addresses_search_button
+      - lvgl.widget.hide: settings_meater_mac_addresses_abort_button
