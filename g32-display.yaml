@@ -202,11 +202,11 @@ wifi:
           value: 'false'
 
 # esp32_ble:
-#   # 1xG32, 4xMeater probes, 1xMeater Block -> maximum 6 connections
-#   max_connections: 6  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
+#   # 1xG32, 4xMeater probes -> maximum 5 connections
+#   max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
 
 esp32_ble_tracker:
-  max_connections: 6  # before 2025-10-15. Recently moved to esp32_ble component!
+  max_connections: 5  # before 2025-10-15. Recently moved to esp32_ble component!
   on_ble_advertise:
     then:
       - lambda: |-
@@ -219,10 +219,25 @@ esp32_ble_tracker:
           }
 
           if (x.get_name() == "MEATER" && id(ble_meater_scan_started_by_user)) {
-            id(settings_meater_mac_addresses)[id(ble_meater_scan_probe_id)] = x.address_str();
-            id(my_rtttl).play("${New_MAC_Sound}");
-            ESP_LOGI("ble_adv", "Meater MAC address: %s", x.address_str().c_str());
-            id(ble_meater_scan_stop).execute();           
+            if (id(ble_meaters_found) < 15) {
+              int probe_id = x.get_manufacturer_datas()[0].data[0];  // first data byte
+              if (probe_id > 0 && probe_id < 5) {
+                int idx = probe_id-1;
+                if ((id(ble_meaters_found) & (1 << idx)) == 0) {
+                  id(ble_meaters_found) |= (1 << idx);
+                  id(my_rtttl).play("${New_MAC_Sound}");
+                  ESP_LOGI("ble_adv", "Meater MAC address: %s", x.address_str().c_str());
+                  id(settings_meater_mac_addresses)[idx] = x.address_str();
+                  std::array<lv_obj_t *, 4> meater_labels = {id(settings_meater0_label), id(settings_meater1_label), id(settings_meater2_label), id(settings_meater3_label)};
+                  std::array<lv_obj_t *, 4> meater_updated = {id(settings_meater0_updated), id(settings_meater1_updated), id(settings_meater2_updated), id(settings_meater3_updated)};
+                  lv_obj_clear_flag(meater_updated[idx], LV_OBJ_FLAG_HIDDEN);
+                  lv_label_set_text(meater_labels[idx], x.address_str().c_str());
+                }
+              }
+            }
+            if (id(ble_meaters_found) >= 15) {
+              id(ble_meater_scan_stop).execute();           
+            }
           } 
 
           // some logging
@@ -316,7 +331,7 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(active_sensors) &= ~0x01;
+            id(active_meaters) &= ~0x01;
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
     id: meater1
@@ -328,22 +343,10 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(active_sensors) &= ~0x02;
+            id(active_meaters) &= ~0x02;
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
     id: meater2
-    on_connect:
-      then:
-        - lambda: |-
-            id(active_meaters) |= 0x03;
-        - rtttl.play: ${MT_Connect_Sound}
-    on_disconnect:
-      then:
-        - lambda: |-
-            id(active_sensors) &= ~0x03;
-        - rtttl.play: ${MT_Disconnect_Sound}
-  - mac_address: ${meater_mac_address}
-    id: meater3
     on_connect:
       then:
         - lambda: |-
@@ -352,7 +355,19 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(active_sensors) &= ~0x04;
+            id(active_meaters) &= ~0x04;
+        - rtttl.play: ${MT_Disconnect_Sound}
+  - mac_address: ${meater_mac_address}
+    id: meater3
+    on_connect:
+      then:
+        - lambda: |-
+            id(active_meaters) |= 0x08;
+        - rtttl.play: ${MT_Connect_Sound}
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(active_meaters) &= ~0x08;
         - rtttl.play: ${MT_Disconnect_Sound}
 
 #-------------------------------------------
@@ -519,7 +534,7 @@ globals:
   - id: ble_meater_scan_started_by_user  # for managing "scan" button status
     type: bool
     initial_value: 'false'
-  - id: ble_meater_scan_probe_id
+  - id: ble_meaters_found  # bits set/reset for every active/inactive Meater probe
     type: int
     initial_value: '0'
   - id: apply_wifi_started_by_user  # for supressing sounds
@@ -3231,6 +3246,8 @@ lvgl:
                   return id(settings_hide_inactive_sensors);
           - lvgl.widget.refresh: settings_mac_address_label
           - lvgl.widget.hide: settings_mac_address_updated
+          - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
+          - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
       widgets:
         - obj:
             id: settings_menu
@@ -3678,175 +3695,82 @@ lvgl:
                                   text: "MAC Adressen der MEATER(R)"
                               - label:
                                   id: settings_meater0_label
-                                  x: 35
+                                  x: 30
                                   y: 75
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[0];
-                                  clickable: true
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_clear_mac
-                                          probe_id: 0
-                              - button:
-                                  id: settings_meater0_mac_address_search_button
-                                  x: 230
-                                  y: 70
-                                  width: 120
-                                  height: 30
-                                  bg_color: 0x555555
-                                  widgets:
-                                    - label:
-                                        align: CENTER
-                                        text_font: MONTSERRAT_20
-                                        text: "Suchen"
-                                        bg_color: 0x555555
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_scan_start
-                                          probe_id: 0
-                              - button:
-                                  id: settings_meater0_mac_address_abort_button
-                                  x: 230
-                                  y: 70
-                                  width: 120
-                                  height: 30
-                                  bg_color: 0x555555
+                              - label:
+                                  id: settings_meater0_updated
+                                  x: 195
+                                  y: 75
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
                                   hidden: true
-                                  widgets:
-                                    - label:
-                                        align: CENTER
-                                        text_font: MONTSERRAT_20
-                                        text: "Stopp"
-                                        bg_color: 0x555555
-                                  on_click:
-                                    then:
-                                      - script.execute: ble_meater_scan_stop
                               - label:
                                   id: settings_meater1_label
-                                  x: 35
+                                  x: 30
                                   y: 125
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[1];
-                                  clickable: true
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_clear_mac
-                                          probe_id: 1
-                              - button:
-                                  id: settings_meater1_mac_address_search_button
-                                  x: 230
-                                  y: 120
-                                  width: 120
-                                  height: 30
-                                  bg_color: 0x555555
-                                  widgets:
-                                    - label:
-                                        align: CENTER
-                                        text_font: MONTSERRAT_20
-                                        text: "Suchen"
-                                        bg_color: 0x555555
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_scan_start
-                                          probe_id: 1
-                              - button:
-                                  id: settings_meater1_mac_address_abort_button
-                                  x: 230
-                                  y: 120
-                                  width: 120
-                                  height: 30
-                                  bg_color: 0x555555
+                              - label:
+                                  id: settings_meater1_updated
+                                  x: 195
+                                  y: 125
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
                                   hidden: true
-                                  widgets:
-                                    - label:
-                                        align: CENTER
-                                        text_font: MONTSERRAT_20
-                                        text: "Stopp"
-                                        bg_color: 0x555555
-                                  on_click:
-                                    then:
-                                      - script.execute: ble_meater_scan_stop
                               - label:
                                   id: settings_meater2_label
-                                  x: 35
+                                  x: 30
                                   y: 175
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[2];
-                                  clickable: true
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_clear_mac
-                                          probe_id: 2
-                              - button:
-                                  id: settings_meater2_mac_address_search_button
-                                  x: 230
-                                  y: 170
-                                  width: 120
-                                  height: 30
-                                  bg_color: 0x555555
-                                  widgets:
-                                    - label:
-                                        align: CENTER
-                                        text_font: MONTSERRAT_20
-                                        text: "Suchen"
-                                        bg_color: 0x555555
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_scan_start
-                                          probe_id: 2
-                              - button:
-                                  id: settings_meater2_mac_address_abort_button
-                                  x: 230
-                                  y: 170
-                                  width: 120
-                                  height: 30
-                                  bg_color: 0x555555
+                              - label:
+                                  id: settings_meater2_updated
+                                  x: 195
+                                  y: 175
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
                                   hidden: true
-                                  widgets:
-                                    - label:
-                                        align: CENTER
-                                        text_font: MONTSERRAT_20
-                                        text: "Stopp"
-                                        bg_color: 0x555555
-                                  on_click:
-                                    then:
-                                      - script.execute: ble_meater_scan_stop
                               - label:
                                   id: settings_meater3_label
-                                  x: 35
+                                  x: 30
                                   y: 225
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[3];
-                                  clickable: true
-                                  on_click:
-                                    then:
-                                      - script.execute:
-                                          id: ble_meater_clear_mac
-                                          probe_id: 3
+                              - label:
+                                  id: settings_meater3_updated
+                                  x: 195
+                                  y: 225
+                                  width: 20
+                                  text_font: MONTSERRAT_18
+                                  text_align: LEFT
+                                  text: "\uF00C"
+                                  hidden: true
                               - button:
-                                  id: settings_meater3_mac_address_search_button
+                                  id: settings_meater_mac_addresses_search_button
                                   x: 230
-                                  y: 220
+                                  y: 70
                                   width: 120
-                                  height: 30
+                                  height: 180
                                   bg_color: 0x555555
                                   widgets:
                                     - label:
@@ -3856,15 +3780,13 @@ lvgl:
                                         bg_color: 0x555555
                                   on_click:
                                     then:
-                                      - script.execute:
-                                          id: ble_meater_scan_start
-                                          probe_id: 3
+                                      - script.execute: ble_meater_scan_start
                               - button:
-                                  id: settings_meater3_mac_address_abort_button
+                                  id: settings_meater_mac_addresses_abort_button
                                   x: 230
-                                  y: 220
+                                  y: 70
                                   width: 120
-                                  height: 30
+                                  height: 180
                                   bg_color: 0x555555
                                   hidden: true
                                   widgets:
@@ -4450,6 +4372,7 @@ script:
           else:
             - lvgl.page.show: numbers_page              
       - script.execute: ble_g32_scan_stop
+      - script.execute: ble_meater_scan_stop
       - lvgl.widget.hide: settings_persist_hint
 
   - id: ble_g32_scan_start
@@ -4470,43 +4393,29 @@ script:
       - lvgl.widget.refresh: settings_mac_address_label
 
   - id: ble_meater_scan_start
-    parameters:
-      probe_id: int
     then:
       - globals.set:
           id: ble_meater_scan_started_by_user
           value: 'true'
+      - globals.set:
+          id: ble_meaters_found
+          value: '0'
       - lambda: |-
-          id(ble_meater_scan_probe_id) = probe_id;
-      - lvgl.widget.hide: [settings_meater0_mac_address_abort_button, settings_meater1_mac_address_abort_button, settings_meater2_mac_address_abort_button, settings_meater3_mac_address_abort_button]
-      - lvgl.widget.hide: [settings_meater0_mac_address_search_button, settings_meater1_mac_address_search_button, settings_meater2_mac_address_search_button, settings_meater3_mac_address_search_button]
-      - lambda: |-
-          switch (probe_id) {
-            case 0:
-              lv_obj_clear_flag(id(settings_meater0_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
-              break;
-            case 1:
-              lv_obj_clear_flag(id(settings_meater1_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
-              break;
-            case 2:
-              lv_obj_clear_flag(id(settings_meater2_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
-              break;
-            case 3:
-              lv_obj_clear_flag(id(settings_meater3_mac_address_abort_button), LV_OBJ_FLAG_HIDDEN);
-              break;
-          }
+          id(settings_meater_mac_addresses) = {
+            "${meater_mac_address}",
+            "${meater_mac_address}",
+            "${meater_mac_address}",
+            "${meater_mac_address}"
+          };
+      - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
+      - lvgl.widget.hide: settings_meater_mac_addresses_search_button
+      - lvgl.widget.show: settings_meater_mac_addresses_abort_button
+      - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
+
   - id: ble_meater_scan_stop
     then:
       - globals.set:
           id: ble_meater_scan_started_by_user
           value: 'false'
-      - lvgl.widget.hide: [settings_meater0_mac_address_abort_button, settings_meater1_mac_address_abort_button, settings_meater2_mac_address_abort_button, settings_meater3_mac_address_abort_button]
-      - lvgl.widget.show: [settings_meater0_mac_address_search_button, settings_meater1_mac_address_search_button, settings_meater2_mac_address_search_button, settings_meater3_mac_address_search_button]
-
-  - id: ble_meater_clear_mac
-    parameters:
-      probe_id: int
-    then:
-      - lambda: |-
-          id(settings_meater_mac_addresses)[probe_id] = "${meater_mac_address}";
-      - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
+      - lvgl.widget.show: settings_meater_mac_addresses_search_button
+      - lvgl.widget.hide: settings_meater_mac_addresses_abort_button
