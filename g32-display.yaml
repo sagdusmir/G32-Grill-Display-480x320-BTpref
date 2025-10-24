@@ -220,7 +220,7 @@ esp32_ble_tracker:
             id(ble_g32_scan_stop).execute();
           }
 
-          if (x.get_name() == "MEATER" && id(ble_meater_scan_started_by_user)) {
+          if ((x.get_name() == "MEATER" || x.get_name() == "MEATER+") && id(ble_meater_scan_started_by_user)) {
             if (id(ble_meaters_found) < 15) {
               int probe_id = x.get_manufacturer_datas()[0].data[0];  // first data byte
               if (probe_id > 0 && probe_id < 5) {
