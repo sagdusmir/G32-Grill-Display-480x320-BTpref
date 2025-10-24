@@ -25,7 +25,7 @@ Was ist anders?
 * **Status:** Auf dem Display werden neben Verbindungsstatus (WLAN/BLE) vom Grill Monitor auch Informationen des Grills angezeigt
 * **Akku (Optional):** Der Ladezustand (SOC) eines optional angeschlossenen Akkus kann angezeigt werden
 * **Konfiguration:** Diverse Einstellungen sind über den Touchscreen des Grill Monitors selbst vornehmbar
-* **MEATER®** Kerntemperaturen verbundener Sensoren werden anstelle der Werte des G32 dargestellt
+* **MEATER®** Kerntemperaturen verbundener Sensoren (1-4) werden anstelle der Werte des G32 dargestellt
 
 
 ## Was fehlt?
