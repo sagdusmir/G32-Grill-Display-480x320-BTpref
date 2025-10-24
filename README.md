@@ -33,7 +33,7 @@ Was ist anders?
 * **Meater:** Verwendung von Meater® / Meater®+ als Temperatursensoren
 
 ## Historie
-* [2025-10-23] BTpref 1.6.0
+* [2025-10-24] BTpref 1.6.0
    - Meater Unterstützung (Meater "Plus" sollten auch funktionieren)
 * [2025-10-23] BTpref 1.5.4
    - Anzeige, falls G32 MAC Scan erfolgreich war
