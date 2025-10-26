@@ -8,10 +8,6 @@ substitutions:
   device_description: "Monitor an OW G32 grill"
   version: "BTpref 1.6.0"
 
-  # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
-  g32_mac_address: 94:E6:86:00:00:00
-  # g32_mac_address: !secret g32_mac_address  # oder optional als secret konfigurieren
-
   # Credentials des eigenen Wifi Netzwerks
   wifi_ssid: "wifi_ssid"
   wifi_password: "password"
@@ -45,26 +41,9 @@ substitutions:
   Limit_text_Color:  "0xaaaaaa"  # 0xaaaaaa = Grau
 #  Limit_text_Color:  "0xffb455"  # 0xffb455 = Orange
 
-# Farbe für den 'Gas-Balken' auf der 'arcs page' festlegen:
+  # Farbe für den 'Gas-Balken'
   Gas_Bar_Color:      "0x00ff00"  # 0x00ff00 = Hellgrün
   Gas_Bar_Low_Color:  "0xff0000"  # 0xff0000 = Rot
-# Farbe für den 'Gas-Balken' auf der 'numbers page' festlegen:
-  Gas_Bar_Color2:     "0xaaaaaa"  # 0xaaaaaa = Grau
-  Gas_Bar_Low_Color2: "0xff0000"  # 0xff0000 = Rot
-
-# Batteriesymbol komplett ausgeblenden (kein Akku vorhanden)? true = ausblenden, false = anzeigen :
-  Hide_Battery_Symbol: 'false'
-# SOC (in %) des Akkus festlegen, unterhalb dessen das Batteriesymbol in rot angezeigt wird:
-  Min_SOC: "25"
-
-# Minimalwert für Gasmenge in % festlegen
-  Min_Gas: "20"
-
-# sollen inaktive Sensoren komplett ausgeblendet werden? true = ausblenden, false = anzeigen:
-  Hide_Inactive_Sensors: 'false' # inaktive Sensoren werden angezeigt
-
-# sollen für Zonen und Sensoren Temperaturlimits gesetzt werden können? true = Ja, false = Nein
-  Enable_Temperature_Limits: 'true'
 
 # Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 500 für Garraum:
   Sensor1_Max: "130"
@@ -91,32 +70,28 @@ substitutions:
   Sensor_Limit_Alarm_Sound: "didadida:d=8,o=5,b=150:e,d,e,d,e,d,e,d"
   New_MAC_Sound: "click:d=32,o=6,b=120:32c,32p"
 
-  # Uhrzeit 11:32:45 oben in der Mitte der Statuszeile anzeigen?
-  Show_Time: 'true'  # requires wifi
-
-  # Timer ausblenden?
-  Disable_Timer: 'false'
-
 # welche Anzeigen sollen aktiv sein, die bunten 'Arcs' und/oder die grauen 'Zahlen'?
 # Wenn beide aktiv, dann Wechsel zwischen den Anzeigen durch 'Swipen' nach rechts oder links
 # anzeigen: 'true', nicht anzeigen: 'false' (mindestens eins sollte 'true' sein!)
   Show_Arcs_Page: 'true'
   Show_Numbers_Page: 'true'
 
-# Display Timeout (schont Akku und Display). Touch reaktiviert das Display.
-# Zeit bis zum Ausschalten festlegen (1-3600(s)). 0 deaktiviert die Funktion
-# Display_Timeout: "300"
-  Display_Timeout: "0"
-
-  Invalid_Sensor_Value: '1500' # 1500 means invalid
 
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   # ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-  meater_mac_address: B8:1F:5E:00:00:00  # do not change
+  g32_mac_address: 94:E6:86:00:00:00
+  g32_service_uuid: dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb
+  g32_characteristic_uuid_tx: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
+  # g32_characteristic_uuid_rx: 'dc0f41e1-b6ae-46a8-a19e-1a3bf4342bcb'  # from the original OW app
 
+  meater_mac_address: B8:1F:5E:00:00:00
+  meater_service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
+  meater_characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+
+  Invalid_Sensor_Value: '1500' # 1500 means invalid
 
 esphome:
   name: ${name}
@@ -222,18 +197,20 @@ esp32_ble_tracker:
 
           if ((x.get_name() == "MEATER" || x.get_name() == "MEATER+") && id(ble_meater_scan_started_by_user)) {
             if (id(ble_meaters_found) < 15) {
-              int probe_id = x.get_manufacturer_datas()[0].data[0];  // first data byte
-              if (probe_id > 0 && probe_id < 5) {
-                int idx = probe_id-1;
-                if ((id(ble_meaters_found) & (1 << idx)) == 0) {
-                  id(ble_meaters_found) |= (1 << idx);
-                  id(my_rtttl).play("${New_MAC_Sound}");
-                  ESP_LOGI("ble_adv", "Meater MAC address: %s", x.address_str().c_str());
-                  id(settings_meater_mac_addresses)[idx] = x.address_str();
-                  std::array<lv_obj_t *, 4> meater_labels = {id(settings_meater0_label), id(settings_meater1_label), id(settings_meater2_label), id(settings_meater3_label)};
-                  std::array<lv_obj_t *, 4> meater_updated = {id(settings_meater0_updated), id(settings_meater1_updated), id(settings_meater2_updated), id(settings_meater3_updated)};
-                  lv_obj_clear_flag(meater_updated[idx], LV_OBJ_FLAG_HIDDEN);
-                  lv_label_set_text(meater_labels[idx], x.address_str().c_str());
+              if (!x.get_manufacturer_datas().empty() && !x.get_manufacturer_datas()[0].data.empty()) {  // assert data is available
+                int probe_id = x.get_manufacturer_datas()[0].data[0];  // first data byte
+                if (probe_id > 0 && probe_id < 5) {
+                  int idx = probe_id-1;
+                  if ((id(ble_meaters_found) & (1 << idx)) == 0) {
+                    id(ble_meaters_found) |= (1 << idx);
+                    id(my_rtttl).play("${New_MAC_Sound}");
+                    ESP_LOGI("ble_adv", "Meater MAC address: %s", x.address_str().c_str());
+                    id(settings_meater_mac_addresses)[idx] = x.address_str();
+                    std::array<lv_obj_t *, 4> meater_labels = {id(settings_meater0_label), id(settings_meater1_label), id(settings_meater2_label), id(settings_meater3_label)};
+                    std::array<lv_obj_t *, 4> meater_updated = {id(settings_meater0_updated), id(settings_meater1_updated), id(settings_meater2_updated), id(settings_meater3_updated)};
+                    lv_obj_clear_flag(meater_updated[idx], LV_OBJ_FLAG_HIDDEN);
+                    lv_label_set_text(meater_labels[idx], x.address_str().c_str());
+                  }
                 }
               }
             }
@@ -722,56 +699,56 @@ globals:
 
   - id: settings_min_gas_value_persistent
     type: int
-    initial_value: ${Min_Gas}
+    initial_value: "20"
     restore_value: true
   - id: settings_min_gas_value
     type: int
     initial_value: '0'
   - id: settings_min_soc_value_persistent
     type: int
-    initial_value: ${Min_SOC}
+    initial_value: "25"
     restore_value: true
   - id: settings_min_soc_value
     type: int
     initial_value: '0'
   - id: settings_hide_soc_persistent
     type: bool
-    initial_value: ${Hide_Battery_Symbol}
+    initial_value: 'false'
     restore_value: true
   - id: settings_hide_soc
     type: bool
     initial_value: 'false'
   - id: settings_enable_temperature_limits_persistent
     type: bool
-    initial_value: ${Enable_Temperature_Limits}
+    initial_value: 'true'
     restore_value: true
   - id: settings_enable_temperature_limits
     type: bool
     initial_value: 'true'
   - id: settings_hide_inactive_sensors_persistent
     type: bool
-    initial_value: ${Hide_Inactive_Sensors}
+    initial_value: 'false'
     restore_value: true
   - id: settings_hide_inactive_sensors
     type: bool
     initial_value: 'false'
   - id: settings_show_time_persistent
     type: bool
-    initial_value: ${Show_Time}
+    initial_value: 'true'
     restore_value: true
   - id: settings_show_time
     type: bool
     initial_value: 'true'
   - id: settings_hide_timer_persistent
     type: bool
-    initial_value: ${Disable_Timer}
+    initial_value: 'false'
     restore_value: true
   - id: settings_hide_timer
     type: bool
     initial_value: 'false'
   - id: settings_display_timeout_value_persistent
     type: int
-    initial_value: ${Display_Timeout}
+    initial_value: "0"
     restore_value: true
   - id: settings_display_timeout_value
     type: int
@@ -1292,7 +1269,7 @@ lvgl:
                       return lv_color_hex(0xff0000);
                     }
                   text: !lambda |-
-                    if( id(zone1_value) < 1500) {return (to_string(static_cast<int>(id(zone1_value)))).c_str();
+                    if( id(zone1_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone1_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -1333,7 +1310,7 @@ lvgl:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(zone1_value) < 1500) {return id(zone1_value);
+                    if( id(zone1_value) < ${Invalid_Sensor_Value}) {return id(zone1_value);
                     } else {
                       return 0;
                     }
@@ -1362,7 +1339,7 @@ lvgl:
                       return lv_color_hex(0xff0000);
                     }
                   text: !lambda |-
-                    if( id(zone2_value) < 1500) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
+                    if( id(zone2_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -1403,7 +1380,7 @@ lvgl:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(zone2_value) < 1500) {return id(zone2_value);
+                    if( id(zone2_value) < ${Invalid_Sensor_Value}) {return id(zone2_value);
                     } else {
                       return 0;
                     }
@@ -1432,7 +1409,7 @@ lvgl:
                       return lv_color_hex(0xff0000);
                     }
                   text: !lambda |-
-                    if( id(zone3_value) < 1500) {return (to_string(static_cast<int>(id(zone3_value)))).c_str();
+                    if( id(zone3_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone3_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -1473,7 +1450,7 @@ lvgl:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(zone3_value) < 1500) {return id(zone3_value);
+                    if( id(zone3_value) < ${Invalid_Sensor_Value}) {return id(zone3_value);
                     } else {
                       return 0;
                     }
@@ -1502,7 +1479,7 @@ lvgl:
                       return lv_color_hex(0xff0000);
                     }
                   text: !lambda |-
-                    if( id(zone4_value) < 1500) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
+                    if( id(zone4_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -1543,7 +1520,7 @@ lvgl:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(zone4_value) < 1500) {return id(zone4_value);
+                    if( id(zone4_value) < ${Invalid_Sensor_Value}) {return id(zone4_value);
                     } else {
                       return 0;
                     }
@@ -1555,7 +1532,7 @@ lvgl:
             y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor1_value) < ${Invalid_Sensor_Value}) || (id(sensor1_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x01;
                 return false;
               } else {
@@ -1574,12 +1551,12 @@ lvgl:
                   y: 34
                   text_font: MONTSERRAT_26
                   text: !lambda |-
-                    if( id(sensor1_value) < 1500) {return (to_string(static_cast<int>(id(sensor1_value)))).c_str();
+                    if( id(sensor1_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(sensor1_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor1_limit_value) == 0) || (id(sensor1_value) < id(sensor1_limit_value) && id(sensor1_value) < 1500) ) {
+                    if( (id(sensor1_limit_value) == 0) || (id(sensor1_value) < id(sensor1_limit_value) && id(sensor1_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(0xffffff); // White
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -1621,7 +1598,7 @@ lvgl:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(sensor1_value) < 1500) {return (id(sensor1_value));
+                    if( id(sensor1_value) < ${Invalid_Sensor_Value}) {return (id(sensor1_value));
                     } else {
                       return (0);
                     }
@@ -1633,7 +1610,7 @@ lvgl:
             y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor2_value) < ${Invalid_Sensor_Value}) || (id(sensor2_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x02;
                 return false;
               } else {
@@ -1652,12 +1629,12 @@ lvgl:
                   y: 34
                   text_font: MONTSERRAT_26
                   text: !lambda |-
-                    if( id(sensor2_value) < 1500) {return (to_string(static_cast<int>(id(sensor2_value)))).c_str();
+                    if( id(sensor2_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(sensor2_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor2_limit_value) == 0) || (id(sensor2_value) < id(sensor2_limit_value) && id(sensor2_value) < 1500) ) {
+                    if( (id(sensor2_limit_value) == 0) || (id(sensor2_value) < id(sensor2_limit_value) && id(sensor2_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(0xffffff); // White
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -1699,7 +1676,7 @@ lvgl:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(sensor2_value) < 1500) {return (id(sensor2_value));
+                    if( id(sensor2_value) < ${Invalid_Sensor_Value}) {return (id(sensor2_value));
                     } else {
                       return (0);
                     }
@@ -1711,7 +1688,7 @@ lvgl:
             y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor3_value) < ${Invalid_Sensor_Value}) || (id(sensor3_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x04;
                 return false;
               } else {
@@ -1730,12 +1707,12 @@ lvgl:
                   y: 34
                   text_font: MONTSERRAT_26
                   text: !lambda |-
-                    if( id(sensor3_value) < 1500) {return (to_string(static_cast<int>(id(sensor3_value)))).c_str();
+                    if( id(sensor3_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(sensor3_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor3_limit_value) == 0) || (id(sensor3_value) < id(sensor3_limit_value) && id(sensor3_value) < 1500) ) {
+                    if( (id(sensor3_limit_value) == 0) || (id(sensor3_value) < id(sensor3_limit_value) && id(sensor3_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(0xffffff); // White
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -1777,7 +1754,7 @@ lvgl:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(sensor3_value) < 1500) {return (id(sensor3_value));
+                    if( id(sensor3_value) < ${Invalid_Sensor_Value}) {return (id(sensor3_value));
                     } else {
                       return (0);
                     }
@@ -1789,7 +1766,7 @@ lvgl:
             y: 191
             styles: temp_obj_style
             hidden: !lambda |-
-              if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor4_value) < ${Invalid_Sensor_Value}) || (id(sensor4_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x08;
                 return false;
               } else {
@@ -1808,12 +1785,12 @@ lvgl:
                   y: 34
                   text_font: MONTSERRAT_26
                   text: !lambda |-
-                    if( id(sensor4_value) < 1500) {return (to_string(static_cast<int>(id(sensor4_value)))).c_str();
+                    if( id(sensor4_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(sensor4_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor4_limit_value) == 0) || (id(sensor4_value) < id(sensor4_limit_value) && id(sensor4_value) < 1500) ) {
+                    if( (id(sensor4_limit_value) == 0) || (id(sensor4_value) < id(sensor4_limit_value) && id(sensor4_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(0xffffff); // White
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -1855,7 +1832,7 @@ lvgl:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
                   value: !lambda |-
-                    if( id(sensor4_value) < 1500) {return (id(sensor4_value));
+                    if( id(sensor4_value) < ${Invalid_Sensor_Value}) {return (id(sensor4_value));
                     } else {
                       return (0);
                     }
@@ -1940,7 +1917,7 @@ lvgl:
                       return lv_color_hex(0xff0000); // red
                     }
                   text: !lambda |-
-                    if( id(zone1_value) < 1500) {return (to_string(static_cast<int>(id(zone1_value)))).c_str();
+                    if( id(zone1_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone1_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -2016,7 +1993,7 @@ lvgl:
                       return lv_color_hex(0xff0000); // red
                     }
                   text: !lambda |-
-                    if( id(zone2_value) < 1500) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
+                    if( id(zone2_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -2092,7 +2069,7 @@ lvgl:
                       return lv_color_hex(0xff0000); // red
                     }
                   text: !lambda |-
-                    if( id(zone3_value) < 1500) {return (to_string(static_cast<int>(id(zone3_value)))).c_str();
+                    if( id(zone3_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone3_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -2168,7 +2145,7 @@ lvgl:
                       return lv_color_hex(0xff0000); // red
                     }
                   text: !lambda |-
-                    if( id(zone4_value) < 1500) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
+                    if( id(zone4_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
                     } else {
                       return ("---");
                     }
@@ -2234,7 +2211,7 @@ lvgl:
             y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor1_value) < ${Invalid_Sensor_Value}) || (id(sensor1_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x01;
                 return false;
               } else {
@@ -2265,13 +2242,13 @@ lvgl:
                   bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
-                    if( (id(sensor1_value) < 1500) && (id(sensor1_value) > 0) ) {
+                    if( (id(sensor1_value) < ${Invalid_Sensor_Value}) && (id(sensor1_value) > 0) ) {
                       return (to_string(static_cast<int>(id(sensor1_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor1_limit_value) == 0) || (id(sensor1_value) < id(sensor1_limit_value) && id(sensor1_value) < 1500) ) {
+                    if( (id(sensor1_limit_value) == 0) || (id(sensor1_value) < id(sensor1_limit_value) && id(sensor1_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(${Limit_text_Color}); // user-defined color
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -2319,7 +2296,7 @@ lvgl:
             y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor2_value) < ${Invalid_Sensor_Value}) || (id(sensor2_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x02;
                 return false;
               } else {
@@ -2350,13 +2327,13 @@ lvgl:
                   bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
-                    if( (id(sensor2_value) < 1500) && (id(sensor2_value) > 0) ) {
+                    if( (id(sensor2_value) < ${Invalid_Sensor_Value}) && (id(sensor2_value) > 0) ) {
                       return (to_string(static_cast<int>(id(sensor2_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor2_limit_value) == 0) || (id(sensor2_value) < id(sensor2_limit_value) && id(sensor2_value) < 1500) ) {
+                    if( (id(sensor2_limit_value) == 0) || (id(sensor2_value) < id(sensor2_limit_value) && id(sensor2_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(${Limit_text_Color}); // user-defined color
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -2404,7 +2381,7 @@ lvgl:
             y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor3_value) < ${Invalid_Sensor_Value}) || (id(sensor3_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x04;
                 return false;
               } else {
@@ -2435,13 +2412,13 @@ lvgl:
                   bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
-                    if( (id(sensor3_value) < 1500) && (id(sensor3_value) > 0) ) {
+                    if( (id(sensor3_value) < ${Invalid_Sensor_Value}) && (id(sensor3_value) > 0) ) {
                       return (to_string(static_cast<int>(id(sensor3_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor3_limit_value) == 0) || (id(sensor3_value) < id(sensor3_limit_value) && id(sensor3_value) < 1500) ) {
+                    if( (id(sensor3_limit_value) == 0) || (id(sensor3_value) < id(sensor3_limit_value) && id(sensor3_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(${Limit_text_Color}); // user-defined color
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -2490,7 +2467,7 @@ lvgl:
             y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
-              if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
+              if( (id(sensor4_value) < ${Invalid_Sensor_Value}) || (id(sensor4_limit_value) > 0) || (id(settings_hide_inactive_sensors_persistent) == false) ) {
                 id(active_sensors) |= 0x08;
                 return false;
               } else {
@@ -2521,13 +2498,13 @@ lvgl:
                   bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
-                    if( (id(sensor4_value) < 1500) && (id(sensor4_value) > 0) ) {
+                    if( (id(sensor4_value) < ${Invalid_Sensor_Value}) && (id(sensor4_value) > 0) ) {
                       return (to_string(static_cast<int>(id(sensor4_value)))).c_str();
                     } else {
                       return ("---");
                     }
                   text_color: !lambda |-
-                    if( (id(sensor4_limit_value) == 0) || (id(sensor4_value) < id(sensor4_limit_value) && id(sensor4_value) < 1500) ) {
+                    if( (id(sensor4_limit_value) == 0) || (id(sensor4_value) < id(sensor4_limit_value) && id(sensor4_value) < ${Invalid_Sensor_Value}) ) {
                       return lv_color_hex(${Limit_text_Color}); // user-defined color
                     } else {
                       return lv_color_hex(0xff0000); // Red
@@ -4025,7 +4002,7 @@ sensor:
     type: characteristic
     name: "G32 Datablock Read"
     service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
-    characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
+    characteristic_uuid: ${g32_characteristic_uuid_tx}
     update_interval: 10s
     lambda: |-
       if (x.size() < 32) {
@@ -4199,8 +4176,8 @@ sensor:
     ble_client_id: meater0
     type: characteristic
     name: "Meater0 Datablock Read"
-    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
-    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid}
     update_interval: 10s
     lambda: |-
       int t = (x[0]+x[1]*256.0)/16.0;
@@ -4210,8 +4187,8 @@ sensor:
     ble_client_id: meater1
     type: characteristic
     name: "Meater1 Datablock Read"
-    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
-    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid}
     update_interval: 10s
     lambda: |-
       int t = (x[0]+x[1]*256.0)/16.0;
@@ -4221,8 +4198,8 @@ sensor:
     ble_client_id: meater2
     type: characteristic
     name: "Meater02Datablock Read"
-    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
-    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid}
     update_interval: 10s
     lambda: |-
       int t = (x[0]+x[1]*256.0)/16.0;
@@ -4232,8 +4209,8 @@ sensor:
     ble_client_id: meater3
     type: characteristic
     name: "Meater3 Datablock Read"
-    service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
-    characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid}
     update_interval: 10s
     lambda: |-
       int t = (x[0]+x[1]*256.0)/16.0;
