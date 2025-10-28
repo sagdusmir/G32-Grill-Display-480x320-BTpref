@@ -55,6 +55,7 @@ Vorherige Releases siehe https://github.com/JBecker32/G32-Display-480x320-BT/rel
 ![device_assembly](https://github.com/user-attachments/assets/e1ed5b51-65a1-48ba-af6a-0f25a4d720d0)
 ![BTpref1 5 0-arc-view](https://github.com/user-attachments/assets/df7cd09a-7bf0-4658-a1f5-c7aee666faed)
 ![BTpref1 5 0-temp-alarm](https://github.com/user-attachments/assets/2e1a6204-c80d-4cc5-ab94-dba9e09b86f0)
+![BTpref1 5 0-timer](https://github.com/user-attachments/assets/db585171-27aa-4cb7-a043-48e60d43d88e)
 ![BTpref1 5 0-mac_address](https://github.com/user-attachments/assets/1835a792-66a5-44ac-a83f-4d439dd1e440)
 ![BTpref1 5 2b-wifi](https://github.com/user-attachments/assets/52e46c23-6388-4631-b8a8-9d760ec48c1a)
 ![BTpref1 5 0-options](https://github.com/user-attachments/assets/e239b53a-f514-45f7-bb1e-a49f2928d9c0)
