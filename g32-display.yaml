@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref 1.6.0"
+  version: "BTpref 1.6.5"
 
   # Credentials des eigenen Wifi Netzwerks
   wifi_ssid: "wifi_ssid"
@@ -89,7 +89,8 @@ substitutions:
 
   meater_mac_address: B8:1F:5E:00:00:00
   meater_service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
-  meater_characteristic_uuid: '7edda774-045e-4bbf-909b-45d1991a2876'
+  meater_characteristic_uuid_temp: '7edda774-045e-4bbf-909b-45d1991a2876'
+  meater_characteristic_uuid_battery: '2adb4877-68d8-4884-bd3c-d83853bf27b8'
 
   Invalid_Sensor_Value: '1500' # 1500 means invalid
 
@@ -298,6 +299,7 @@ ble_client:
             hidden: true
         - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+        - lvgl.widget.hide: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
         - lvgl.widget.hide: [gas_percent_label, gas_weight_label, gas_percent_bar]
         - rtttl.play: ${G32_Disconnect_Sound}
         - globals.set:
@@ -313,9 +315,9 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(g32_probe1).publish_state(${Invalid_Sensor_Value});
-        - lambda: |-
             id(active_meaters) &= ~0x01;
+        - lambda: |-
+            id(g32_probe1).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
     id: meater1
@@ -327,9 +329,9 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(g32_probe2).publish_state(${Invalid_Sensor_Value});
-        - lambda: |-
             id(active_meaters) &= ~0x02;
+        - lambda: |-
+            id(g32_probe2).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
     id: meater2
@@ -341,9 +343,9 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(g32_probe3).publish_state(${Invalid_Sensor_Value});
-        - lambda: |-
             id(active_meaters) &= ~0x04;
+        - lambda: |-
+            id(g32_probe3).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
   - mac_address: ${meater_mac_address}
     id: meater3
@@ -355,9 +357,9 @@ ble_client:
     on_disconnect:
       then:
         - lambda: |-
-            id(g32_probe4).publish_state(${Invalid_Sensor_Value});
-        - lambda: |-
             id(active_meaters) &= ~0x08;
+        - lambda: |-
+            id(g32_probe4).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
 
 #-------------------------------------------
@@ -622,9 +624,9 @@ globals:
     initial_value: '0'
 
   - id: meater_values_tip
-    type: std::array<int, 4>
-    initial_value: '{0,0,0,0}'
-  - id: meater_values_ambient
+    type: std::array<float, 4>
+    initial_value: '{0.0,0.0,0.0,0.0}'
+  - id: meater_values_battery
     type: std::array<int, 4>
     initial_value: '{0,0,0,0}'
 
@@ -1546,6 +1548,34 @@ lvgl:
                   text_font: MONTSERRAT_18
                   text: '°C'
               - label:
+                  id: sensor1_battery
+                  x: 2
+                  y: 90
+                  text_font: MONTSERRAT_14
+                  bg_opa: TRANSP
+                  hidden: !lambda |-
+                    return (id(active_meaters) & (1 << 0)) == 0;
+                  text_color: !lambda |-
+                    if (id(meater_values_battery)[0] < 20){                      
+                      return lv_color_hex(0xff0000);
+                    }
+                    return lv_color_hex(0x00ff00);
+                  text: !lambda |-
+                    int v = id(meater_values_battery)[0];
+                    if (v > 80) {
+                      return "\uF240";
+                    }
+                    if (v > 60) {
+                      return "\uF241";
+                    }
+                    if (v > 40) {
+                      return "\uF242";
+                    }
+                    if (v > 20) {
+                      return "\uF243";
+                    }
+                    return "\uF244";
+              - label:
                   id: sensor1_label
                   x: 0
                   y: 34
@@ -1623,6 +1653,34 @@ lvgl:
                   y: 74
                   text_font: MONTSERRAT_18
                   text: '°C'
+              - label:
+                  id: sensor2_battery
+                  x: 2
+                  y: 90
+                  text_font: MONTSERRAT_14
+                  bg_opa: TRANSP
+                  hidden: !lambda |-
+                    return (id(active_meaters) & (1 << 1)) == 0;
+                  text_color: !lambda |-
+                    if (id(meater_values_battery)[1] < 20){                      
+                      return lv_color_hex(0xff0000);
+                    }
+                    return lv_color_hex(0x00ff00);
+                  text: !lambda |-
+                    int v = id(meater_values_battery)[1];
+                    if (v > 80) {
+                      return "\uF240";
+                    }
+                    if (v > 60) {
+                      return "\uF241";
+                    }
+                    if (v > 40) {
+                      return "\uF242";
+                    }
+                    if (v > 20) {
+                      return "\uF243";
+                    }
+                    return "\uF244";
               - label:
                   id: sensor2_label
                   x: 0
@@ -1702,6 +1760,34 @@ lvgl:
                   text_font: MONTSERRAT_18
                   text: '°C'
               - label:
+                  id: sensor3_battery
+                  x: 2
+                  y: 90
+                  text_font: MONTSERRAT_14
+                  bg_opa: TRANSP
+                  hidden: !lambda |-
+                    return (id(active_meaters) & (1 << 2)) == 0;
+                  text_color: !lambda |-
+                    if (id(meater_values_battery)[2] < 20){                      
+                      return lv_color_hex(0xff0000);
+                    }
+                    return lv_color_hex(0x00ff00);
+                  text: !lambda |-
+                    int v = id(meater_values_battery)[2];
+                    if (v > 80) {
+                      return "\uF240";
+                    }
+                    if (v > 60) {
+                      return "\uF241";
+                    }
+                    if (v > 40) {
+                      return "\uF242";
+                    }
+                    if (v > 20) {
+                      return "\uF243";
+                    }
+                    return "\uF244";
+              - label:
                   id: sensor3_label
                   x: 0
                   y: 34
@@ -1779,6 +1865,34 @@ lvgl:
                   y: 74
                   text_font: MONTSERRAT_18
                   text: '°C'
+              - label:
+                  id: sensor4_battery
+                  x: 2
+                  y: 90
+                  text_font: MONTSERRAT_14
+                  bg_opa: TRANSP
+                  hidden: !lambda |-
+                    return (id(active_meaters) & (1 << 3)) == 0;
+                  text_color: !lambda |-
+                    if (id(meater_values_battery)[3] < 20){                      
+                      return lv_color_hex(0xff0000);
+                    }
+                    return lv_color_hex(0x00ff00);
+                  text: !lambda |-
+                    int v = id(meater_values_battery)[3];
+                    if (v > 80) {
+                      return "\uF240";
+                    }
+                    if (v > 60) {
+                      return "\uF241";
+                    }
+                    if (v > 40) {
+                      return "\uF242";
+                    }
+                    if (v > 20) {
+                      return "\uF243";
+                    }
+                    return "\uF244";
               - label:
                   id: sensor4_label
                   x: 0
@@ -3108,6 +3222,7 @@ lvgl:
               - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
               - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
               - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+              - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
               - lvgl.widget.refresh: sensors_headline
               # refresh all widgets on numbers_page
               - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
@@ -3875,6 +3990,7 @@ lvgl:
                           - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
                           - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
                           - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+                          - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
                           - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
                           - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
                           - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
@@ -4093,6 +4209,7 @@ sensor:
     on_value:
       - lambda: id(sensor1_value) = x;
       - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor1_battery]
       - lvgl.widget.refresh: [sensor1_label2, sensor1_obj2, sensors_headline2, sensors_obj2]
 
   - platform: template
@@ -4103,6 +4220,7 @@ sensor:
     on_value:
       - lambda: id(sensor2_value) = x;
       - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor2_battery]
       - lvgl.widget.refresh: [sensor2_label2, sensor2_obj2, sensors_headline2, sensors_obj2]
 
   - platform: template
@@ -4113,6 +4231,7 @@ sensor:
     on_value:
       - lambda: id(sensor3_value) = x;
       - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor3_battery]
       - lvgl.widget.refresh: [sensor3_label2, sensor3_obj2, sensors_headline2, sensors_obj2]
 
   - platform: template
@@ -4123,6 +4242,7 @@ sensor:
     on_value:
       - lambda: id(sensor4_value) = x;
       - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor4_battery]
       - lvgl.widget.refresh: [sensor4_label2, sensor4_obj2, sensors_headline2, sensors_obj2]
 
   - platform: template
@@ -4177,45 +4297,111 @@ sensor:
     type: characteristic
     name: "Meater0 Datablock Read"
     service_uuid: ${meater_service_uuid}
-    characteristic_uuid: ${meater_characteristic_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    accuracy_decimals: 2
     lambda: |-
-      int t = (x[0]+x[1]*256.0)/16.0;
-      id(g32_probe1).publish_state(t);
-      return t;
+      uint16_t tip = x[0] + (x[1] << 8);
+      float t_tip = (tip + 8.0) / 16.0;
+      id(meater_values_tip)[0] = t_tip;
+      id(g32_probe1).publish_state(int(t_tip));
+      ESP_LOGI("meater", "0 tip %.2f", t_tip);
+      return t_tip;
   - platform: ble_client
     ble_client_id: meater1
     type: characteristic
     name: "Meater1 Datablock Read"
     service_uuid: ${meater_service_uuid}
-    characteristic_uuid: ${meater_characteristic_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    accuracy_decimals: 2
     lambda: |-
-      int t = (x[0]+x[1]*256.0)/16.0;
-      id(g32_probe2).publish_state(t);
-      return t;
+      uint16_t tip = x[0] + (x[1] << 8);
+      float t_tip = (tip + 8.0) / 16.0;
+      id(meater_values_tip)[1] = t_tip;
+      id(g32_probe2).publish_state(int(t_tip));
+      ESP_LOGI("meater", "1 tip %.2f", t_tip);
+      return t_tip;
   - platform: ble_client
     ble_client_id: meater2
     type: characteristic
     name: "Meater02Datablock Read"
     service_uuid: ${meater_service_uuid}
-    characteristic_uuid: ${meater_characteristic_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    accuracy_decimals: 2
     lambda: |-
-      int t = (x[0]+x[1]*256.0)/16.0;
-      id(g32_probe3).publish_state(t);
-      return t;
+      uint16_t tip = x[0] + (x[1] << 8);
+      float t_tip = (tip + 8.0) / 16.0;
+      id(meater_values_tip)[2] = t_tip;
+      id(g32_probe3).publish_state(int(t_tip));
+      ESP_LOGI("meater", "2 tip %.2f", t_tip);
+      return t_tip;
   - platform: ble_client
     ble_client_id: meater3
     type: characteristic
     name: "Meater3 Datablock Read"
     service_uuid: ${meater_service_uuid}
-    characteristic_uuid: ${meater_characteristic_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
+    update_interval: 10s
+    accuracy_decimals: 2
+    lambda: |-
+      uint16_t tip = x[0] + (x[1] << 8);
+      float t_tip = (tip + 8.0) / 16.0;
+      id(meater_values_tip)[3] = t_tip;
+      id(g32_probe4).publish_state(int(t_tip));
+      ESP_LOGI("meater", "3 tip %.2f", t_tip);
+      return t_tip;
+
+  - platform: ble_client
+    ble_client_id: meater0
+    type: characteristic
+    name: "Meater0 Battery Level"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_battery}
     update_interval: 10s
     lambda: |-
-      int t = (x[0]+x[1]*256.0)/16.0;
-      id(g32_probe4).publish_state(t);
+      uint16_t t = (x[0] + x[1]) * 10;
+      id(meater_values_battery)[0] = t;
+      ESP_LOGI("meater", "0 battery %d%%", t);
       return t;
+  - platform: ble_client
+    ble_client_id: meater1
+    type: characteristic
+    name: "Meater1 Battery Level"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_battery}
+    update_interval: 10s
+    lambda: |-
+      uint16_t t = (x[0] + x[1]) * 10;
+      id(meater_values_battery)[1] = t;
+      ESP_LOGI("meater", "1 battery %d%%", t);
+      return t;
+  - platform: ble_client
+    ble_client_id: meater2
+    type: characteristic
+    name: "Meater2 Battery Level"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_battery}
+    update_interval: 10s
+    lambda: |-
+      uint16_t t = (x[0] + x[1]) * 10;
+      id(meater_values_battery)[2] = t;
+      ESP_LOGI("meater", "2 battery %d%%", t);
+      return t;
+  - platform: ble_client
+    ble_client_id: meater3
+    type: characteristic
+    name: "Meater3 Battery Level"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_battery}
+    update_interval: 10s
+    lambda: |-
+      uint16_t t = (x[0] + x[1]) * 10;
+      id(meater_values_battery)[3] = t;
+      ESP_LOGI("meater", "3 battery %d%%", t);
+      return t;
+
 binary_sensor:
   - platform: gpio
     name: "Display Tilt Sensor"
@@ -4397,6 +4583,7 @@ script:
             - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
             - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
             - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+            - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
             - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
             - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
             - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]

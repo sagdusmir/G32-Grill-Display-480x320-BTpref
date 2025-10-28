@@ -36,6 +36,9 @@ Was ist anders?
 * **Gas Buddy:** Einmessen der Gasflasche
 
 ## Historie
+* [2025-10-28] BTpref 1.6.5
+   - verbessterte Meater Genauigkeit
+   - Meater Batterie Level in der Arc Ansicht
 * [2025-10-24] BTpref 1.6.0
    - Meater Unterstützung (Meater "Plus" sollten auch funktionieren)
 * [2025-10-23] BTpref 1.5.4
@@ -76,6 +79,7 @@ Dieses Projekt wäre ohne die Leistungen der Community nicht möglich gewesen. B
 
 [ralmoe/g32-docker-client](https://github.com/ralmoe/g32-docker-client)
 
+[MortenVinding/MEATER.yaml (accuracy)](https://gist.github.com/MortenVinding/a513c0094d0df41a4425612257b3cabc)
 [so99hero/Standalone Case JC3248W535C](https://www.thingiverse.com/thing:7127557)
 
 
