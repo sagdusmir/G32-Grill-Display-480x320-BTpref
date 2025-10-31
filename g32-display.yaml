@@ -933,7 +933,7 @@ lvgl:
           hidden: "true"
           radius: 0
           widgets:            
-            - label: # symbol for enetering settings
+            - label: # label for entering settings
                 x: 12
                 y: 0
                 text_font: MONTSERRAT_18
@@ -1079,13 +1079,13 @@ lvgl:
                 hidden: true
             - label: # time hours:minutes:seconds
                 id: display_time
-                x: 194
+                x: 192
                 y: 0
                 text_font: MONTSERRAT_20
                 text_color: 0xffffff
                 text_align: LEFT # wenige Bewegung
                 bg_color: 0
-                width: 88
+                width: 90
                 text: "00:00:00"
                 hidden: !lambda |-
                   return (!id(settings_show_time_persistent) && id(settings_hide_timer_persistent));
@@ -1106,9 +1106,9 @@ lvgl:
                               - lvgl.page.show: timer_page
             - label:
                 id: timer_value
-                x: 194
+                x: 192
                 y: 0
-                width: 88
+                width: 90
                 bg_opa: COVER
                 text_font: MONTSERRAT_20
                 text_align: LEFT # wenige Bewegung
