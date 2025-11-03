@@ -3486,7 +3486,7 @@ lvgl:
                                   width: 380
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "WIFI Zugangsdaten"
+                                  text: "WiFi Zugangsdaten"
                               - textarea:
                                   id: settings_wifi_ssid_textarea
                                   x: 20
@@ -3569,7 +3569,7 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "Uhrzeit (erfordert WIFI)"
+                                  text: "Uhrzeit (erfordert WiFi)"
                               - switch:
                                   id: settings_show_time_switch
                                   x: 40
@@ -3617,7 +3617,7 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "Temp. Limits"
+                                  text: "Temperatur Alarme"
                               - switch:
                                   id: settings_enable_temperature_limits_switch
                                   x: 40
