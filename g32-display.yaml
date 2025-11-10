@@ -111,7 +111,7 @@ esphome:
     priority: 1100 # stay above 1000 and below 1500!
     then:
       - lambda: id(boot_start_time) = millis();
-                lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
+                // lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
 esp32:
   board: esp32-s3-devkitc-1
   # variant: esp32S3  # use either board: or varian
@@ -4148,7 +4148,7 @@ sensor:
     ble_client_id: ow_g32
     type: characteristic
     name: "G32 Datablock Read"
-    service_uuid: 'dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb'
+    service_uuid: ${g32_service_uuid}
     characteristic_uuid: ${g32_characteristic_uuid_tx}
     update_interval: 10s
     lambda: |-
