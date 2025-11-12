@@ -36,6 +36,9 @@ Was ist anders?
 * **Gas Buddy:** Einmessen der Gasflasche
 
 ## Historie
+* [2025-11-12] BTpref 1.6.7
+   - WiFi Passwort einfacher korrekt einzugeben
+   - Meater Konfigurationsseite überarbeitet
 * [2025-11-06] BTpref 1.6.6
    - Löschen einzelner Meater MAC Adressen bei Touch auf die entsprechende Adresse
 * [2025-10-28] BTpref 1.6.5

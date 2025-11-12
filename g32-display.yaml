@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref 1.6.6"
+  version: "BTpref 1.6.7"
 
   # Credentials des eigenen Wifi Netzwerks
   wifi_ssid: "wifi_ssid"
@@ -3838,7 +3838,7 @@ lvgl:
                               - label:
                                   id: settings_meater1_label
                                   x: 30
-                                  y: 125
+                                  y: 117
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
@@ -3853,7 +3853,7 @@ lvgl:
                               - label:
                                   id: settings_meater1_updated
                                   x: 195
-                                  y: 125
+                                  y: 117
                                   width: 20
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
@@ -3862,7 +3862,7 @@ lvgl:
                               - label:
                                   id: settings_meater2_label
                                   x: 30
-                                  y: 175
+                                  y: 159
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
@@ -3877,7 +3877,7 @@ lvgl:
                               - label:
                                   id: settings_meater2_updated
                                   x: 195
-                                  y: 175
+                                  y: 159
                                   width: 20
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
@@ -3886,7 +3886,7 @@ lvgl:
                               - label:
                                   id: settings_meater3_label
                                   x: 30
-                                  y: 225
+                                  y: 201
                                   width: 170
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
@@ -3901,7 +3901,7 @@ lvgl:
                               - label:
                                   id: settings_meater3_updated
                                   x: 195
-                                  y: 225
+                                  y: 201
                                   width: 20
                                   text_font: MONTSERRAT_18
                                   text_align: LEFT
@@ -3912,7 +3912,7 @@ lvgl:
                                   x: 230
                                   y: 70
                                   width: 120
-                                  height: 180
+                                  height: 155
                                   bg_color: 0x555555
                                   widgets:
                                     - label:
