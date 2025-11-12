@@ -3253,7 +3253,7 @@ lvgl:
               }
 
               id(settings_wifi_ssid) = id(settings_wifi_ssid_persistent);
-              id(settings_wifi_password) = id(settings_wifi_password_persistent);              
+              id(settings_wifi_password) = ""; // id(settings_wifi_password_persistent);  // do not show wifi password because it would be shown to the user
 
               id(settings_min_gas_value) = id(settings_min_gas_value_persistent);
               id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
@@ -3514,7 +3514,7 @@ lvgl:
                                   text_font: MONTSERRAT_18
                                   placeholder_text: "Passwort"
                                   one_line: true
-                                  password_mode: true
+                                  # password_mode: true  # onscreen keyboard makes this a pain to used
                                   bg_color: 0xffffff
                                   text_color: 0
                                   border_width: 1
@@ -3979,7 +3979,9 @@ lvgl:
                               id(settings_wifi_ssid) = std::string(lv_textarea_get_text(settings_wifi_ssid_textarea));
                               id(settings_wifi_password) = std::string(lv_textarea_get_text(settings_wifi_password_textarea));
                               id(settings_wifi_ssid_persistent) = id(settings_wifi_ssid);
-                              id(settings_wifi_password_persistent) = id(settings_wifi_password);
+                              if (!id(settings_wifi_password).empty()) {
+                                id(settings_wifi_password_persistent) = id(settings_wifi_password);
+                              }
 
                               id(settings_min_gas_value_persistent) = id(settings_min_gas_value);
                               id(settings_min_soc_value_persistent) = id(settings_min_soc_value);
