@@ -7,6 +7,7 @@ substitutions:
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
   version: "BTpref 1.6.7"
+  qrcode_text: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
 
   # Credentials des eigenen Wifi Netzwerks
   wifi_ssid: "wifi_ssid"
@@ -1212,6 +1213,37 @@ lvgl:
                 text_align: RIGHT
                 text_color: 0x555555
                 text: ${version}
+                clickable: true
+                on_press:
+                  - lvgl.widget.show: settings_about
+      - obj:
+          id: settings_about
+          x: 0
+          y: 22
+          width: 480
+          height: 297
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          hidden: "true"
+          radius: 0
+          clickable: true
+          on_press:
+            - lvgl.widget.hide: settings_about
+          widgets:            
+            - qrcode:
+                x: 115
+                y: 24
+                size: 250
+                width: 250
+                height: 250
+                light_color: 0xffffff
+                dark_color: 0x000000
+                text: ${qrcode_text}
+                clickable: true
+                on_press:
+                  - lvgl.widget.hide: settings_about
 
       - keyboard:
           id: my_keyboard
@@ -3241,7 +3273,7 @@ lvgl:
       on_load:
         then:
           - lvgl.widget.show: settings_status_bar_top
-          - lvgl.widget.hide: status_bar_bottom
+          - lvgl.widget.hide: [status_bar_bottom, settings_about]
           - lambda: |-
               id(settings_g32_mac_address) = id(settings_g32_mac_address_persistent);
 
@@ -4630,7 +4662,7 @@ script:
 
   - id: show_temperatures_page
     then:
-      - lvgl.widget.hide: [settings_status_bar_top, my_keyboard]
+      - lvgl.widget.hide: [settings_status_bar_top, my_keyboard, settings_about]
       - lvgl.widget.show: status_bar_bottom
       - if:
           condition:
