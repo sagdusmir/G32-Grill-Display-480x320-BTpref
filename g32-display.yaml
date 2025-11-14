@@ -181,11 +181,12 @@ wifi:
           value: 'false'
 
 # esp32_ble:
-#   # 1xG32, 4xMeater probes -> maximum 5 connections
+#   # 1xG32, 4xMeater probes -> maximum 5 connections needed
 #   max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
 
 esp32_ble_tracker:
-  max_connections: 5  # before 2025-10-15. Recently moved to esp32_ble component!
+  # 1xG32, 4xMeater probes -> maximum 5 connections needed
+  max_connections: 5  # still working in esphome 2025.9.1. Recently moved to esp32_ble component!
   on_ble_advertise:
     then:
       - lambda: |-
@@ -629,7 +630,7 @@ globals:
     initial_value: '{0.0,0.0,0.0,0.0}'
   - id: meater_values_battery
     type: std::array<int, 4>
-    initial_value: '{0,0,0,0}'
+    initial_value: '{100,100,100,100}'
 
   - id: battery_soc_value
     type: int
