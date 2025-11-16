@@ -773,6 +773,45 @@ globals:
     type: int
     initial_value: '0'
 
+font:
+  - file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    id: icon_font
+    size: 20
+    glyphs:
+      - "\U000F05A9" # mdi-wifi
+      - "\U000F00AF" # mdi-bluetooth
+      - "\U000F12A3" # mdi-battery-high
+      - "\U000F12A2" # mdi-battery-medium
+      - "\U000F12A1" # mdi-battery-low
+      - "\U000F008E" # mdi-battery-outline
+      - "\U000F0238" # mdi-fire (used for meater)
+      - "\U000F029A" # mdi-gauge
+      - "\U000F1358" # mdi-propane-tank-outline
+      - "\U000F002A" # mdi-alert-outline
+      - "\U000F0DD0" # mdi-format-list-bulleted-square
+      - "\U000F140B" # mdi-lightning-bolt
+      - "\U000F0CA1" # mdi-numeric-1-circle-outline
+      - "\U000F0CA3" # mdi-numeric-2-circle-outline
+      - "\U000F0CA5" # mdi-numeric-3-circle-outline
+      - "\U000F0CA7" # mdi-numeric-4-circle-outline
+      - "\U000F050F" # mdi-thermometer
+      - "\U000F009A" # mdi-bell
+  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    id: segment_font
+    size: 20
+    glyphs:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "-"
+
 #-------------------------------------------
 # Time platform
 #-------------------------------------------
