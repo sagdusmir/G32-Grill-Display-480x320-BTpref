@@ -46,11 +46,9 @@ substitutions:
   Gas_Bar_Color:      "0x00ff00"  # 0x00ff00 = Hellgrün
   Gas_Bar_Low_Color:  "0xff0000"  # 0xff0000 = Rot
 
-# Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 500 für Garraum:
-  Sensor1_Max: "130"
-  Sensor2_Max: "130"
-  Sensor3_Max: "130"
-  Sensor4_Max: "130"
+  # Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 500 für Garraum:
+  Zone_Max: "500"
+  Sensor_Max: "130"
 
   # Lautsprecher (Beeper) Lautsrtärke festlegen 1.0 = Maximum, 0.1 = sehr leise.
   # Hohe Werte können zu clipping führen. Ausprobieren.
@@ -1314,9 +1312,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 1;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone1_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone1_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1332,7 +1330,7 @@ lvgl:
               - arc:
                   id: zone1_limit_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1340,7 +1338,7 @@ lvgl:
               - arc:
                   id: zone1_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1384,9 +1382,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 2;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone2_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone2_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1402,7 +1400,7 @@ lvgl:
               - arc:
                   id: zone2_limit_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1410,7 +1408,7 @@ lvgl:
               - arc:
                   id: zone2_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1454,9 +1452,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 3;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone3_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone3_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1472,7 +1470,7 @@ lvgl:
               - arc:
                   id: zone3_limit_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1480,7 +1478,7 @@ lvgl:
               - arc:
                   id: zone3_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1524,9 +1522,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 4;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone4_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone4_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1542,7 +1540,7 @@ lvgl:
               - arc:
                   id: zone4_limit_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1550,7 +1548,7 @@ lvgl:
               - arc:
                   id: zone4_arc
                   min_value: 1
-                  max_value: 500
+                  max_value: ${Zone_Max}
                   indicator:
                     arc_color: ${Zone_Arc_Color}
                   styles: arc_style
@@ -1630,9 +1628,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 5;
-                        id(sensor_max_value) = ${Sensor1_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor1_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor1_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor1_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1648,7 +1646,7 @@ lvgl:
               - arc:
                   id: sensor1_limit_arc
                   min_value: 1
-                  max_value: ${Sensor1_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1656,7 +1654,7 @@ lvgl:
               - arc:
                   id: sensor1_arc
                   min_value: 1
-                  max_value: ${Sensor1_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1736,9 +1734,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 6;
-                        id(sensor_max_value) = ${Sensor2_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor2_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor2_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor2_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1754,7 +1752,7 @@ lvgl:
               - arc:
                   id: sensor2_limit_arc
                   min_value: 1
-                  max_value: ${Sensor2_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1762,7 +1760,7 @@ lvgl:
               - arc:
                   id: sensor2_arc
                   min_value: 1
-                  max_value: ${Sensor2_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1842,9 +1840,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 7;
-                        id(sensor_max_value) = ${Sensor3_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor3_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor3_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor3_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1860,7 +1858,7 @@ lvgl:
               - arc:
                   id: sensor3_limit_arc
                   min_value: 1
-                  max_value: ${Sensor3_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1868,7 +1866,7 @@ lvgl:
               - arc:
                   id: sensor3_arc
                   min_value: 1
-                  max_value: ${Sensor3_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1948,9 +1946,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 1;
                         id(sensor_index) = 8;
-                        id(sensor_max_value) = ${Sensor4_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor4_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor4_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor4_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -1966,7 +1964,7 @@ lvgl:
               - arc:
                   id: sensor4_limit_arc
                   min_value: 1
-                  max_value: ${Sensor4_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -1974,7 +1972,7 @@ lvgl:
               - arc:
                   id: sensor4_arc
                   min_value: 1
-                  max_value: ${Sensor4_Max}
+                  max_value: ${Sensor_Max}
                   indicator:
                     arc_color: ${Sensor_Arc_Color}
                   styles: arc_style
@@ -2074,9 +2072,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 1;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone1_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone1_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2150,9 +2148,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 2;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone2_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone2_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2226,9 +2224,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 3;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone3_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone3_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2302,9 +2300,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 4;
-                        id(sensor_max_value) = 500;
+                        id(sensor_max_value) = ${Zone_Max};
                         id(sensor_limit_value) = id(zone4_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, 500);
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
                         lv_slider_set_value(sensor_limit_slider, id(zone4_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2406,9 +2404,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 5;
-                        id(sensor_max_value) = ${Sensor1_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor1_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor1_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor1_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2491,9 +2489,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 6;
-                        id(sensor_max_value) = ${Sensor2_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor2_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor2_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor2_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2577,9 +2575,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 7;
-                        id(sensor_max_value) = ${Sensor3_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor3_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor3_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor3_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2662,9 +2660,9 @@ lvgl:
                     - lambda: |-
                         id(page_index) = 2;
                         id(sensor_index) = 8;
-                        id(sensor_max_value) = ${Sensor4_Max};
+                        id(sensor_max_value) = ${Sensor_Max};
                         id(sensor_limit_value) = id(sensor4_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor4_Max});
+                        lv_slider_set_range(sensor_limit_slider, 0, ${Sensor_Max});
                         lv_slider_set_value(sensor_limit_slider, id(sensor4_limit_value), LV_ANIM_OFF );
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
@@ -2981,7 +2979,7 @@ lvgl:
             width: 396
             radius: 5
             min_value: 0
-            max_value: 500
+            max_value: ${Zone_Max}
             bg_color: 0xffffff
             indicator:
               bg_color: 0xff0000
