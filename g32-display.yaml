@@ -4269,7 +4269,7 @@ sensor:
     id: g32_probe1
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 0
+    accuracy_decimals: 1
     on_value:
       - lambda: id(sensor1_value) = x;
       - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj, sensors_headline]
@@ -4281,7 +4281,7 @@ sensor:
     id: g32_probe2
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 0
+    accuracy_decimals: 1
     on_value:
       - lambda: id(sensor2_value) = x;
       - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj, sensors_headline]
@@ -4293,7 +4293,7 @@ sensor:
     id: g32_probe3
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 0
+    accuracy_decimals: 1
     on_value:
       - lambda: id(sensor3_value) = x;
       - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj, sensors_headline]
@@ -4305,7 +4305,7 @@ sensor:
     id: g32_probe4
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 0
+    accuracy_decimals: 1
     on_value:
       - lambda: id(sensor4_value) = x;
       - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj, sensors_headline]
