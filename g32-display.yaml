@@ -4219,7 +4219,7 @@ sensor:
       t = (x[24]);
       id(g32_firebox_open).publish_state(t);
       t = (x[25]);
-      id(g32_light_on).publish_state(!t);
+      id(g32_light_on).publish_state(t);
       t = (x[31]);
       id(g32_gas_percent).publish_state(t);
       return (x[30]);
@@ -4502,7 +4502,7 @@ binary_sensor:
     on_state:
       - lvgl.label.update:
           id: light_on_label
-          hidden: !lambda return(x);
+          hidden: !lambda return(!x);
 
   - platform: template
     name: "G32 Haube"
