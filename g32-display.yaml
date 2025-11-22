@@ -34,6 +34,15 @@ substitutions:
   Zone_Text:   "Zone "     # ergibt 'Zone 1', 'Zone 2' usw.
   Sensor_Text: "Sensor "   # ergibt 'Sensor 1', 'Sensor 2' usw.
 
+  COLOR_MAIN_100: 0xffffff  # 100% brightness
+  COLOR_MAIN_75:  0xbfbfbf  #  75%
+  COLOR_MAIN_50:  0x808080  #  50%
+  COLOR_MAIN_25:  0x404040  #  25%
+
+  COLOR_GOOD:     0x00ff00
+  COLOR_WARN:     0xffff00
+  COLOR_BAD:      0xff0000
+
 # Farben für die 'Temperatur-Kreise' festlegen:
   Zone_Arc_Color:    "0xff0000"  # 0xff0000 = Rot
   Sensor_Arc_Color:  "0xffff00"  # 0xffff00 = Gelb
@@ -775,8 +784,8 @@ globals:
 
 font:
   - file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
-    id: icon_font
-    size: 20
+    id: ICON_FONT_24
+    size: 24
     glyphs:
       - "\U000F05A9" # mdi-wifi
       - "\U000F00AF" # mdi-bluetooth
@@ -796,8 +805,9 @@ font:
       - "\U000F0CA7" # mdi-numeric-4-circle-outline
       - "\U000F050F" # mdi-thermometer
       - "\U000F009A" # mdi-bell
+      - "\U000F1A4E" # mdi-lightbulb-on-20
   - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
-    id: segment_font
+    id: SEGMENT_FONT_20
     size: 20
     glyphs:
       - "0"
@@ -811,6 +821,38 @@ font:
       - "8"
       - "9"
       - "-"
+      - "."
+      - ":"
+      - " "
+  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    id: SEGMENT_FONT_8
+    size: 8
+    glyphs:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+  - file: 'fonts/Montserrat/Montserrat-Bold.ttf'
+    id: MONTSERRAT_BOLD_FONT_22
+    size: 22
+    glyphs:
+      - "G"
+      - "3"
+      - "2"
+      - " "
+      - "C"
+      - "o"
+      - "n"
+      - "e"
+      - "c"
+      - "t"
+      - "d"
 
 #-------------------------------------------
 # Time platform
@@ -951,7 +993,7 @@ lvgl:
           - light.turn_off: backlight
           - lvgl.pause:
 
-  # boot screen with spinner until first data received
+  # boot screen with spinner - just for fun
   top_layer:
     widgets:
       - obj:
@@ -970,11 +1012,11 @@ lvgl:
                 align: CENTER
                 spin_time: 1s
                 arc_length: 60deg
-                arc_width: 6
+                arc_width: 4
                 arc_color: 0
                 indicator:
-                  arc_color: 0x00ff00
-                  arc_width: 6
+                  arc_color: ${COLOR_MAIN_100}
+                  arc_width: 4
       - obj:
           id: status_bar_top
           x: 0
@@ -985,16 +1027,17 @@ lvgl:
           bg_opa: COVER
           pad_all: 0
           border_width: 0
-          hidden: "true"
+          hidden: true
           radius: 0
           widgets:            
             - label: # label for entering settings
-                x: 12
-                y: 0
-                text_font: MONTSERRAT_18
-                text_color: 0xffffff
+                x: 0
+                y: -4
+                text_font: MONTSERRAT_BOLD_FONT_22
+                text_color: ${COLOR_MAIN_100}
                 text_align: LEFT
-                width: 180
+                width: 185
+                height: 22
                 text: "G32 Connected"
 
                 clickable: true
@@ -1011,9 +1054,9 @@ lvgl:
 
             - obj: # symbol for batter low warning
                 id: battery_symbol_obj
-                x: 420
+                x: 425
                 y: 0
-                width: 60
+                width: 55
                 height: 22
                 bg_color: 0
                 pad_all: 0
@@ -1024,140 +1067,143 @@ lvgl:
                 hidden: !lambda |-
                   return id(settings_hide_soc_persistent);
                 widgets:
-                  # symbol for battery low warning
-                  - line:
-                      id: battery_symbol
-                      points:
-                        - 12, 2
-                        - 18, 2
-                        - 17, 2
-                        - 17, 4
-                        - 17, 3
-                        - 20, 3
-                        - 19, 3
-                        - 19, 20
-                        - 19, 19
-                        - 10, 19
-                        - 11, 19
-                        - 11, 2
-                        - 11, 3
-                        - 14, 3
-                      line_width: 2
-                      line_rounded: false
-                      line_color: !lambda |-
-                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) { return lv_color_hex(0xff0000); } else { return lv_color_hex(0x00ff00); }
-                  - bar:
-                      id: battery_bar
-                      x: 12
-                      y: 3
-                      height: 15
-                      width: 6
-                      radius: 0
-                      min_value: 0
-                      max_value: 100
-                      bg_color: 0
-                      # for some unknown reason this code does not work!
-                      indicator:
-                        bg_color:  !lambda |-
-                          if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
-                            return lv_color_hex(0xff0000); // red
-                            } else {
-                            return lv_color_hex(0x00ff00); // green
-                          }
-                        radius: 0
-                      # end of not working code!
-                      value: !lambda return id(battery_soc_value);
                   - label:
-                      id: battery_soc_label
-                      x: 25
-                      y: 3
-                      text_font: MONTSERRAT_14
+                      id: battery_symbol
+                      x: 3
+                      y: -2
+                      text_font: ICON_FONT_24
                       text_align: CENTER
-                      width: 35
+                      width: 24
                       text_color: !lambda |-
                         if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
-                          return lv_color_hex(0xff0000); // red
-                          } else {
-                          return lv_color_hex(0x00ff00); // green
+                          return lv_color_hex(${COLOR_BAD});
                         }
+                        return lv_color_hex(${COLOR_GOOD});
                       text: !lambda |-
-                        return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
+                        const char* icons[4] = {"\U000F008E","\U000F12A1","\U000F12A2","\U000F12A3"};
+                        float soc = id(battery_soc_value);
+                        int idx = soc <= 15 ? 0 :
+                            soc <= 40 ? 1 :
+                            soc <= 80 ? 2 : 3;
+                        return icons[idx];
+
+                  - label:  # battery soc background
+                      x: 21
+                      y: 7
+                      text_font: SEGMENT_FONT_8
+                      text_align: RIGHT
+                      width: 22
+                      text_color: ${COLOR_MAIN_25}
+                      text: "188"
+                  - label:
+                      id: battery_soc_label
+                      x: 21
+                      y: 7
+                      text_font: SEGMENT_FONT_8
+                      text_align: RIGHT
+                      bg_opa: TRANSP
+                      width: 22
+                      text_color: !lambda |-
+                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
+                          return lv_color_hex(${COLOR_BAD});
+                        }
+                        return lv_color_hex(${COLOR_GOOD});
+                      text: !lambda |-
+                        return (to_string(static_cast<int>(id(battery_soc_value)))).c_str();
+                  - label:
+                      id: battery_soc_label_unit
+                      x: 44
+                      y: 3
+                      text_font: MONTSERRAT_12
+                      text_align: LEFT
+                      width: 7
+                      text_color: !lambda |-
+                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
+                          return lv_color_hex(${COLOR_BAD});
+                        }
+                        return lv_color_hex(${COLOR_GOOD});
+                      text: "%"
             - label: # symbol for successfull BT connection
                 id: g32bt_connect_label
-                x: 396
-                y: 0
-                text_font: MONTSERRAT_18
+                x: 404
+                y: -2
+                text_font: ICON_FONT_24
+                text_align: CENTER
+                width: 24
                 text_color: !lambda |-
                   if( id(g32_connected) ) {
-                    return lv_color_hex(0x00ff00);
+                    return lv_color_hex(${COLOR_GOOD});
                   }
-                  return lv_color_hex(0x000000);
-                text_align: CENTER
-                width: 30
-                text: "\uF293" # BT symbol
+                  return lv_color_hex(${COLOR_MAIN_25});
+                text: "\U000F00AF"
             - label: # symbol for successfull WIFI connection
                 id: wifi_connect_label
-                x: 367
+                x: 380
                 y: 0
                 text_font: MONTSERRAT_18
+                text_align: CENTER
+                width: 24
                 text_color: !lambda |-
                   if( id(wifi_connected) ) {
-                    return lv_color_hex(0x00ff00);
+                    return lv_color_hex(${COLOR_GOOD});
                   }
-                  return lv_color_hex(0x000000);
-                text_align: CENTER
-                width: 30
+                  return lv_color_hex(${COLOR_MAIN_25});
                 text: "\uF1EB" # WIFI symbol
-            - label: # symbol for 'light on'
-                id: light_on_label
-                x: 337
-                y: 0
-                text_font: MONTSERRAT_18
-                text_color: !lambda |-
-                  if( id(light_on) ) {
-                    return lv_color_hex(0xffff00);
-                  }
-                  return lv_color_hex(0x000000);
-                text_align: CENTER
-                width: 30
-                text: "\uF0E7" # lightning
             - label: # symbol for 'firebox open'
                 id: firebox_open_label
-                x: 307
-                y: 0
+                x: 356
+                y: 1
                 text_font: MONTSERRAT_18
-                text_color: !lambda |-
-                  if( id(firebox_open) ) {
-                    return lv_color_hex(0x00ff00);
-                  }
-                  return lv_color_hex(0x000000);
+                text_color: ${COLOR_GOOD}
                 text_align: CENTER
-                width: 30
+                width: 24
                 text: "\uF093" # arrow up
+                hidden: true
+            - label: # symbol for 'light on'
+                id: light_on_label
+                x: 332
+                y: -2
+                text_font: ICON_FONT_24
+                text_color: 0xffff00
+                text_align: CENTER
+                width: 24
+                text: "\U000F1A4E"
+                hidden: true
             # currently unused
             # - label:
             #     id: g32_warning_label
-            #     x: 277
-            #     y: 0
+            #     x: 308
+            #     y: 1
             #     text_font: MONTSERRAT_18
             #     text_color: !lambda |-
             #       if( id(warning_on) ) {
-            #         return lv_color_hex(0xff0000);
+            #         return lv_color_hex(${COLOR_BAD});
             #       }
-            #       return lv_color_hex(0x000000);
+            #       return lv_color_hex(${COLOR_MAIN_25});
             #     text_align: CENTER
-            #     width: 30
+            #     width: 24
             #     text: "\uF071"
-            #     hidden: true
+            - label: # time background
+                x: 188
+                y: 0
+                text_font: SEGMENT_FONT_20
+                text_color: ${COLOR_MAIN_25}
+                text_align: CENTER
+                bg_color: 0
+                width: 104
+                text: "88:88:88"
+                hidden: !lambda |-
+                  return (!id(settings_show_time_persistent) && id(settings_hide_timer_persistent));
             - label: # time hours:minutes:seconds
                 id: display_time
-                x: 192
+                x: 188
                 y: 0
-                text_font: MONTSERRAT_20
+                text_font: SEGMENT_FONT_20
                 text_color: 0xffffff
-                text_align: LEFT # wenige Bewegung
+                text_align: CENTER
+                bg_opa: TRANSP
                 bg_color: 0
-                width: 90
+                width: 104
                 text: "00:00:00"
                 hidden: !lambda |-
                   return (!id(settings_show_time_persistent) && id(settings_hide_timer_persistent));
@@ -1177,16 +1223,27 @@ lvgl:
                                   id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
                               - lvgl.page.show: timer_page
             - label:
-                id: timer_value
-                x: 192
+                id: timer_value_bg
+                x: 188
                 y: 0
-                width: 90
+                width: 104
                 bg_opa: COVER
-                text_font: MONTSERRAT_20
-                text_align: LEFT # wenige Bewegung
+                text_font: SEGMENT_FONT_20
+                text_color: ${COLOR_MAIN_25}
+                text_align: CENTER
+                text: "88:88:88"
+                hidden: true
+            - label:
+                id: timer_value
+                x: 188
+                y: 0
+                width: 104
+                bg_opa: TRANSP
+                text_font: SEGMENT_FONT_20
+                text_align: CENTER
                 text: "00:00:00"
                 hidden: true
-                clickable: 'true'
+                clickable: true
                 on_press:
                   - if:
                       condition:
@@ -2910,7 +2967,7 @@ lvgl:
                     id(timer_alarm) = false;
                     id(timer_active) = false;
                 - lvgl.label.update:
-                    id: timer_value
+                    id: [timer_value, timer_value_bg]
                     hidden: !lambda |-
                       return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
         - button:
@@ -2936,7 +2993,7 @@ lvgl:
                   }
               - script.execute: show_temperatures_page
               - lvgl.label.update:
-                  id: timer_value
+                  id: [timer_value, timer_value_bg]
                   hidden: !lambda |-
                     return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
 
@@ -4244,16 +4301,7 @@ sensor:
     update_interval: 4s        # new value after 4s*15(=window size) = 60s!
     on_value:
       - lambda: id(battery_soc_value) = x;
-      - lvgl.widget.refresh: [battery_soc_label, battery_symbol, battery_bar]
-      - lvgl.bar.update:
-          id: battery_bar
-          indicator:
-            bg_color:  !lambda |-
-              if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
-                return lv_color_hex(0xff0000); // red
-                } else {
-                return lv_color_hex(0x00ff00); // green
-              }
+      - lvgl.widget.refresh: [battery_soc_label, battery_soc_label_unit, battery_symbol]
 
   - platform: ble_rssi
     mac_address: ${g32_mac_address}
