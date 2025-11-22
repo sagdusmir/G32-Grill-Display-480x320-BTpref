@@ -757,23 +757,22 @@ globals:
     type: int
     initial_value: '0'
 
-
 #-------------------------------------------
-# Homeassistant or SNTP Time platform
+# Time platform
 #-------------------------------------------
 time:
+  id: my_time
+
   platform: sntp
-  id: ha_time
   servers:
     - ntp0.ntp-servers.net
     - ntp1.ntp-servers.net
     - ntp2.ntp-servers.net
 
   # alternatively
-  # platform: homeassistant
-  # id: ha_time
+  # platform: homeassistant  # no advantage over sntp
 
-  timezone: Europe/Berlin
+  # timezone: "Europe/Berlin"  # should be detected automatically during build process
   on_time_sync:
     - script.execute: time_update
   on_time:
@@ -4526,7 +4525,7 @@ script:
                 id: display_time
                 text: !lambda |-
                   static char time_buf[16];
-                  auto now = id(ha_time).now();
+                  auto now = id(my_time).now();
                   snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
                   return time_buf;
             - lvgl.label.update:
