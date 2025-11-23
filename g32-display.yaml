@@ -51,10 +51,6 @@ substitutions:
   Limit_text_Color:  "0xaaaaaa"  # 0xaaaaaa = Grau
 #  Limit_text_Color:  "0xffb455"  # 0xffb455 = Orange
 
-  # Farbe für den 'Gas-Balken'
-  Gas_Bar_Color:      "0x00ff00"  # 0x00ff00 = Hellgrün
-  Gas_Bar_Low_Color:  "0xff0000"  # 0xff0000 = Rot
-
   # Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 500 für Garraum:
   Zone_Max: "500"
   Sensor_Max: "130"
@@ -316,7 +312,7 @@ ble_client:
         - globals.set:
             id: gas_percent
             value: '0'
-        - lvgl.widget.refresh: [gas_percent_label, gas_percent_bar]
+        - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit, gas_percent_bar]
   - mac_address: ${meater_mac_address}
     id: meater0
     on_connect:
@@ -545,7 +541,6 @@ globals:
   - id: gas_percent
     type: int32_t
     initial_value: '0'
-
   - id: ble_g32_scan_started_by_user  # for managing "scan" button status
     type: bool
     initial_value: 'false'
@@ -1280,7 +1275,6 @@ lvgl:
           widgets:
             # gas object with gas values in % and g
             - obj:
-                id: gas_obj
                 x: 0
                 y: 0
                 width: 480
@@ -1291,7 +1285,6 @@ lvgl:
                 radius: 0
                 widgets:
                   - label:
-                      id: gas_symbol
                       x: 2
                       y: 0
                       width: 20
@@ -1311,9 +1304,15 @@ lvgl:
                       bg_opa: COVER
                       bg_color: ${COLOR_MAIN_25}
                       indicator:
-                        bg_color: 0xff0000
                         radius: 0
-                      value: 0
+                        bg_color: ${COLOR_MAIN_100}
+                      value: !lambda |-
+                        int y = id(gas_weight);
+                        if( y < 0) {
+                          return 0;
+                        }
+                        int x = id(gas_percent);
+                        return x;
                   - label:
                       x: 42
                       y: 1
@@ -1342,7 +1341,19 @@ lvgl:
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
                       width: 35
-                      text: " "
+                      text: !lambda |-
+                        int y = id(gas_weight);
+                        if( y < 0) {
+                          return " ";
+                        }
+                        int x = id(gas_percent);
+                        return (to_string(x)).c_str();
+                      text_color: !lambda |-
+                        int x = id(gas_percent);
+                        if( x <= id(settings_min_gas_value_persistent) ) {
+                          return lv_color_hex(${COLOR_BAD});
+                        }
+                        return lv_color_hex(${COLOR_GOOD});
                   - label:
                       id: gas_percent_label_unit
                       x: 372
@@ -1351,7 +1362,17 @@ lvgl:
                       text_align: LEFT
                       width: 20
                       text: "%"
-                  - label:  # gas_weight_label background
+                      text_color: !lambda |-
+                        int y = id(gas_weight);
+                        if( y < 0) {
+                          return lv_color_hex(${COLOR_MAIN_100});
+                        }
+                        int x = id(gas_percent);
+                        if( x <= id(settings_min_gas_value_persistent) ) {
+                          return lv_color_hex(${COLOR_BAD});
+                        }
+                        return lv_color_hex(${COLOR_GOOD});
+                  - label:  # gas weight label background
                       x: 394
                       y: 6
                       width: 55
@@ -1367,9 +1388,13 @@ lvgl:
                       bg_opa: TRANSP
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
-                      text: " "
+                      text: !lambda |-
+                        int x = id(gas_weight);
+                        if( x < 0) {
+                          return " ";
+                        }
+                        return (to_string(x)).c_str();
                   - label:
-                      id: gas_weight_label_unit
                       x: 455
                       y: -1
                       text_font: ICON_FONT_24
@@ -4247,7 +4272,9 @@ lvgl:
                           - lvgl.widget.refresh: [battery_symbol_obj, display_time]
                           - script.execute: apply_wifi
                           - script.execute: apply_mac_address
-                          - script.execute: apply_meater_mac_addresses                          
+                          - script.execute: apply_meater_mac_addresses
+
+                          - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit]
 
                           # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
                           - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
@@ -4534,16 +4561,7 @@ sensor:
               return 100;
             }
             return int(x);
-      - lvgl.widget.refresh: [gas_percent_label, gas_percent_bar]
-      - lvgl.bar.update:
-          id: gas_percent_bar
-          indicator:
-            bg_color: !lambda |-
-              if( x <= id(settings_min_gas_value_persistent) ) {
-                return lv_color_hex(${Gas_Bar_Low_Color});
-              } else {
-                return lv_color_hex(${Gas_Bar_Color});
-              }
+      - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit, gas_percent_bar]
     
   - platform: ble_client
     ble_client_id: meater0
