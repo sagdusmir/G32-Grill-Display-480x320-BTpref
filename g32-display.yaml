@@ -171,6 +171,7 @@ wifi:
           id: apply_wifi_started_by_user
           value: 'false'
       - lvgl.widget.refresh: wifi_connect_label
+
   on_disconnect:
     then:
       - if: # no sound if user updated credentials
@@ -799,6 +800,7 @@ font:
       - "\U000F002A" # mdi-alert-outline
       - "\U000F0DD0" # mdi-format-list-bulleted-square
       - "\U000F140B" # mdi-lightning-bolt
+      - "\U000F1AB7" # mdi-land-rows-vertical
       - "\U000F0CA1" # mdi-numeric-1-circle-outline
       - "\U000F0CA3" # mdi-numeric-2-circle-outline
       - "\U000F0CA5" # mdi-numeric-3-circle-outline
@@ -806,6 +808,7 @@ font:
       - "\U000F050F" # mdi-thermometer
       - "\U000F009A" # mdi-bell
       - "\U000F1A4E" # mdi-lightbulb-on-20
+      - "\U000F0D3F" # mdi-weight-grams
   - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_20
     size: 20
@@ -838,6 +841,22 @@ font:
       - "7"
       - "8"
       - "9"
+  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    id: SEGMENT_FONT_14
+    size: 14
+    glyphs:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "-"
+      - " "
   - file: 'fonts/Montserrat/Montserrat-Bold.ttf'
     id: MONTSERRAT_BOLD_FONT_22
     size: 22
@@ -954,21 +973,6 @@ lvgl:
       border_side: NONE
       outline_pad: 0
       radius: 52
-
-      # style for gas
-    - id: gas_obj_style
-      width: 480
-      height: 22
-      bg_color: 0
-      text_color: 0xffffff
-      pad_all: 0
-      radius: 0
-      outline_width: 0
-      outline_color: 0
-      border_width: 0
-      border_color: 0
-      border_side: NONE
-      outline_pad: 0
 
     - id: main_font_style
       text_font: MONTSERRAT_18
@@ -1154,21 +1158,27 @@ lvgl:
                 x: 356
                 y: 1
                 text_font: MONTSERRAT_18
-                text_color: ${COLOR_GOOD}
                 text_align: CENTER
                 width: 24
+                text_color: !lambda |-
+                  if( id(firebox_open) ) {
+                    return lv_color_hex(${COLOR_GOOD});
+                  }
+                  return lv_color_hex(${COLOR_MAIN_25});
                 text: "\uF093" # arrow up
-                hidden: true
             - label: # symbol for 'light on'
                 id: light_on_label
                 x: 332
                 y: -2
                 text_font: ICON_FONT_24
-                text_color: 0xffff00
                 text_align: CENTER
                 width: 24
+                text_color: !lambda |-
+                  if( id(light_on) ) {
+                    return lv_color_hex(0xffff00);
+                  }
+                  return lv_color_hex(${COLOR_MAIN_25});
                 text: "\U000F1A4E"
-                hidden: true
             # currently unused
             # - label:
             #     id: g32_warning_label
@@ -1273,56 +1283,100 @@ lvgl:
                 id: gas_obj
                 x: 0
                 y: 0
-                styles: gas_obj_style
+                width: 480
+                height: 22
+                pad_all: 0
+                bg_color: 0
+                border_width: 0
+                radius: 0
                 widgets:
                   - label:
-                      x: 24
+                      id: gas_symbol
+                      x: 2
                       y: 0
-                      text_font: MONTSERRAT_18
-                      text_align: LEFT
-                      text: 'Gas:'
-                  - label:
-                      id: gas_percent_label
-                      x: 260
-                      y: 0
-                      text_font: MONTSERRAT_18
-                      text: !lambda |-
-                        int y = id(gas_weight);
-                        if( y < 0) {
-                          return "-- %";
-                        }
-                        int x = id(gas_percent);
-                        return (to_string(static_cast<int>(x)) + " %").c_str();
-                  - label:
-                      id: gas_weight_label
-                      x: 358
-                      y: 0
-                      text_font: MONTSERRAT_18
-                      text: !lambda |-
-                        int x = id(gas_weight);
-                        if( x < 0) {
-                          return "--- g";
-                        }
-                        return (to_string(static_cast<int>(x)) + " g").c_str();
+                      width: 20
+                      height: 22
+                      text_font: ICON_FONT_24
+                      text_align: CENTER
+                      text: "\U000F1358"
                   - bar:
                       id: gas_percent_bar
-                      x: 80
-                      y: 5
+                      x: 30
+                      y: 7
                       height: 12
-                      width: 200
-                      radius: 5
+                      width: 300
+                      radius: 0
                       min_value: 1
                       max_value: 100
-                      bg_color: 0xffffff
+                      bg_opa: COVER
+                      bg_color: ${COLOR_MAIN_25}
                       indicator:
-                        bg_color: ${Gas_Bar_Color}
-                      value: !lambda |-
-                        int y = id(gas_weight);
-                        if( y < 0) {
-                          return 0;
-                        }
-                        int x = id(gas_percent);
-                        return x;
+                        bg_color: 0xff0000
+                        radius: 0
+                      value: 0
+                  - label:
+                      x: 42
+                      y: 1
+                      width: 293
+                      height: 21
+                      bg_opa: TRANSP
+                      # text_font: ICON_FONT_24
+                      text_font: MONTSERRAT_20
+                      text_align: LEFT
+                      text_color: 0
+                      text: "  |   |   |   |   |   |   |   |   |   |   |   |   |"
+
+                  - label:  # gas percent label background
+                      x: 331
+                      y: 6
+                      text_font: SEGMENT_FONT_14
+                      text_align: RIGHT
+                      width: 35
+                      text_color: ${COLOR_MAIN_25}
+                      text: "188"
+                  - label:
+                      id: gas_percent_label
+                      x: 331
+                      y: 6
+                      bg_opa: TRANSP
+                      text_font: SEGMENT_FONT_14
+                      text_align: RIGHT
+                      width: 35
+                      text: " "
+                  - label:
+                      id: gas_percent_label_unit
+                      x: 372
+                      y: 3
+                      text_font: MONTSERRAT_18
+                      text_align: LEFT
+                      width: 20
+                      text: "%"
+                  - label:  # gas_weight_label background
+                      x: 394
+                      y: 6
+                      width: 55
+                      text_font: SEGMENT_FONT_14
+                      text_align: RIGHT
+                      text_color: ${COLOR_MAIN_25}
+                      text: "18888"
+                  - label:
+                      id: gas_weight_label
+                      x: 394
+                      y: 6
+                      width: 55
+                      bg_opa: TRANSP
+                      text_font: SEGMENT_FONT_14
+                      text_align: RIGHT
+                      text: " "
+                  - label:
+                      id: gas_weight_label_unit
+                      x: 455
+                      y: -1
+                      text_font: ICON_FONT_24
+                      text_align: LEFT
+                      width: 24
+                      text: "\U000F0D3F"
+
       - obj:
           id: settings_status_bar_top
           x: 0
