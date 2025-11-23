@@ -1067,16 +1067,17 @@ lvgl:
                 width: 30
                 text: "\uF093" # arrow up
                 hidden: true
-            - label: # symbol for gas low warning
-                id: g32_warning_label
-                x: 277
-                y: 0
-                text_font: MONTSERRAT_18
-                text_color: 0xff0000
-                text_align: CENTER
-                width: 30
-                text: "\uF071" # invertiertes Ausrufungszeichen
-                hidden: true
+            # currently unused
+            # - label: # symbol for gas low warning
+            #     id: g32_warning_label
+            #     x: 277
+            #     y: 0
+            #     text_font: MONTSERRAT_18
+            #     text_color: 0xff0000
+            #     text_align: CENTER
+            #     width: 30
+            #     text: "\uF071" # invertiertes Ausrufungszeichen
+            #     hidden: true
             - label: # time hours:minutes:seconds
                 id: display_time
                 x: 192
