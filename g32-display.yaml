@@ -1324,7 +1324,6 @@ lvgl:
                       width: 293
                       height: 21
                       bg_opa: TRANSP
-                      # text_font: ICON_FONT_24
                       text_font: MONTSERRAT_20
                       text_align: LEFT
                       text_color: 0
@@ -1366,6 +1365,7 @@ lvgl:
                       text_font: MONTSERRAT_18
                       text_align: LEFT
                       width: 20
+                      height: 19
                       text: "%"
                       text_color: !lambda |-
                         int y = id(gas_weight);
@@ -1404,7 +1404,8 @@ lvgl:
                       y: -1
                       text_font: ICON_FONT_24
                       text_align: LEFT
-                      width: 24
+                      width: 20 # 24
+                      height: 20
                       text: "\U000F0D3F"
 
       - obj:
