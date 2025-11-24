@@ -13,8 +13,8 @@ Verwendete Hardware, Software Installation und sonstige Details für dieses Proj
 
 Was ist anders?
 
-* kein Fokus auf die Anbindung an Home Asssistant
-* Anpassungen an der Software sind nicht zwingend notwendig
+* Anbindung an Home Asssistant ist nun optional
+* Anpassungen an der Software sind nicht zwingend erforderlich (nur für Home Assistant API)
 * vieles lässt sich direkt über das Tochdisplay am Gerät konfigurieren
 * Anpassungen an der Benutzeroberfläche
 
