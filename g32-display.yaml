@@ -154,9 +154,6 @@ wifi:
   reboot_timeout: 0s
   on_connect:
     then:
-      - lvgl.widget.update:
-          id: wifi_connect_label
-          hidden: false
       - rtttl.play: ${Wifi_Connect_Sound}
       - globals.set:
           id: wifi_connected
@@ -164,11 +161,9 @@ wifi:
       - globals.set:
           id: apply_wifi_started_by_user
           value: 'false'
+      - lvgl.widget.refresh: wifi_connect_label
   on_disconnect:
     then:
-      - lvgl.widget.update:
-          id: wifi_connect_label
-          hidden: true
       - if: # no sound if user updated credentials
           condition:
             - lambda: |-
@@ -178,6 +173,7 @@ wifi:
       - globals.set:
           id: wifi_connected
           value: 'false'
+      - lvgl.widget.refresh: wifi_connect_label
 
 # esp32_ble:
 #   # 1xG32, 4xMeater probes -> maximum 5 connections needed
@@ -288,24 +284,29 @@ ble_client:
     id: ow_g32
     on_connect:
       then:
-        - lvgl.widget.show: g32bt_connect_label
         - rtttl.play: ${G32_Connect_Sound}
         - globals.set:
             id: g32_connected
             value: 'true'
+        - lvgl.widget.refresh: g32bt_connect_label
     on_disconnect:
       then:
-        - lvgl.widget.update:
-            id: g32bt_connect_label
-            hidden: true
         - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
         - lvgl.widget.hide: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
-        - lvgl.widget.hide: [gas_percent_label, gas_weight_label, gas_percent_bar]
         - rtttl.play: ${G32_Disconnect_Sound}
         - globals.set:
             id: g32_connected
             value: 'false'
+        - lvgl.widget.refresh: g32bt_connect_label
+        - globals.set:
+            id: gas_weight
+            value: '-1'
+        - lvgl.widget.refresh: gas_weight_label
+        - globals.set:
+            id: gas_percent
+            value: '0'
+        - lvgl.widget.refresh: [gas_percent_label, gas_percent_bar]
   - mac_address: ${meater_mac_address}
     id: meater0
     on_connect:
@@ -519,6 +520,21 @@ globals:
   - id: g32_connected
     type: bool
     initial_value: 'false'
+  - id: firebox_open
+    type: bool
+    initial_value: 'false'
+  - id: light_on
+    type: bool
+    initial_value: 'false'
+  - id: warning_on
+    type: bool
+    initial_value: 'false'
+  - id: gas_weight
+    type: int32_t
+    initial_value: '-1'
+  - id: gas_percent
+    type: int32_t
+    initial_value: '0'
 
   - id: ble_g32_scan_started_by_user  # for managing "scan" button status
     type: bool
@@ -1032,48 +1048,64 @@ lvgl:
                 x: 396
                 y: 0
                 text_font: MONTSERRAT_18
-                text_color: 0x00ff00
+                text_color: !lambda |-
+                  if( id(g32_connected) ) {
+                    return lv_color_hex(0x00ff00);
+                  }
+                  return lv_color_hex(0x000000);
                 text_align: CENTER
                 width: 30
                 text: "\uF293" # BT symbol
-                hidden: true
             - label: # symbol for successfull WIFI connection
                 id: wifi_connect_label
                 x: 367
                 y: 0
                 text_font: MONTSERRAT_18
-                text_color: 0x00ff00
+                text_color: !lambda |-
+                  if( id(wifi_connected) ) {
+                    return lv_color_hex(0x00ff00);
+                  }
+                  return lv_color_hex(0x000000);
                 text_align: CENTER
                 width: 30
                 text: "\uF1EB" # WIFI symbol
-                hidden: true
             - label: # symbol for 'light on'
                 id: light_on_label
                 x: 337
                 y: 0
                 text_font: MONTSERRAT_18
-                text_color: 0xffff00
+                text_color: !lambda |-
+                  if( id(light_on) ) {
+                    return lv_color_hex(0xffff00);
+                  }
+                  return lv_color_hex(0x000000);
                 text_align: CENTER
                 width: 30
                 text: "\uF0E7" # lightning
-                hidden: true
             - label: # symbol for 'firebox open'
                 id: firebox_open_label
                 x: 307
                 y: 0
                 text_font: MONTSERRAT_18
-                text_color: 0x00ff00
+                text_color: !lambda |-
+                  if( id(firebox_open) ) {
+                    return lv_color_hex(0x00ff00);
+                  }
+                  return lv_color_hex(0x000000);
                 text_align: CENTER
                 width: 30
                 text: "\uF093" # arrow up
-                hidden: true
             # currently unused
             # - label:
             #     id: g32_warning_label
             #     x: 277
             #     y: 0
             #     text_font: MONTSERRAT_18
-            #     text_color: 0xff0000
+            #     text_color: !lambda |-
+            #       if( id(warning_on) ) {
+            #         return lv_color_hex(0xff0000);
+            #       }
+            #       return lv_color_hex(0x000000);
             #     text_align: CENTER
             #     width: 30
             #     text: "\uF071"
@@ -1158,13 +1190,24 @@ lvgl:
                       x: 260
                       y: 0
                       text_font: MONTSERRAT_18
-                      text: '-- %'
+                      text: !lambda |-
+                        int y = id(gas_weight);
+                        if( y < 0) {
+                          return "-- %";
+                        }
+                        int x = id(gas_percent);
+                        return (to_string(static_cast<int>(x)) + " %").c_str();
                   - label:
                       id: gas_weight_label
                       x: 358
                       y: 0
                       text_font: MONTSERRAT_18
-                      text: '--- g'
+                      text: !lambda |-
+                        int x = id(gas_weight);
+                        if( x < 0) {
+                          return "--- g";
+                        }
+                        return (to_string(static_cast<int>(x)) + " g").c_str();
                   - bar:
                       id: gas_percent_bar
                       x: 80
@@ -1177,8 +1220,13 @@ lvgl:
                       bg_color: 0xffffff
                       indicator:
                         bg_color: ${Gas_Bar_Color}
-                      value: 0
-
+                      value: !lambda |-
+                        int y = id(gas_weight);
+                        if( y < 0) {
+                          return 0;
+                        }
+                        int x = id(gas_percent);
+                        return x;
       - obj:
           id: settings_status_bar_top
           x: 0
@@ -4322,13 +4370,14 @@ sensor:
     accuracy_decimals: 0
     icon: "mdi:weight-gram"
     on_value:
-      - lvgl.label.update:
-          id: gas_weight_label
-          text: !lambda |-
-            if(x >= 11000) {return ("11000 g");
-            } else {
-              return (to_string(static_cast<int>(x)) + " g").c_str();
+      - globals.set:
+          id: gas_weight
+          value: !lambda |-
+            if (x >= 11000) {
+              return 11000;
             }
+            return int(x);
+      - lvgl.widget.refresh: gas_weight_label
 
   - platform: template
     name: "G32 Gasbuddy Füllstand in %"
@@ -4337,20 +4386,14 @@ sensor:
     unit_of_measurement: "%"
     icon: "mdi:gas-cylinder"
     on_value:
-      - lvgl.label.update:
-          id: gas_percent_label
-          text: !lambda |-
-            if(x > 100) {return ("---");
-            } else {
-              return (to_string(static_cast<int>(x)) + " %").c_str();
-            }
-      - lvgl.bar.update:
-          id: gas_percent_bar
+      - globals.set:
+          id: gas_percent
           value: !lambda |-
-            if(x > 100) {return (100);
-            } else {
-              return (x);
+            if(x > 100) {
+              return 100;
             }
+            return int(x);
+      - lvgl.widget.refresh: [gas_percent_label, gas_percent_bar]
       - lvgl.bar.update:
           id: gas_percent_bar
           indicator:
@@ -4501,9 +4544,10 @@ binary_sensor:
     id: g32_light_on
     icon: "mdi:light-flood-down"
     on_state:
-      - lvgl.label.update:
-          id: light_on_label
-          hidden: !lambda return(!x);
+      - globals.set:
+          id: light_on
+          value: !lambda return(x);
+      - lvgl.widget.refresh: light_on_label
 
   - platform: template
     name: "G32 Haube"
@@ -4511,9 +4555,10 @@ binary_sensor:
     device_class: "door"
     icon: "mdi:door"
     on_state:
-      - lvgl.label.update:
-          id: firebox_open_label
-          hidden: !lambda return(!x);
+      - globals.set:
+          id: firebox_open
+          value: !lambda return(x);
+      - lvgl.widget.refresh: firebox_open_label
 
 script:
   - id: time_update
