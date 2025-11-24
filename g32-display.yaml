@@ -1068,7 +1068,7 @@ lvgl:
                 text: "\uF093" # arrow up
                 hidden: true
             # currently unused
-            # - label: # symbol for gas low warning
+            # - label:
             #     id: g32_warning_label
             #     x: 277
             #     y: 0
@@ -1076,7 +1076,7 @@ lvgl:
             #     text_color: 0xff0000
             #     text_align: CENTER
             #     width: 30
-            #     text: "\uF071" # invertiertes Ausrufungszeichen
+            #     text: "\uF071"
             #     hidden: true
             - label: # time hours:minutes:seconds
                 id: display_time
