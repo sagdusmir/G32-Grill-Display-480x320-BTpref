@@ -1219,13 +1219,18 @@ lvgl:
                       max_value: 100
                       bg_color: 0xffffff
                       indicator:
-                        bg_color: ${Gas_Bar_Color}
+                        bg_color: ${Gas_Bar_Color}  # placeholder
                       value: !lambda |-
                         int y = id(gas_weight);
                         if( y < 0) {
                           return 0;
                         }
                         int x = id(gas_percent);
+                        if( x <= id(settings_min_gas_value_persistent) ) {
+                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${Gas_Bar_Low_Color}), LV_PART_INDICATOR);
+                        } else {                          
+                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${Gas_Bar_Color}), LV_PART_INDICATOR);
+                        }
                         return x;
       - obj:
           id: settings_status_bar_top
@@ -4394,15 +4399,6 @@ sensor:
             }
             return int(x);
       - lvgl.widget.refresh: [gas_percent_label, gas_percent_bar]
-      - lvgl.bar.update:
-          id: gas_percent_bar
-          indicator:
-            bg_color: !lambda |-
-              if( x <= id(settings_min_gas_value_persistent) ) {
-                return lv_color_hex(${Gas_Bar_Low_Color});
-              } else {
-                return lv_color_hex(${Gas_Bar_Color});
-              }
     
   - platform: ble_client
     ble_client_id: meater0
