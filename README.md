@@ -2,7 +2,7 @@
 
 Dies ist ein Fork von https://github.com/JBecker32/G32-Display-480x320-BT.
 
-Im Vordergrund steht der Einsatz als mobiler Grill Monitor and damit auch der Ersatz der Otto Wilde App / des Otto Wilde Grill Buddy. Die Verbindung erfolgt über Bluetooth Low Energy (BLE) und benötigt damit keinerlei Login oder gar die Server von OW.
+Im Vordergrund steht der Einsatz als mobiler Grill Monitor and damit auch der Ersatz der Otto Wilde App / des Otto Wilde Grill Buddy. Die Verbindung erfolgt über Bluetooth Low Energy (BLE) und benötigt damit keinerlei Login oder gar die Server von OW. Getestet mit Firmware v.1.4.5 (alte Firmware "v13" funktioniert NICHT!).
 
 Verwendete Hardware, Software Installation und sonstige Details für dieses Projekt entsprechen dem Original und sind dort sehr gut dokumentiert und auch anhand von Bildern visualisiert. Basis ist ein ESP mit Tochscreen-Display "JC3248W535C".
 
