@@ -393,8 +393,7 @@ display:
     cs_pin:
       number: 45
       ignore_strapping_warning: true
-    rotation: 90 # for landscape
-#    rotation: 270 # for landscape inverted
+    rotation: 90  # 90 for landscape, 270 for landscape inverted
     auto_clear_enabled: false  # has to be seit to 'false' for lvgl!
 
 #-------------------------------------------
@@ -4678,23 +4677,6 @@ sensor:
       return t;
 
 binary_sensor:
-  - platform: gpio
-    name: "Display Tilt Sensor"
-    pin:
-      number: GPIO18
-      mode:
-        input: true
-        pullup: true
-    filters:
-      - delayed_on: 200ms
-      - delayed_off: 200ms
-    on_press:
-      - lambda: |-
-          ESP_LOGD("custom","Display 90°");
-    on_release:
-      - lambda: |-
-          ESP_LOGD("custom","Display 270°");
-
   - platform: status
     name: "Status ESP G32"
 
