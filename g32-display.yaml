@@ -1304,13 +1304,18 @@ lvgl:
                       bg_color: ${COLOR_MAIN_25}
                       indicator:
                         radius: 0
-                        bg_color: ${COLOR_MAIN_100}
+                        bg_color: ${COLOR_MAIN_100}  # placeholder
                       value: !lambda |-
                         int y = id(gas_weight);
                         if( y < 0) {
                           return 0;
                         }
                         int x = id(gas_percent);
+                        if( x <= id(settings_min_gas_value_persistent) ) {
+                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${COLOR_BAD}), LV_PART_INDICATOR);
+                        } else {                          
+                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${COLOR_GOOD}), LV_PART_INDICATOR);
+                        }
                         return x;
                   - label:
                       x: 42
@@ -4273,7 +4278,7 @@ lvgl:
                           - script.execute: apply_mac_address
                           - script.execute: apply_meater_mac_addresses
 
-                          - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit]
+                          - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit, gas_percent_bar]
 
                           # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
                           - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
