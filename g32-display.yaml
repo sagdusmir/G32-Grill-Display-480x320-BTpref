@@ -699,7 +699,7 @@ globals:
     initial_value: '0'
 
   # settings: persisted and temporary values
-  # stick ton the _persistent value for usage.
+  # stick to the _persistent value for usage.
   # the temporary value is intended for the
   # settings page only.
   - id: settings_g32_mac_address_persistent
@@ -788,6 +788,7 @@ font:
       - "\U000F12A2" # mdi-battery-medium
       - "\U000F12A1" # mdi-battery-low
       - "\U000F008E" # mdi-battery-outline
+      - "\U000F17E6" # mdi-battery-plus      
       - "\U000F0238" # mdi-fire (used for meater)
       - "\U000F029A" # mdi-gauge
       - "\U000F1358" # mdi-propane-tank-outline
@@ -3646,13 +3647,14 @@ lvgl:
                   tab_style:
                     border_width: 0
                     bg_color: 0
+                    text_font: ICON_FONT_24
                     width: 50
                     items:
                       text_color: 0x555555
                   on_value:
                     - lvgl.widget.hide: my_keyboard
                   tabs:
-                    - name: "\uF293"  # BT
+                    - name: "\U000F00AF"  # BT
                       id: settings_tab_ble_mac
                       pad_all: 0
                       widgets:
@@ -3725,7 +3727,7 @@ lvgl:
                                     then:
                                       - script.execute: ble_g32_scan_stop
 
-                    - name: "\uF1EB"  #  wifi
+                    - name: "\U000F05A9"  #  wifi
                       id: settings_tab_wifi
                       pad_all: 0
                       widgets:
@@ -3784,7 +3786,7 @@ lvgl:
                                     - lambda: lv_keyboard_set_textarea(id(my_keyboard)->obj, settings_wifi_password_textarea);
                                     - lvgl.widget.show: my_keyboard
 
-                    - name: "\uF0C9"  #  settings
+                    - name: "\U000F0DD0"  #  settings
                       id: settings_tab_settings
                       pad_all: 0
                       widgets:
@@ -3918,7 +3920,7 @@ lvgl:
                                     - lambda: |-
                                         id(settings_hide_inactive_sensors) = x;
 
-                    - name: "\uF071"  # warnings
+                    - name: "\U000F002A"  # warnings
                       id: settings_tab_warnings
                       pad_all: 0
                       widgets:
@@ -4000,7 +4002,7 @@ lvgl:
                                         id(settings_min_soc_value) = val;
 
 
-                    - name: "\uF06E"  # display
+                    - name: "\U000F17E6"  # display
                       id: settings_tab_display
                       pad_all: 0
                       widgets:
@@ -4042,7 +4044,7 @@ lvgl:
                                         int val = atoi(text.c_str());
                                         id(settings_display_timeout_value) = val;
                                         // ESP_LOGI("debug", "display_imeout=%d", id(settings_display_timeout_value));
-                    - name: "MT"  # Meater
+                    - name: "\U000F0238"  # Meater
                       id: settings_tab_ble_meater
                       pad_all: 0
                       widgets:
