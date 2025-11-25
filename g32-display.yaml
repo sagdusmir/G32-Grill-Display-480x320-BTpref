@@ -31,7 +31,6 @@ substitutions:
 
 # benutzerdefinierbare Displayelemente  (nur noch für die Limits-Page!)
 # Texte festlegen für Zonen und Sensoren (max. 8 Zeichen):
-  Zone_Text:   "Zone "     # ergibt 'Zone 1', 'Zone 2' usw.
   Sensor_Text: "Sensor "   # ergibt 'Sensor 1', 'Sensor 2' usw.
 
   COLOR_MAIN_100: 0xffffff  # 100% brightness
@@ -667,7 +666,7 @@ globals:
     type: int
     initial_value: '0'
 
-  - id: page_index          # parameter for page
+  - id: page_index          # parameter for page TODO - only a single page
     type: int
     initial_value: '0'
   - id: sensor_index        # parameter for Zone (1-4) or Sensor (5-8)
@@ -1002,20 +1001,6 @@ lvgl:
       border_width: 0
       border_side: NONE
       outline_pad: 0
-
-      # style for zone objects with numbers
-    - id: zone_obj_style
-      width: 104
-      height: 104
-      bg_color: 0x333333
-      pad_all: 0
-      outline_width: 0
-      outline_color: 0
-      border_width: 0
-      border_color: 0
-      border_side: NONE
-      outline_pad: 0
-      radius: 10
 
       # style for sensor objects with numbers
     - id: sensor_obj_style
@@ -1620,7 +1605,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}1 Alarm";
+                          return "Zone 1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1739,7 +1724,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}2 Alarm";
+                          return "Zone 2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1858,7 +1843,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}3 Alarm";
+                          return "Zone 3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1977,7 +1962,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}4 Alarm";
+                          return "Zone 4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2561,310 +2546,6 @@ lvgl:
                   animation: OUT_RIGHT
                   time: 600ms
       widgets:
-        # zone 1 object with Labels and line
-        - obj:
-            id: zone1_obj2
-            x: 6
-            y: 47
-            styles: zone_obj_style
-            widgets:
-              - line:
-                  points:
-                    - 8, 52
-                    - 74, 52
-                  line_width: 3
-                  line_color: 0x888888
-                  line_rounded: true
-              - label:
-                  x: 78
-                  y: 42
-                  width: 24
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_18
-                  text_color: 0x888888
-                  text: '°C'
-              - label:
-                  id: zone1_label2
-                  x: 5
-                  y: 8
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_34
-                  text_color: !lambda |-
-                    if( (id(zone1_limit_value) == 0) || (id(zone1_value) < id(zone1_limit_value)) ) {
-                    return lv_color_hex(${Limit_text_Color}); // user-defined color
-                      } else {
-                      return lv_color_hex(0xff0000); // red
-                    }
-                  text: !lambda |-
-                    if( id(zone1_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone1_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-                  clickable: !lambda |-
-                    return id(settings_enable_temperature_limits_persistent);
-                  on_click:
-                    - lambda: |-
-                        id(page_index) = 2;
-                        id(sensor_index) = 1;
-                        id(sensor_max_value) = ${Zone_Max};
-                        id(sensor_limit_value) = id(zone1_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
-                        lv_slider_set_value(sensor_limit_slider, id(zone1_limit_value), LV_ANIM_OFF );
-                    - lvgl.label.update:
-                        id: sensor_limit_headline_label
-                        text: !lambda |-
-                          return "${Zone_Text}1 Alarm";
-                    - lvgl.label.update:
-                        id: sensor_limit_label
-                        text: !lambda |-
-                          return (to_string(static_cast<int>(id(zone1_limit_value)))+"°C").c_str();
-                    - lvgl.widget.redraw:
-                        id: sensor_limit_slider
-                    - lvgl.page.show: sensor_limits_page
-              - label:
-                  id: zone1_limit_label2
-                  x: 5
-                  y: 64
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_24
-                  text_color: ${Limit_text_Color}
-                  text: !lambda |-
-                    if( id(zone1_limit_value) > 0 ){
-                      return (to_string(static_cast<int>(id(zone1_limit_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-
-        # zone 2 object with Labels and line
-        - obj:
-            id: zone2_obj2
-            x: 126
-            y: 47
-            styles: zone_obj_style
-            widgets:
-              - line:
-                  points:
-                    - 8, 52
-                    - 74, 52
-                  line_width: 3
-                  line_color: 0x888888
-                  line_rounded: true
-              - label:
-                  x: 78
-                  y: 42
-                  width: 24
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_18
-                  text_color: 0x888888
-                  text: '°C'
-              - label:
-                  id: zone2_label2
-                  x: 5
-                  y: 8
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_34
-                  text_color: !lambda |-
-                    if( (id(zone2_limit_value) == 0) || (id(zone2_value) < id(zone2_limit_value)) ) {
-                      return lv_color_hex(${Limit_text_Color}); // user-defined color
-                      } else {
-                      return lv_color_hex(0xff0000); // red
-                    }
-                  text: !lambda |-
-                    if( id(zone2_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone2_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-                  clickable: !lambda |-
-                    return id(settings_enable_temperature_limits_persistent);
-                  on_click:
-                    - lambda: |-
-                        id(page_index) = 2;
-                        id(sensor_index) = 2;
-                        id(sensor_max_value) = ${Zone_Max};
-                        id(sensor_limit_value) = id(zone2_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
-                        lv_slider_set_value(sensor_limit_slider, id(zone2_limit_value), LV_ANIM_OFF );
-                    - lvgl.label.update:
-                        id: sensor_limit_headline_label
-                        text: !lambda |-
-                          return "${Zone_Text}2 Alarm";
-                    - lvgl.label.update:
-                        id: sensor_limit_label
-                        text: !lambda |-
-                          return (to_string(static_cast<int>(id(zone2_limit_value)))+"°C").c_str();
-                    - lvgl.widget.redraw:
-                        id: sensor_limit_slider
-                    - lvgl.page.show: sensor_limits_page
-              - label:
-                  id: zone2_limit_label2
-                  x: 5
-                  y: 64
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_24
-                  text_color: ${Limit_text_Color}
-                  text: !lambda |-
-                    if( id(zone2_limit_value) > 0 ){
-                      return (to_string(static_cast<int>(id(zone2_limit_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-
-        # zone 3 object with Labels and line
-        - obj:
-            id: zone3_obj2
-            x: 246
-            y: 47
-            styles: zone_obj_style
-            widgets:
-              - line:
-                  points:
-                    - 8, 52
-                    - 74, 52
-                  line_width: 3
-                  line_color: 0x888888
-                  line_rounded: true
-              - label:
-                  x: 78
-                  y: 42
-                  width: 24
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_18
-                  text_color: 0x888888
-                  text: '°C'
-              - label:
-                  id: zone3_label2
-                  x: 5
-                  y: 8
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_34
-                  text_color: !lambda |-
-                    if( (id(zone3_limit_value) == 0) || (id(zone3_value) < id(zone3_limit_value)) ) {
-                      return lv_color_hex(${Limit_text_Color}); // user-defined color
-                      } else {
-                      return lv_color_hex(0xff0000); // red
-                    }
-                  text: !lambda |-
-                    if( id(zone3_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone3_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-                  clickable: !lambda |-
-                    return id(settings_enable_temperature_limits_persistent);
-                  on_click:
-                    - lambda: |-
-                        id(page_index) = 2;
-                        id(sensor_index) = 3;
-                        id(sensor_max_value) = ${Zone_Max};
-                        id(sensor_limit_value) = id(zone3_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
-                        lv_slider_set_value(sensor_limit_slider, id(zone3_limit_value), LV_ANIM_OFF );
-                    - lvgl.label.update:
-                        id: sensor_limit_headline_label
-                        text: !lambda |-
-                          return "${Zone_Text}3 Alarm";
-                    - lvgl.label.update:
-                        id: sensor_limit_label
-                        text: !lambda |-
-                          return (to_string(static_cast<int>(id(zone3_limit_value)))+"°C").c_str();
-                    - lvgl.widget.redraw:
-                        id: sensor_limit_slider
-                    - lvgl.page.show: sensor_limits_page
-              - label:
-                  id: zone3_limit_label2
-                  x: 5
-                  y: 64
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_24
-                  text_color: ${Limit_text_Color}
-                  text: !lambda |-
-                    if( id(zone3_limit_value) > 0 ){
-                      return (to_string(static_cast<int>(id(zone3_limit_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-
-        # zone 4 object with Labels and line
-        - obj:
-            id: zone4_obj2
-            x: 366
-            y: 47
-            styles: zone_obj_style
-            widgets:
-              - line:
-                  points:
-                    - 8, 52
-                    - 74, 52
-                  line_width: 3
-                  line_color: 0x888888
-                  line_rounded: true
-              - label:
-                  x: 78
-                  y: 42
-                  width: 24
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_18
-                  text_color: 0x888888
-                  text: '°C'
-              - label:
-                  id: zone4_label2
-                  x: 5
-                  y: 8
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_34
-                  text_color: !lambda |-
-                    if( (id(zone4_limit_value) == 0) || (id(zone4_value) < id(zone4_limit_value)) ) {
-                      return lv_color_hex(${Limit_text_Color}); // user-defined color
-                      } else {
-                      return lv_color_hex(0xff0000); // red
-                    }
-                  text: !lambda |-
-                    if( id(zone4_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone4_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-                  clickable: !lambda |-
-                    return id(settings_enable_temperature_limits_persistent);
-                  on_click:
-                    - lambda: |-
-                        id(page_index) = 2;
-                        id(sensor_index) = 4;
-                        id(sensor_max_value) = ${Zone_Max};
-                        id(sensor_limit_value) = id(zone4_limit_value);
-                        lv_slider_set_range(sensor_limit_slider, 0, ${Zone_Max});
-                        lv_slider_set_value(sensor_limit_slider, id(zone4_limit_value), LV_ANIM_OFF );
-                    - lvgl.label.update:
-                        id: sensor_limit_headline_label
-                        text: !lambda |-
-                          return "${Zone_Text}4 Alarm";
-                    - lvgl.label.update:
-                        id: sensor_limit_label
-                        text: !lambda |-
-                          return (to_string(static_cast<int>(id(zone4_limit_value)))+"°C").c_str();
-                    - lvgl.widget.redraw:
-                        id: sensor_limit_slider
-                    - lvgl.page.show: sensor_limits_page
-              - label:
-                  id: zone4_limit_label2
-                  x: 5
-                  y: 64
-                  width: 90
-                  bg_color: 0x333333
-                  text_font: MONTSERRAT_24
-                  text_color: ${Limit_text_Color}
-                  text: !lambda |-
-                    if( id(zone4_limit_value) > 0 ){
-                      return (to_string(static_cast<int>(id(zone4_limit_value)))).c_str();
-                    } else {
-                      return ("---");
-                    }
-
         # grey rectangle which combines the sensor objects
         - obj:
             id: sensors_obj2
@@ -3774,10 +3455,8 @@ lvgl:
               - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
               - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
               # refresh all widgets on numbers_page
-              - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
               - lvgl.widget.refresh: [sensor1_obj2, sensor2_obj2, sensor3_obj2, sensor4_obj2]
               - lvgl.widget.refresh: [sensor1_limit_label2, sensor2_limit_label2, sensor3_limit_label2, sensor4_limit_label2]
-              - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
               - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
               - lvgl.widget.redraw:
               - script.execute: show_temperatures_page
@@ -4573,13 +4252,11 @@ lvgl:
                           # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
                           - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
                           - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
+                          - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
                           - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
                           - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
                           - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
-                          - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
                           - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
-                          - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
-                          - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
                           - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
                           - lvgl.widget.refresh: [sensor1_limit_label2, sensor2_limit_label2, sensor3_limit_label2, sensor4_limit_label2]
                           - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
@@ -4745,7 +4422,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone1_value) = x;
-      - lvgl.widget.refresh: [zone1_label, zone1_arc, zone1_label2]
+      - lvgl.widget.refresh: [zone1_label, zone1_arc]
 
   - platform: template
     name: "G32 Zone 2"
@@ -4755,7 +4432,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone2_value) = x;
-      - lvgl.widget.refresh: [zone2_label, zone2_arc, zone2_label2]
+      - lvgl.widget.refresh: [zone2_label, zone2_arc]
 
   - platform: template
     name: "G32 Zone 3"
@@ -4765,7 +4442,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone3_value) = x;
-      - lvgl.widget.refresh: [zone3_label, zone3_arc, zone3_label2]
+      - lvgl.widget.refresh: [zone3_label, zone3_arc]
 
   - platform: template
     name: "G32 Zone 4"
@@ -4775,7 +4452,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone4_value) = x;
-      - lvgl.widget.refresh: [zone4_label, zone4_arc, zone4_label2]
+      - lvgl.widget.refresh: [zone4_label, zone4_arc]
 
   - platform: template
     name: "G32 Sensor 1"
@@ -5137,14 +4814,13 @@ script:
 
             # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
             - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
+            - lvgl.widget.refresh: [zone1_arc, zone2_arc, zone3_arc, zone4_arc]
             - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
-            - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
             - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
+            - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
             - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
             - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
             - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
-            - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
-            - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
             - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
             - lvgl.widget.refresh: [sensor1_limit_label2, sensor2_limit_label2, sensor3_limit_label2, sensor4_limit_label2]
             - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
