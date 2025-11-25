@@ -2053,7 +2053,7 @@ lvgl:
             text_font: MONTSERRAT_16
             text_align: left
             text: "Temperatursensoren"
-            hidden: !lambda return (id(active_sensors) == 0);
+            hidden: !lambda return ((id(active_sensors) == 0) && (id(active_meaters) == 0));
 
     # main page with numbers
     - id: numbers_page
