@@ -1662,6 +1662,7 @@ lvgl:
                           }
                           return (to_string(static_cast<int>(id(zone1_value)))).c_str();
                     - label:  # alarm bell
+                        id: zone1_limit_label_bell
                         x: 87
                         y: 68
                         width: 15
@@ -1670,7 +1671,7 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone1_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_75});
+                            return lv_color_hex(${COLOR_MAIN_100});
                           }
                           return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
@@ -1681,6 +1682,20 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: ${COLOR_MAIN_25}
+                    - label:
+                        id: zone1_limit_label
+                        x: 17
+                        y: 68
+                        width: 70
+                        bg_opa: TRANSP
+                        text_font: SEGMENT_FONT_22
+                        text_align: RIGHT
+                        text_color: ${COLOR_MAIN_100}
+                        text: !lambda |-
+                          if( id(zone1_limit_value) == 0 ) {
+                            return (" ");
+                          }
+                          return (to_string(static_cast<int>(id(zone1_limit_value)))).c_str();
                     - arc:
                         id: zone1_arc
                         styles: arc_value_style
@@ -1766,6 +1781,7 @@ lvgl:
                           }
                           return (to_string(static_cast<int>(id(zone2_value)))).c_str();
                     - label:  # alarm bell
+                        id: zone2_limit_label_bell
                         x: 87
                         y: 68
                         width: 15
@@ -1774,7 +1790,7 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone2_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_75});
+                            return lv_color_hex(${COLOR_MAIN_100});
                           }
                           return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
@@ -1785,6 +1801,20 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: ${COLOR_MAIN_25}
+                    - label:
+                        id: zone2_limit_label
+                        x: 17
+                        y: 68
+                        width: 70
+                        bg_opa: TRANSP
+                        text_font: SEGMENT_FONT_22
+                        text_align: RIGHT
+                        text_color: ${COLOR_MAIN_100}
+                        text: !lambda |-
+                          if( id(zone2_limit_value) == 0 ) {
+                            return (" ");
+                          }
+                          return (to_string(static_cast<int>(id(zone2_limit_value)))).c_str();
                     - arc:
                         id: zone2_arc
                         styles: arc_value_style
@@ -1798,7 +1828,7 @@ lvgl:
                           if( id(zone2_value) >= ${Invalid_Sensor_Value} ) {
                             return 0;
                           }
-                          return id(zone1_value);
+                          return id(zone2_value);
                     - arc:
                         id: zone2_limit_arc
                         styles: arc_limit_style
@@ -1870,6 +1900,7 @@ lvgl:
                           }
                           return (to_string(static_cast<int>(id(zone3_value)))).c_str();
                     - label:  # alarm bell
+                        id: zone3_limit_label_bell
                         x: 87
                         y: 68
                         width: 15
@@ -1878,7 +1909,7 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone3_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_75});
+                            return lv_color_hex(${COLOR_MAIN_100});
                           }
                           return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
@@ -1889,6 +1920,20 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: ${COLOR_MAIN_25}
+                    - label:
+                        id: zone3_limit_label
+                        x: 17
+                        y: 68
+                        width: 70
+                        bg_opa: TRANSP
+                        text_font: SEGMENT_FONT_22
+                        text_align: RIGHT
+                        text_color: ${COLOR_MAIN_100}
+                        text: !lambda |-
+                          if( id(zone3_limit_value) == 0 ) {
+                            return (" ");
+                          }
+                          return (to_string(static_cast<int>(id(zone3_limit_value)))).c_str();
                     - arc:
                         id: zone3_arc
                         styles: arc_value_style
@@ -1974,15 +2019,17 @@ lvgl:
                           }
                           return (to_string(static_cast<int>(id(zone4_value)))).c_str();
                     - label:  # alarm bell
+                        id: zone4_limit_label_bell
                         x: 87
                         y: 68
                         width: 15
+                        bg_opa: TRANSP
                         text_font: ICON_FONT_12
                         text_align: LEFT
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone4_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_75});
+                            return lv_color_hex(${COLOR_MAIN_100});
                           }
                           return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
@@ -1993,6 +2040,20 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: ${COLOR_MAIN_25}
+                    - label:
+                        id: zone4_limit_label
+                        x: 17
+                        y: 68
+                        width: 70
+                        bg_opa: TRANSP
+                        text_font: SEGMENT_FONT_22
+                        text_align: RIGHT
+                        text_color: ${COLOR_MAIN_100}
+                        text: !lambda |-
+                          if( id(zone4_limit_value) == 0 ) {
+                            return (" ");
+                          }
+                          return (to_string(static_cast<int>(id(zone4_limit_value)))).c_str();
                     - arc:
                         id: zone4_arc
                         styles: arc_value_style
@@ -3705,6 +3766,8 @@ lvgl:
                   }
               # refresh all widgets on arcs_page
               - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
+              - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
+              - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
               - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
               - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
               - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
@@ -4513,6 +4576,8 @@ lvgl:
                           - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
                           - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
                           - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
+                          - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
+                          - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
                           - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
                           - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
                           - lvgl.widget.refresh: [sensor1_label2, sensor2_label2, sensor3_label2, sensor4_label2]
@@ -5074,6 +5139,8 @@ script:
             - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
             - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
             - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+            - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
+            - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
             - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
             - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
             - lvgl.widget.refresh: [zone1_label2, zone2_label2, zone3_label2, zone4_label2]
