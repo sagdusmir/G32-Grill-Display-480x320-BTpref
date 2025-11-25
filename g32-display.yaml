@@ -297,7 +297,6 @@ ble_client:
         - lvgl.widget.refresh: g32bt_connect_label
     on_disconnect:
       then:
-        - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
         - lvgl.widget.hide: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
         - rtttl.play: ${G32_Disconnect_Sound}
@@ -313,6 +312,19 @@ ble_client:
             id: gas_percent
             value: '0'
         - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit, gas_percent_bar]
+        - globals.set:
+            id: zone1_value
+            value: ${Invalid_Sensor_Value}
+        - globals.set:
+            id: zone2_value
+            value: ${Invalid_Sensor_Value}
+        - globals.set:
+            id: zone3_value
+            value: ${Invalid_Sensor_Value}
+        - globals.set:
+            id: zone4_value
+            value: ${Invalid_Sensor_Value}
+        - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
   - mac_address: ${meater_mac_address}
     id: meater0
     on_connect:
@@ -805,6 +817,22 @@ font:
       - "\U000F1A4E" # mdi-lightbulb-on-20
       - "\U000F0D3F" # mdi-weight-grams
   - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    id: SEGMENT_FONT_22
+    size: 22
+    glyphs:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "-"
+      - " "
+  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_20
     size: 20
     glyphs:
@@ -823,20 +851,6 @@ font:
       - ":"
       - " "
   - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
-    id: SEGMENT_FONT_8
-    size: 8
-    glyphs:
-      - "0"
-      - "1"
-      - "2"
-      - "3"
-      - "4"
-      - "5"
-      - "6"
-      - "7"
-      - "8"
-      - "9"
-  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_14
     size: 14
     glyphs:
@@ -852,6 +866,20 @@ font:
       - "9"
       - "-"
       - " "
+  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    id: SEGMENT_FONT_8
+    size: 8
+    glyphs:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
   - file: 'fonts/Montserrat/Montserrat-Bold.ttf'
     id: MONTSERRAT_BOLD_FONT_22
     size: 22
@@ -930,24 +958,24 @@ lvgl:
         radius: 5
   style_definitions:
     - id: arc_style
-      x: 10
-      y: 0
-      width: 100
-      height: 120
+      x: 8
+      y: 15
+      width: 104
+      height: 104
       arc_opa: 60%
+      arc_rounded: false
+      arc_width: 5
 
-      # style for zone and sensor objects with arcs
+      # style for zone and sensor objects
     - id: item_obj_style
-      width: 110
-      height: 119
+      width: 120
+      height: 120
       bg_color: 0
-      text_color: 0xffffff
+      text_color: ${COLOR_MAIN_100}
       pad_all: 0
       radius: 0
       outline_width: 0
-      outline_color: 0
       border_width: 0
-      border_color: 0
       border_side: NONE
       outline_pad: 0
 
@@ -1518,11 +1546,11 @@ lvgl:
                   animation: OUT_RIGHT
                   time: 600ms
       widgets:
-        - obj:
+        - obj:  # only for drawing the horizontal divider
             x: 0
             y: 32
             width: 480
-            height: 138
+            height: 20
             border_color: ${COLOR_MAIN_75}
             border_width: 10
             border_side:
@@ -1530,36 +1558,66 @@ lvgl:
             radius: 10
             pad_all: 0
             bg_color: 0x000000
+        - label:
+            x: 210
+            y: 28
+            width: 62
+            bg_opa: COVER
+            text_font: MONTSERRAT_BOLD_FONT_14
+            text_align: CENTER
+            text_color: ${COLOR_MAIN_75}
+            text: "ZONES"
+
+        - obj:  # zones
+            x: 0
+            y: 42
+            width: 480
+            height: 123
+            pad_all: 0
+            border_width: 0
+            radius: 0
+            bg_color: 0x000000
             widgets:
-              # zone 1 object with Headline, Labels and Arc
-              - obj:
+              - obj:  # zone 1
                   id: zone1_obj
-                  x: -10
+                  x: 0
                   y: 0
-                  bg_color: 0x0000ff
+                  bg_color: 0x000000
                   styles: item_obj_style
                   widgets:
                     - label:
                         x: 0
-                        y: 74
-                        text_font: MONTSERRAT_18
+                        y: 96
+                        text_font: MONTSERRAT_12
                         text: '°C'
+                        text_color: ${COLOR_MAIN_75}
+                    - label:  # background
+                        x: 17
+                        y: 40
+                        width: 70
+                        text_font: SEGMENT_FONT_22
+                        text: "888"
+                        text_color: ${COLOR_MAIN_25}
+                        text_align: RIGHT
                     - label:
                         id: zone1_label
-                        x: 0
-                        y: 34
-                        text_font: MONTSERRAT_26
+                        x: 17
+                        y: 40
+                        width: 70
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
-                          if( (id(zone1_limit_value) == 0) || (id(zone1_value) < id(zone1_limit_value)) ) {
-                            return lv_color_hex(0xffffff);
+                          if( (id(zone1_limit_value) != 0) || (id(zone1_value) >= id(zone1_limit_value)) ) {
                             } else {
-                            return lv_color_hex(0xff0000);
+                            return lv_color_hex(${COLOR_BAD});
                           }
+                          return lv_color_hex(${COLOR_MAIN_100});
                         text: !lambda |-
-                          if( id(zone1_value) < ${Invalid_Sensor_Value}) {return (to_string(static_cast<int>(id(zone1_value)))).c_str();
-                          } else {
+                          if( id(zone1_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
                           }
+                          return (to_string(static_cast<int>(id(zone1_value)))).c_str();
                         clickable: !lambda |-
                           return id(settings_enable_temperature_limits_persistent);
                         on_press:
@@ -1581,6 +1639,14 @@ lvgl:
                           - lvgl.widget.redraw:
                               id: sensor_limit_slider
                           - lvgl.page.show: sensor_limits_page
+                    - label:  # background
+                        x: 17
+                        y: 68
+                        width: 70
+                        text_font: SEGMENT_FONT_22
+                        text_align: RIGHT
+                        text: "888"
+                        text_color: ${COLOR_MAIN_25}
                     - arc:
                         id: zone1_limit_arc
                         min_value: 1
@@ -1601,11 +1667,9 @@ lvgl:
                           } else {
                             return 0;
                           }
-
-              # zone 2 object with Headline, Labels and Arc
-              - obj:
+              - obj:  # zone 2
                   id: zone2_obj
-                  x: 110
+                  x: 120
                   y: 0
                   styles: item_obj_style
                   widgets:
@@ -1671,11 +1735,9 @@ lvgl:
                           } else {
                             return 0;
                           }
-
-              # zone 3 object with Headline, Labels and Arc
-              - obj:
+              - obj:  # zone 3
                   id: zone3_obj
-                  x: 230
+                  x: 240
                   y: 0
                   styles: item_obj_style
                   widgets:
@@ -1741,11 +1803,9 @@ lvgl:
                           } else {
                             return 0;
                           }
-
-              # zone 4 object with Headline, Labels and Arc
-              - obj:
+              - obj:  # zone 4
                   id: zone4_obj
-                  x: 350
+                  x: 360
                   y: 0
                   styles: item_obj_style
                   widgets:
@@ -1812,9 +1872,9 @@ lvgl:
                             return 0;
                           }
 
-        - obj:
+        - obj:  # only for drawing the horizontal divider
             x: 0
-            y: 170
+            y: 165
             width: 480
             height: 138 # 128
             border_color: ${COLOR_MAIN_75}
@@ -1824,13 +1884,30 @@ lvgl:
             radius: 10
             bg_color: 0xff0000
             pad_all: 0
-            hidden: true
-            widgets:
+        - label:
+            x: 199
+            y: 160
+            width: 82
+            bg_opa: COVER
+            text_font: MONTSERRAT_BOLD_FONT_14
+            text_align: CENTER
+            text_color: ${COLOR_MAIN_75}
+            text: "SENSORS"
 
+        - obj:  # sensors
+            x: 0
+            y: 175
+            width: 480
+            height: 123
+            pad_all: 0
+            border_width: 0
+            radius: 0
+            bg_color: 0x000000
+            widgets:
               # sensor 1 object with Headline, Labels and Arc
               - obj:
                   id: sensor1_obj
-                  x: -10
+                  x: 0
                   y: 0
                   styles: item_obj_style
                   hidden: !lambda |-
@@ -1936,7 +2013,7 @@ lvgl:
               # sensor 2 object with Headline, Labels and Arc
               - obj:
                   id: sensor2_obj
-                  x: 110
+                  x: 120
                   y: 0
                   styles: item_obj_style
                   hidden: !lambda |-
@@ -2042,7 +2119,7 @@ lvgl:
               # sensor 3 object with Headline, Labels and Arc
               - obj:
                   id: sensor3_obj
-                  x: 230
+                  x: 240
                   y: 0
                   styles: item_obj_style
                   hidden: !lambda |-
@@ -2148,7 +2225,7 @@ lvgl:
               # sensor 4 object with Headline, Labels and Arc
               - obj:
                   id: sensor4_obj
-                  x: 350
+                  x: 360
                   y: 0
                   styles: item_obj_style
                   hidden: !lambda |-
@@ -2250,28 +2327,6 @@ lvgl:
                           } else {
                             return (0);
                           }
-
-        - label:
-            x: 210
-            y: 28
-            width: 62
-            bg_opa: COVER
-            text_font: MONTSERRAT_BOLD_FONT_14
-            text_align: CENTER
-            text_color: ${COLOR_MAIN_75}
-            text: "ZONES"
-
-        - label:
-            id: sensors_headline
-            x: 199
-            y: 165
-            width: 82
-            bg_opa: COVER
-            text_font: MONTSERRAT_BOLD_FONT_14
-            text_align: CENTER
-            text_color: ${COLOR_MAIN_75}
-            text: "SENSORS"
-            hidden: !lambda return ((id(active_sensors) == 0) && (id(active_meaters) == 0));
 
     # main page with numbers
     - id: numbers_page
@@ -3508,7 +3563,6 @@ lvgl:
               - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
               - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
               - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
-              - lvgl.widget.refresh: sensors_headline
               # refresh all widgets on numbers_page
               - lvgl.widget.refresh: [zone1_limit_label2, zone2_limit_label2, zone3_limit_label2, zone4_limit_label2]
               - lvgl.widget.refresh: [sensor1_obj2, sensor2_obj2, sensor3_obj2, sensor4_obj2]
@@ -4519,7 +4573,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor1_value) = x;
-      - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj]
       - lvgl.widget.refresh: [sensor1_battery]
       - lvgl.widget.refresh: [sensor1_label2, sensor1_obj2, sensors_obj2]
 
@@ -4531,7 +4585,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor2_value) = x;
-      - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj]
       - lvgl.widget.refresh: [sensor2_battery]
       - lvgl.widget.refresh: [sensor2_label2, sensor2_obj2, sensors_obj2]
 
@@ -4543,7 +4597,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor3_value) = x;
-      - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj]
       - lvgl.widget.refresh: [sensor3_battery]
       - lvgl.widget.refresh: [sensor3_label2, sensor3_obj2, sensors_obj2]
 
@@ -4555,7 +4609,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor4_value) = x;
-      - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj, sensors_headline]
+      - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj]
       - lvgl.widget.refresh: [sensor4_battery]
       - lvgl.widget.refresh: [sensor4_label2, sensor4_obj2, sensors_obj2]
 
