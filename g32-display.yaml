@@ -1668,7 +1668,11 @@ lvgl:
                         text_font: ICON_FONT_12
                         text_align: LEFT
                         text: "\U000F009A"
-                        text_color: ${COLOR_MAIN_25}  # TODO
+                        text_color: !lambda |-
+                          if ( id(zone1_limit_value) != 0) {
+                            return lv_color_hex(${COLOR_MAIN_75});
+                          }
+                          return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
                         x: 17
                         y: 68
@@ -1768,7 +1772,11 @@ lvgl:
                         text_font: ICON_FONT_12
                         text_align: LEFT
                         text: "\U000F009A"
-                        text_color: ${COLOR_MAIN_25}  # TODO
+                        text_color: !lambda |-
+                          if ( id(zone2_limit_value) != 0) {
+                            return lv_color_hex(${COLOR_MAIN_75});
+                          }
+                          return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
                         x: 17
                         y: 68
@@ -1868,7 +1876,11 @@ lvgl:
                         text_font: ICON_FONT_12
                         text_align: LEFT
                         text: "\U000F009A"
-                        text_color: ${COLOR_MAIN_25}  # TODO
+                        text_color: !lambda |-
+                          if ( id(zone3_limit_value) != 0) {
+                            return lv_color_hex(${COLOR_MAIN_75});
+                          }
+                          return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
                         x: 17
                         y: 68
@@ -1968,7 +1980,11 @@ lvgl:
                         text_font: ICON_FONT_12
                         text_align: LEFT
                         text: "\U000F009A"
-                        text_color: ${COLOR_MAIN_25}  # TODO
+                        text_color: !lambda |-
+                          if ( id(zone4_limit_value) != 0) {
+                            return lv_color_hex(${COLOR_MAIN_75});
+                          }
+                          return lv_color_hex(${COLOR_MAIN_25});
                     - label:  # background
                         x: 17
                         y: 68
