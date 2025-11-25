@@ -291,7 +291,6 @@ ble_client:
         - lvgl.widget.refresh: g32bt_connect_label
     on_disconnect:
       then:
-        - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
         - lvgl.widget.hide: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
         - rtttl.play: ${G32_Disconnect_Sound}
@@ -307,6 +306,19 @@ ble_client:
             id: gas_percent
             value: '0'
         - lvgl.widget.refresh: [gas_percent_label, gas_percent_bar]
+        - globals.set:
+            id: zone1_value
+            value: ${Invalid_Sensor_Value}
+        - globals.set:
+            id: zone2_value
+            value: ${Invalid_Sensor_Value}
+        - globals.set:
+            id: zone3_value
+            value: ${Invalid_Sensor_Value}
+        - globals.set:
+            id: zone4_value
+            value: ${Invalid_Sensor_Value}
+        - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
   - mac_address: ${meater_mac_address}
     id: meater0
     on_connect:
