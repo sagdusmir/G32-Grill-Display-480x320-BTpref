@@ -36,6 +36,9 @@ What’s different?
 * **Gas Buddy:** calibration of a new gas bottle
 
 ## History
+* [2025-11-26] BTpref 1.6.8
+   - fixes for G32 reconnect
+   - fixes for HA values (especially decimal places)
 * [2025-11-12] BTpref 1.6.7
    - usability if WiFi password configuration improved
    - revised Meater configuration page
