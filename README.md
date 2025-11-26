@@ -36,6 +36,8 @@ Was ist anders?
 * **Gas Buddy:** Einmessen der Gasflasche
 
 ## Historie
+* [2025-11-26] BTpref 1.6.8
+   - Korrekturen für G32 Re-Connect
 * [2025-11-12] BTpref 1.6.7
    - WiFi Passwort einfacher korrekt einzugeben
    - Meater Konfigurationsseite überarbeitet
