@@ -29,10 +29,17 @@ substitutions:
 # das angezeiget password einfügen:
   ota_password: "7fdf9f656d36180bfba92d596c9e7db3"
 
+  # shades of grey
   COLOR_MAIN_100: 0xffffff  # 100% brightness
   COLOR_MAIN_75:  0xbfbfbf  #  75%
   COLOR_MAIN_50:  0x808080  #  50%
   COLOR_MAIN_25:  0x404040  #  25%
+
+  # shades of amber
+  # COLOR_MAIN_100: 0xffaa0e  # 100% brightness
+  # COLOR_MAIN_75:  0xbd7e0a  #  75%
+  # COLOR_MAIN_50:  0x805507  #  50%
+  # COLOR_MAIN_25:  0x452e04  #  25%
 
   COLOR_GOOD:     0x00ff00
   COLOR_WARN:     0xffff00
@@ -894,6 +901,23 @@ font:
       - "E"
       - "S"
       - "R"
+      - "T"
+      - "M"
+      - "P"
+      - "A"
+      - "U"
+      - "B"
+      - "I"
+      - "W"
+      - "C"
+      - "D"
+      - "L"
+      - "G"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - " "
 
 #-------------------------------------------
 # Time platform
@@ -1031,6 +1055,7 @@ lvgl:
                 text_font: MONTSERRAT_BOLD_FONT_22
                 text_color: ${COLOR_MAIN_100}
                 text_align: LEFT
+                long_mode: CLIP
                 width: 185
                 height: 22
                 text: "G32 Connected"
@@ -1407,27 +1432,42 @@ lvgl:
           border_width: 0
           hidden: "true"
           radius: 0
-          widgets:            
-            - label:
+          widgets:
+            - obj:
                 x: 0
-                y: 0
-                text_font: MONTSERRAT_18
-                text_color: 0xffffff
-                text_align: CENTER
+                y: 4
                 width: 480
-                text: "Einstellungen"
+                height: 18
+                border_color: ${COLOR_MAIN_75}
+                border_width: 10
+                border_side:
+                  - TOP
+                radius: 10
+                pad_all: 0
+                bg_color: 0x000000
+            - label:
+                x: 195
+                y: 0
+                width: 90
+                bg_opa: COVER
+                text_font: MONTSERRAT_BOLD_FONT_14
+                text_align: CENTER
+                text_color: ${COLOR_MAIN_75}
+                text: "SETTINGS"
                 clickable: true
                 on_press:
                   - script.execute: apply_mac_address
                   - script.execute: show_temperatures_page
 
             - label: # version
-                x: 360
+                x: 260
                 y: 4
-                width: 120
-                text_font: MONTSERRAT_14
+                width: 200
+                text_font: MONTSERRAT_10
                 text_align: RIGHT
                 text_color: 0x555555
+                bg_color: 0xff0000
+                bg_opa: TRANSP
                 text: ${version}
                 clickable: true
                 on_press:
@@ -1454,7 +1494,7 @@ lvgl:
                 size: 250
                 width: 250
                 height: 250
-                light_color: 0xffffff
+                light_color: ${COLOR_MAIN_75}
                 dark_color: 0x000000
                 text: ${qrcode_text}
                 clickable: true
@@ -1524,7 +1564,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Zone 1 Alarm";
+                          return "ZONE 1 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1642,7 +1682,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Zone 2 Alarm";
+                          return "ZONE 2 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1760,7 +1800,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Zone 3 Alarm";
+                          return "ZONE 3 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1878,7 +1918,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Zone 4 Alarm";
+                          return "ZONE 4 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1994,14 +2034,17 @@ lvgl:
             bg_color: 0xff0000
             pad_all: 0
         - label:
-            x: 199
-            y: 160
-            width: 82
+            y: 161
             bg_opa: COVER
             text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
             text_color: ${COLOR_MAIN_75}
-            text: "SENSORS"
+            # x: 199
+            # width: 82
+            # text: "SENSORS"
+            x: 146
+            width: 188
+            text: "TEMPERATURE PROBES"
 
         - obj:  # sensors
             x: 0
@@ -2037,7 +2080,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Sensor 1 Alarm";
+                          return "SENSOR 1 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2191,7 +2234,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Sensor 2 Alarm";
+                          return "SENSOR 2 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2345,7 +2388,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Sensor 3 Alarm";
+                          return "SENSOR 3 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2499,7 +2542,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "Sensor 4 Alarm";
+                          return "SENSOR 4 ALARM";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2635,14 +2678,27 @@ lvgl:
       skip: true
       pad_all: 0
       widgets:
-        - label:
-            id: timer_headline_label
+        - obj:
             x: 0
-            y: 40
+            y: 32
             width: 480
-            text_font: MONTSERRAT_20
+            height: 20
+            border_color: ${COLOR_MAIN_75}
+            border_width: 10
+            border_side:
+              - TOP
+            radius: 10
+            pad_all: 0
+            bg_color: 0x000000
+        - label:
+            x: 157
+            y: 28
+            width: 166
+            bg_opa: COVER
+            text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
-            text: "Timer"
+            text_color: ${COLOR_MAIN_75}
+            text: "COUNTDOWN TIMER"
 
         - label:
             x: 125
@@ -2869,14 +2925,28 @@ lvgl:
               lv_label_set_text(sensor_limit_label, (std::to_string(id(sensor_limit_value)) + "°C").c_str());
               id(last_sensor_lower_digits) = id(sensor_limit_value) % 100;
       widgets:
+        - obj:
+            x: 0
+            y: 32
+            width: 480
+            height: 20
+            border_color: ${COLOR_MAIN_75}
+            border_width: 10
+            border_side:
+              - TOP
+            radius: 10
+            pad_all: 0
+            bg_color: 0x000000
         - label:
             id: sensor_limit_headline_label
-            x: 0
-            y: 40
-            width: 480
-            text_font: MONTSERRAT_20
+            x: 170
+            y: 28
+            width: 140
+            bg_opa: COVER
+            text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
-            text: "Sensor x Alarm"
+            text_color: ${COLOR_MAIN_75}
+            text: "SENSOR 1 ALARM"
         - label:
             x: 22
             y: 110
