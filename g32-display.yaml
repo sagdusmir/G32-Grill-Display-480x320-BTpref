@@ -518,7 +518,7 @@ interval:
           condition:
             and:
               - lambda: 'return !id(boot_screen_hidden);'
-              - lambda: 'return millis() - id(boot_start_time) >= 3000;'
+              - lambda: 'return millis() - id(boot_start_time) >= 2000;'
           then:
             - script.execute: hide_boot_screen
 
