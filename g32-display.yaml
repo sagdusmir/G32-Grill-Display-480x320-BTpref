@@ -2062,10 +2062,11 @@ lvgl:
                         text_align: RIGHT
                     - label:
                         id: sensor1_battery
-                        x: 2
-                        y: 90
+                        x: 52
+                        y: 97 # top position: 24
+                        width: 16
                         text_font: MONTSERRAT_14
-                        bg_opa: TRANSP
+                        bg_opa: COVER
                         hidden: !lambda |-
                           return (id(active_meaters) & (1 << 0)) == 0;
                         text_color: !lambda |-
@@ -2215,10 +2216,11 @@ lvgl:
                         text_align: RIGHT
                     - label:
                         id: sensor2_battery
-                        x: 2
-                        y: 90
+                        x: 52
+                        y: 97 # top position: 24
+                        width: 16
                         text_font: MONTSERRAT_14
-                        bg_opa: TRANSP
+                        bg_opa: COVER
                         hidden: !lambda |-
                           return (id(active_meaters) & (1 << 1)) == 0;
                         text_color: !lambda |-
@@ -2368,10 +2370,11 @@ lvgl:
                         text_align: RIGHT
                     - label:
                         id: sensor3_battery
-                        x: 2
-                        y: 90
+                        x: 52
+                        y: 97 # top position: 24
+                        width: 16
                         text_font: MONTSERRAT_14
-                        bg_opa: TRANSP
+                        bg_opa: COVER
                         hidden: !lambda |-
                           return (id(active_meaters) & (1 << 2)) == 0;
                         text_color: !lambda |-
@@ -2521,10 +2524,11 @@ lvgl:
                         text_align: RIGHT
                     - label:
                         id: sensor4_battery
-                        x: 2
-                        y: 90
+                        x: 52
+                        y: 97 # top position: 24
+                        width: 16
                         text_font: MONTSERRAT_14
-                        bg_opa: TRANSP
+                        bg_opa: COVER
                         hidden: !lambda |-
                           return (id(active_meaters) & (1 << 3)) == 0;
                         text_color: !lambda |-
@@ -3176,6 +3180,8 @@ lvgl:
               - lvgl.widget.refresh: [sensor1_limit_label, sensor2_limit_label, sensor3_limit_label, sensor4_limit_label]
               - lvgl.widget.refresh: [sensor1_limit_label_bell, sensor2_limit_label_bell, sensor3_limit_label_bell, sensor4_limit_label_bell]
               - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
+
+              - lvgl.page.show: arcs_page
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: settings_page
