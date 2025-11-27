@@ -39,22 +39,24 @@ substitutions:
   # COLOR_BAD:      0xff0000  # red
 
   # shades of amber
-  COLOR_MAIN_100: 0xffaa0e  # 100% brightness
-  COLOR_MAIN_75:  0xbd7e0a  #  75%
-  COLOR_MAIN_50:  0x805507  #  50%
-  COLOR_MAIN_25:  0x3a2703  #  25%
-  COLOR_GOOD:     0x00ff00
-  COLOR_WARN:     0xffff00
-  COLOR_BAD:      0xff0000
+  # COLOR_MAIN_100: 0xffaa0e  # 100% brightness
+  # COLOR_MAIN_75:  0xbd7e0a  #  75%
+  # COLOR_MAIN_50:  0x805507  #  50%
+  # COLOR_MAIN_25:  0x3a2703  #  25%
+  # COLOR_GOOD:     0x00ff00
+  # COLOR_WARN:     0xffff00
+  # COLOR_BAD:      0xff0000
 
   # shades of cyan
-  # COLOR_MAIN_100: 0x68e2fb  # 100% brightness
-  # COLOR_MAIN_75:  0x00acbf  #  75%
-  # COLOR_MAIN_50:  0x007582  #  50%
-  # COLOR_MAIN_25:  0x003c43  #  25%
-  # COLOR_GOOD:     0x75fb8a
-  # COLOR_WARN:     0xffff00
-  # COLOR_BAD:      0xea838d
+  COLOR_MAIN_100: 0x68e2fb  # 100% brightness
+  COLOR_MAIN_75:  0x00acbf  #  75%
+  COLOR_MAIN_50:  0x007582  #  50%
+  COLOR_MAIN_25:  0x003c43  #  25%
+  COLOR_GOOD:     0x75fb8a
+  COLOR_WARN:     0xffff00
+  COLOR_BAD:      0xea838d
+
+  COLOR_LIGHT:    0xffff00  # probably always yellow
 
   # max temperature for zones and sensors
   Zone_Max: "500"
@@ -972,9 +974,27 @@ lvgl:
         arc_color: red
     arc:
       radius: 5
-      arc_color: 0x333333
+      arc_color: ${COLOR_MAIN_50}
       indicator:
         radius: 5
+    switch:
+      bg_color: ${COLOR_MAIN_25}
+      knob:
+        bg_color: ${COLOR_MAIN_100}
+      indicator:
+        checked:
+          bg_color: ${COLOR_MAIN_75}
+    roller:
+      bg_color: ${COLOR_MAIN_50}
+      text_color: ${COLOR_MAIN_25}
+      border_color: ${COLOR_MAIN_50}
+      text_font: MONTSERRAT_20
+      width: 60
+      selected:
+        text_color: ${COLOR_MAIN_100}
+        bg_color: ${COLOR_MAIN_25}
+
+
   style_definitions:
     - id: arc_value_style
       x: 8
@@ -1194,7 +1214,7 @@ lvgl:
                 width: 24
                 text_color: !lambda |-
                   if( id(light_on) ) {
-                    return lv_color_hex(0xffff00);
+                    return lv_color_hex(${COLOR_LIGHT});
                   }
                   return lv_color_hex(${COLOR_MAIN_25});
                 text: "\U000F1A4E"
@@ -1477,8 +1497,7 @@ lvgl:
                 width: 200
                 text_font: MONTSERRAT_10
                 text_align: RIGHT
-                text_color: 0x555555
-                bg_color: 0xff0000
+                text_color: ${COLOR_MAIN_25}
                 bg_opa: TRANSP
                 text: ${version}
                 clickable: true
@@ -2043,7 +2062,6 @@ lvgl:
             border_side:
               - TOP
             radius: 10
-            bg_color: 0xff0000
             pad_all: 0
         - label:
             y: 161
@@ -2280,9 +2298,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 1)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[1] < 20){                      
-                            return lv_color_hex(0xff0000);
+                            return lv_color_hex(${COLOR_BAD});
                           }
-                          return lv_color_hex(0x00ff00);
+                          return lv_color_hex(${COLOR_GOOD});
                         text: !lambda |-
                           int v = id(meater_values_battery)[1];
                           if (v > 80) {
@@ -2434,9 +2452,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 2)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[2] < 20){                      
-                            return lv_color_hex(0xff0000);
+                            return lv_color_hex(${COLOR_BAD});
                           }
-                          return lv_color_hex(0x00ff00);
+                          return lv_color_hex(${COLOR_GOOD});
                         text: !lambda |-
                           int v = id(meater_values_battery)[2];
                           if (v > 80) {
@@ -2588,9 +2606,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 3)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[3] < 20){                      
-                            return lv_color_hex(0xff0000);
+                            return lv_color_hex(${COLOR_BAD});
                           }
-                          return lv_color_hex(0x00ff00);
+                          return lv_color_hex(${COLOR_GOOD});
                         text: !lambda |-
                           int v = id(meater_values_battery)[3];
                           if (v > 80) {
@@ -2738,11 +2756,7 @@ lvgl:
             id: timer_roller_h
             x: 120
             y: 100
-            width: 60
-            text_font: MONTSERRAT_20
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
-            selected:
-              bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_h) = x;
@@ -2759,11 +2773,7 @@ lvgl:
             id: timer_roller_m
             x: 215
             y: 100
-            width: 60
-            text_font: MONTSERRAT_20
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
-            selected:
-              bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_m) = x;
@@ -2779,11 +2789,7 @@ lvgl:
             id: timer_roller_s
             x: 310
             y: 100
-            width: 60
-            text_font: MONTSERRAT_20
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
-            selected:
-              bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_s) = x;
@@ -2793,13 +2799,13 @@ lvgl:
             y: 60
             width: 70
             height: 200
-            bg_color: 0x555555
+            bg_color: ${COLOR_MAIN_50}
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "CLR"
-                  bg_color: 0x555555
+                  bg_color: ${COLOR_MAIN_50}
             on_click:
               then:
                 - lvgl.roller.update:
@@ -2820,13 +2826,13 @@ lvgl:
             y: 60
             width: 70
             height: 200
-            bg_color: 0x555555
+            bg_color: ${COLOR_MAIN_50}
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "OK"
-                  bg_color: 0x555555                  
+                  bg_color: ${COLOR_MAIN_50}
             on_click:
               - lambda: |-
                   id(timer_h) = id(helper_h);
@@ -3055,11 +3061,8 @@ lvgl:
             id: sensor_limits_hundreds_roller
             x: 145
             y: 130
-            width: 60
             text_font: MONTSERRAT_20
             options: [] # dynamically set
-            selected:
-              bg_color: 0x555555
             on_value:
               - lambda: |-
                   int new_h = x;
@@ -3114,11 +3117,7 @@ lvgl:
             id: sensor_limits_tens_roller
             x: 210
             y: 130
-            width: 60
-            text_font: MONTSERRAT_20
             options: [] # dynamically set
-            selected:
-              bg_color: 0x555555
             on_value:
               - lambda: |-
                   int t = x;
@@ -3151,11 +3150,7 @@ lvgl:
             id: sensor_limits_ones_roller
             x: 275
             y: 130
-            width: 60
-            text_font: MONTSERRAT_20
             options: [] # dynamically set
-            selected:
-              bg_color: 0x555555
             on_value:
               - lambda: |-
                   int o = x;
@@ -3187,13 +3182,13 @@ lvgl:
             y: 160
             width: 70
             height: 100
-            bg_color: 0x555555
+            bg_color: ${COLOR_MAIN_50}
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "CLR"
-                  bg_color: 0x555555
+                  bg_color: ${COLOR_MAIN_50}
             on_click:
               then:
                 - lambda: |-
@@ -3211,13 +3206,13 @@ lvgl:
             y: 160
             width: 70
             height: 100
-            bg_color: 0x555555
+            bg_color: ${COLOR_MAIN_50}
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "OK"
-                  bg_color: 0x555555
+                  bg_color: ${COLOR_MAIN_50}
             on_click:
               then:
               - lambda: |-
@@ -3390,6 +3385,10 @@ lvgl:
           - lvgl.widget.hide: settings_mac_address_updated
           - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
           - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
+          # - lambda: |-
+          #     lv_obj_t* tabview = settings_tabview;
+          #     lv_tabview_set_act(tabview, 0, LV_ANIM_OFF);
+
       widgets:
         - obj:
             id: settings_menu
@@ -3422,6 +3421,10 @@ lvgl:
                     width: 50
                     items:
                       text_color: ${COLOR_MAIN_50}
+                      checked:
+                        bg_color: ${COLOR_MAIN_100}
+                        border_color: ${COLOR_MAIN_100}
+                        text_color: ${COLOR_MAIN_100}
                   on_value:
                     - lvgl.widget.hide: my_keyboard
                   tabs:
@@ -3445,7 +3448,7 @@ lvgl:
                                   width: 380
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "MAC Adresse\ndes G32 Connected"
+                                  text: "MAC address\nof the G32 Connected"
                               - label:
                                   id: settings_mac_address_label
                                   x: 105
@@ -3470,13 +3473,13 @@ lvgl:
                                   y: 155
                                   width: 140
                                   height: 50
-                                  bg_color: 0x555555
+                                  bg_color: ${COLOR_MAIN_50}
                                   widgets:
                                     - label:
                                         align: CENTER
                                         text_font: MONTSERRAT_20
-                                        text: "Suchen"
-                                        bg_color: 0x555555
+                                        text: "Search"
+                                        bg_color: ${COLOR_MAIN_50}
                                   on_click:
                                     then:
                                       - script.execute: ble_g32_scan_start
@@ -3486,14 +3489,14 @@ lvgl:
                                   y: 155
                                   width: 140
                                   height: 50
-                                  bg_color: 0x555555
+                                  bg_color: ${COLOR_MAIN_50}
                                   hidden: true
                                   widgets:
                                     - label:
                                         align: CENTER
                                         text_font: MONTSERRAT_20
-                                        text: "Stopp"
-                                        bg_color: 0x555555
+                                        text: "Stop"
+                                        bg_color: ${COLOR_MAIN_50}
                                   on_click:
                                     then:
                                       - script.execute: ble_g32_scan_stop
@@ -3518,7 +3521,7 @@ lvgl:
                                   width: 380
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "WiFi Zugangsdaten"
+                                  text: "WiFi credentials"
                               - textarea:
                                   id: settings_wifi_ssid_textarea
                                   x: 20
@@ -3577,17 +3580,13 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "Batterie Level"
+                                  text: "show battery level"
                               - switch:
                                   id: settings_hide_soc_switch
                                   x: 40
                                   y: 25
                                   width: 50
                                   height: 25
-                                  bg_color: 0x555555
-                                  indicator:
-                                    checked:
-                                      bg_color: 0x00ff00
                                   state:
                                     checked: !lambda |-
                                       return id(settings_hide_soc) == 0;
@@ -3601,17 +3600,13 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "Uhrzeit (erfordert WiFi)"
+                                  text: "show time (requires WiFi)"
                               - switch:
                                   id: settings_show_time_switch
                                   x: 40
                                   y: 70
                                   width: 50
                                   height: 25
-                                  bg_color: 0x555555
-                                  indicator:
-                                    checked:
-                                      bg_color: 0x00ff00
                                   state:
                                     checked: !lambda |-
                                       return id(settings_show_time);
@@ -3625,17 +3620,13 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "Timer"
+                                  text: "countdown timer"
                               - switch:
                                   id: settings_hide_timer_switch
                                   x: 40
                                   y: 115
                                   width: 50
                                   height: 25
-                                  bg_color: 0x555555
-                                  indicator:
-                                    checked:
-                                      bg_color: 0x00ff00
                                   state:
                                     checked: !lambda |-
                                       return id(settings_hide_timer) == 0;
@@ -3649,17 +3640,13 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "Temperatur Alarme"
+                                  text: "temperature warnings"
                               - switch:
                                   id: settings_enable_temperature_limits_switch
                                   x: 40
                                   y: 160
                                   width: 50
                                   height: 25
-                                  bg_color: 0x555555
-                                  indicator:
-                                    checked:
-                                      bg_color: 0x00ff00
                                   state:
                                     checked: !lambda |-
                                       return id(settings_enable_temperature_limits);
@@ -3673,17 +3660,13 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "nur aktive Sensoren"
+                                  text: "hide inactive temp sensors"
                               - switch:
                                   id: settings_hide_inactive_sensors_switch
                                   x: 40
                                   y: 205
                                   width: 50
                                   height: 25
-                                  bg_color: 0x555555
-                                  indicator:
-                                    checked:
-                                      bg_color: 0x00ff00
                                   state:
                                     checked: !lambda |-
                                       return id(settings_hide_inactive_sensors);
@@ -3711,9 +3694,9 @@ lvgl:
                                   width: 190
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "Warnung\nGas Level"
+                                  text: "Gas level\nwarning"
                               - label:
-                                  x: 127
+                                  x: 129
                                   y: 144
                                   width: 20
                                   text_font: MONTSERRAT_20
@@ -3723,11 +3706,7 @@ lvgl:
                                   id: settings_min_gas_roller
                                   x: 65
                                   y: 90
-                                  width: 60
-                                  text_font: MONTSERRAT_20
                                   options: ['60','55','50','45','40','35','30','25','20','15','10','05']
-                                  selected:
-                                    bg_color: 0x555555
                                   on_value:
                                     - lambda: |-
                                         int val = atoi(text.c_str());
@@ -3750,9 +3729,9 @@ lvgl:
                                   width: 190
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "Warnung\nBatterie Level"
+                                  text: "Battery level\nwarning"
                               - label:
-                                  x: 127
+                                  x: 129
                                   y: 144
                                   width: 20
                                   text_font: MONTSERRAT_20
@@ -3762,11 +3741,7 @@ lvgl:
                                   id: settings_min_soc_roller
                                   x: 65
                                   y: 90
-                                  width: 60
-                                  text_font: MONTSERRAT_20
                                   options: ['50','40','30','20','10']
-                                  selected:
-                                    bg_color: 0x555555
                                   on_value:
                                     - lambda: |-
                                         int val = atoi(text.c_str());
@@ -3793,23 +3768,19 @@ lvgl:
                                   width: 380
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "Display\nDeaktivierung"
+                                  text: "Disable display\nbacklight after"
                               - label:
-                                  x: 222
+                                  x: 197
                                   y: 144
-                                  width: 20
+                                  width: 150
                                   text_font: MONTSERRAT_20
                                   text_align: CENTER
-                                  text: "s"
+                                  text: "seconds"
                               - roller:
                                   id: settings_display_timeout_roller
                                   x: 160
                                   y: 90
-                                  width: 60
-                                  text_font: MONTSERRAT_20
                                   options: ['0','600','300','240','180','60']
-                                  selected:
-                                    bg_color: 0x555555
                                   on_value:
                                     - lambda: |-
                                         int val = atoi(text.c_str());
@@ -3835,14 +3806,14 @@ lvgl:
                                   width: 380
                                   text_font: MONTSERRAT_14
                                   text_align: CENTER
-                                  text: "MAC Adressen der MEATER(R)"
+                                  text: "MAC addresses of the MEATER(R) probes"
                               - label:
                                   x: 0
                                   y: 265
                                   width: 380
                                   text_font: MONTSERRAT_12
                                   text_align: CENTER
-                                  text: "Entfernen einzelner MAC Adressen durch Touch auf die Adresse."
+                                  text: "You can remove single MAC addresses by\nclicking on that address."
                               - label:
                                   id: settings_meater0_label
                                   x: 30
@@ -3945,13 +3916,13 @@ lvgl:
                                   y: 70
                                   width: 120
                                   height: 155
-                                  bg_color: 0x555555
+                                  bg_color: ${COLOR_MAIN_50}
                                   widgets:
                                     - label:
                                         align: CENTER
                                         text_font: MONTSERRAT_20
-                                        text: "Suchen"
-                                        bg_color: 0x555555
+                                        text: "Search"
+                                        bg_color: ${COLOR_MAIN_50}
                                   on_click:
                                     then:
                                       - script.execute: ble_meater_scan_start
@@ -3961,14 +3932,14 @@ lvgl:
                                   y: 70
                                   width: 120
                                   height: 180
-                                  bg_color: 0x555555
+                                  bg_color: ${COLOR_MAIN_50}
                                   hidden: true
                                   widgets:
                                     - label:
                                         align: CENTER
                                         text_font: MONTSERRAT_20
-                                        text: "Stopp"
-                                        bg_color: 0x555555
+                                        text: "Stop"
+                                        bg_color: ${COLOR_MAIN_50}
                                   on_click:
                                     then:
                                       - script.execute: ble_meater_scan_stop
@@ -3988,13 +3959,13 @@ lvgl:
                         y: 50
                         width: 50
                         height: 90
-                        bg_color: 0x555555
+                        bg_color: ${COLOR_MAIN_50}
                         widgets:
                           - label:
                               align: CENTER
                               text_font: MONTSERRAT_20
                               text: "\uF0C7"
-                              bg_color: 0x555555
+                              bg_color: ${COLOR_MAIN_50}
                         on_click:
                           - lvgl.widget.hide: my_keyboard
                           - lambda: |-
@@ -4072,13 +4043,13 @@ lvgl:
                         y: 155
                         width: 50
                         height: 90
-                        bg_color: 0x555555
+                        bg_color: ${COLOR_MAIN_50}
                         widgets:
                           - label:
                               align: CENTER
                               text_font: MONTSERRAT_20
                               text: "\uF00D"
-                              bg_color: 0x555555
+                              bg_color: ${COLOR_MAIN_50}
                         on_click:
                           - lvgl.widget.hide: my_keyboard
                           - script.execute: apply_mac_address
@@ -4090,7 +4061,6 @@ lvgl:
                   y: 0
                   width: 480
                   height: 297
-                  text_color: 0xffffff
                   radius: 0
                   border_width: 0
                   border_color: 0
@@ -4104,20 +4074,20 @@ lvgl:
                         width: 480
                         text_font: MONTSERRAT_14
                         text_align: CENTER
-                        text: "Achtung:\nDas dauerhafte Speichern der\nEinstellungen kann bis zu\n60 Sekunden dauern!"
+                        text: "NOTICE:\nPersisting the settings may\ntake up to 60 seconds!\nSo wait a bit before powering off the device."
                     - button:
                         id: settings_persist_hint_button
-                        x: 120
+                        x: 115
                         y: 155
-                        width: 240
+                        width: 250
                         height: 50
-                        bg_color: 0x555555
+                        bg_color: ${COLOR_MAIN_50}
                         widgets:
                           - label:
                               align: CENTER
                               text_font: MONTSERRAT_20
-                              text: "Verstanden"
-                              bg_color: 0x555555
+                              text: "Understood"
+                              bg_color: ${COLOR_MAIN_50}
                         on_click:
                           then:
                             - script.execute: show_temperatures_page
