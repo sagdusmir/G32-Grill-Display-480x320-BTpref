@@ -1248,6 +1248,12 @@ lvgl:
                                 - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
                             then:
                               - lvgl.page.show: timer_page
+                        - if:
+                            condition:
+                              or:
+                                - lambda: 'return lv_scr_act() == id(timer_page)->obj;'
+                            then:
+                              - lvgl.page.show: arcs_page
             - label:
                 id: timer_value_bg
                 x: 188
