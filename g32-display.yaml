@@ -993,7 +993,20 @@ lvgl:
       selected:
         text_color: ${COLOR_MAIN_100}
         bg_color: ${COLOR_MAIN_25}
-
+    textarea:
+      text_font: MONTSERRAT_18
+      bg_color: ${COLOR_MAIN_25}
+      text_color: ${COLOR_MAIN_100}
+      border_width: 1
+      border_color: ${COLOR_MAIN_75}
+      textarea_placeholder:
+        text_color: ${COLOR_MAIN_50}
+    # keyboard:
+    #   bg_color: ${COLOR_MAIN_25}
+    #   text_color: ${COLOR_MAIN_100}
+    #   btn:
+    #     bg_color: ${COLOR_MAIN_100}
+    #     text_color: 0x000000
 
   style_definitions:
     - id: arc_value_style
@@ -2731,21 +2744,21 @@ lvgl:
             text: "COUNTDOWN TIMER"
 
         - label:
-            x: 125
+            x: 120
             y: 70
             width: 50
             text_font: MONTSERRAT_20
             text_align: CENTER
             text: "H"
         - label:
-            x: 220
+            x: 215
             y: 70
             width: 50
             text_font: MONTSERRAT_20
             text_align: CENTER
             text: "M"
         - label:
-            x: 315
+            x: 310
             y: 70
             width: 50
             text_font: MONTSERRAT_20
@@ -2754,7 +2767,7 @@ lvgl:
 
         - roller:
             id: timer_roller_h
-            x: 120
+            x: 115
             y: 100
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
             on_value:
@@ -2762,7 +2775,7 @@ lvgl:
                   id(helper_h) = x;
 
         - label:
-            x: 185
+            x: 180
             y: 154
             width: 30
             text_font: MONTSERRAT_20
@@ -2771,14 +2784,14 @@ lvgl:
 
         - roller:
             id: timer_roller_m
-            x: 215
+            x: 210
             y: 100
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             on_value:
               - lambda: |-
                   id(helper_m) = x;
         - label:
-            x: 280
+            x: 275
             y: 154
             width: 30
             text_font: MONTSERRAT_20
@@ -2787,7 +2800,7 @@ lvgl:
 
         - roller:
             id: timer_roller_s
-            x: 310
+            x: 305
             y: 100
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             on_value:
@@ -3528,13 +3541,8 @@ lvgl:
                                   y: 60
                                   width: 340
                                   height: 30
-                                  text_font: MONTSERRAT_18
                                   placeholder_text: "SSID"
                                   one_line: true
-                                  bg_color: 0xffffff
-                                  text_color: 0
-                                  border_width: 1
-                                  border_color: 0
                                   text: !lambda |-
                                     return id(settings_wifi_ssid);
                                   on_click:
@@ -3546,14 +3554,9 @@ lvgl:
                                   y: 100
                                   width: 340
                                   height: 30
-                                  text_font: MONTSERRAT_18
                                   placeholder_text: "Passwort"
                                   one_line: true
                                   # password_mode: true  # onscreen keyboard makes this a pain to used
-                                  bg_color: 0xffffff
-                                  text_color: 0
-                                  border_width: 1
-                                  border_color: 0
                                   text: !lambda |-
                                     return id(settings_wifi_password);
                                   on_click:
