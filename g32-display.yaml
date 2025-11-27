@@ -810,11 +810,6 @@ font:
       - "\U000F002A" # mdi-alert-outline
       - "\U000F0DD0" # mdi-format-list-bulleted-square
       - "\U000F140B" # mdi-lightning-bolt
-      - "\U000F1AB7" # mdi-land-rows-vertical
-      - "\U000F0CA1" # mdi-numeric-1-circle-outline
-      - "\U000F0CA3" # mdi-numeric-2-circle-outline
-      - "\U000F0CA5" # mdi-numeric-3-circle-outline
-      - "\U000F0CA7" # mdi-numeric-4-circle-outline
       - "\U000F050F" # mdi-thermometer
       - "\U000F1A4E" # mdi-lightbulb-on-20
       - "\U000F0D3F" # mdi-weight-grams
@@ -969,7 +964,7 @@ lvgl:
       bg_color: 0
       bg_opa: COVER
       width: 120
-      text_align: center
+      text_align: CENTER
     bar:
       radius: 5
       indicator:
