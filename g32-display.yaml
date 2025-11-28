@@ -1009,6 +1009,17 @@ lvgl:
         text_color: ${COLOR_MAIN_100}
         bg_color: ${COLOR_MAIN_25}
         text_font: MONTSERRAT_BOLD_FONT_18
+    slider:
+        bg_opa: COVER
+        bg_color: ${COLOR_MAIN_25}
+        radius: 0
+        border_width: 0
+        indicator:
+          radius: 0
+          bg_color: ${COLOR_MAIN_50}
+        knob:
+          radius: 2
+          bg_color: ${COLOR_MAIN_100}
     textarea:
       text_font: MONTSERRAT_18
       bg_color: ${COLOR_MAIN_25}
@@ -1017,12 +1028,12 @@ lvgl:
       border_color: ${COLOR_MAIN_75}
       textarea_placeholder:
         text_color: ${COLOR_MAIN_50}
-    # keyboard:
-    #   bg_color: ${COLOR_MAIN_25}
-    #   text_color: ${COLOR_MAIN_100}
-    #   btn:
-    #     bg_color: ${COLOR_MAIN_100}
-    #     text_color: 0x000000
+    keyboard:
+      bg_color: ${COLOR_MAIN_25}
+      text_color: ${COLOR_MAIN_100}
+      items:
+        bg_color: ${COLOR_MAIN_100}
+        text_color: ${COLOR_MAIN_25}
 
   style_definitions:
     - id: arc_value_style
@@ -2866,7 +2877,7 @@ lvgl:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
-                  text: "OK"
+                  text: "SET"
                   bg_color: ${COLOR_MAIN_50}
             on_click:
               - lambda: |-
@@ -3006,6 +3017,7 @@ lvgl:
             width: 40
             text_font: MONTSERRAT_16
             text_align: CENTER
+            text_color: ${COLOR_MAIN_50}
             text: "0"
         - label:
             id: sensor_limits_max_value
@@ -3014,22 +3026,17 @@ lvgl:
             width: 40
             text_font: MONTSERRAT_16
             text_align: CENTER
+            text_color: ${COLOR_MAIN_50}
             text: !lambda |-
               return to_string(static_cast<int>(id(sensor_max_value)));
         - slider:
             id: sensor_limit_slider
             x: 42
             y: 80
-            height: 20
+            height: 15
             width: 396
-            radius: 5
             min_value: 0
             max_value: ${Zone_Max}
-            bg_color: 0xffffff
-            indicator:
-              bg_color: 0xff0000
-            knob:
-              bg_color: 0xff0000
             value: !lambda return id(sensor_limit_value);
             adv_hittest: true
             on_value:
@@ -3197,7 +3204,7 @@ lvgl:
                   lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
                   id(last_sensor_lower_digits) = val % 100;
         - label:
-            x: 340
+            x: 342
             y: 183
             text_font: MONTSERRAT_20
             text_align: LEFT
