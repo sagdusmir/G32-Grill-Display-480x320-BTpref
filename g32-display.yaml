@@ -3585,7 +3585,7 @@ lvgl:
                                   y: 100
                                   width: 340
                                   height: 30
-                                  placeholder_text: "Passwort"
+                                  placeholder_text: "Password"
                                   one_line: true
                                   # password_mode: true  # onscreen keyboard makes this a pain to used
                                   text: !lambda |-
