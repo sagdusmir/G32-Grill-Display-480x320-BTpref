@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.0.0"
+  version: "BTpref-retro 2.0.1"
   qrcode_text: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
 
   # Credentials des eigenen Wifi Netzwerks
