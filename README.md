@@ -39,7 +39,7 @@ What’s different?
 * **G32 light:** setting the brightness when light is turned on
 
 ## History
-* [2025-11-28] BTpref-retro 2.0.0
+* [2025-11-28] BTpref-retro 2.0.1
    - retro style
    - combine numbers and arcs into a single view
    - overall improved touch sensitive areas / usability 
@@ -72,15 +72,17 @@ Previous releases: see https://github.com/JBecker32/G32-Display-480x320-BT/relea
 
 ## Impressions
 ![device_assembly](https://github.com/user-attachments/assets/e1ed5b51-65a1-48ba-af6a-0f25a4d720d0)
-![BTpref1 5 0-arc-view](https://github.com/user-attachments/assets/df7cd09a-7bf0-4658-a1f5-c7aee666faed)
-![BTpref1 5 0-temp-alarm](https://github.com/user-attachments/assets/2e1a6204-c80d-4cc5-ab94-dba9e09b86f0)
-![BTpref1 5 0-timer](https://github.com/user-attachments/assets/db585171-27aa-4cb7-a043-48e60d43d88e)
-![BTpref1 5 0-mac_address](https://github.com/user-attachments/assets/1835a792-66a5-44ac-a83f-4d439dd1e440)
-![BTpref1 5 2b-wifi](https://github.com/user-attachments/assets/52e46c23-6388-4631-b8a8-9d760ec48c1a)
-![BTpref1 5 0-options](https://github.com/user-attachments/assets/e239b53a-f514-45f7-bb1e-a49f2928d9c0)
-![BTpref1 5 0-warnings](https://github.com/user-attachments/assets/640a62a2-c2cb-423e-9729-244513d95b0e)
-![BTpref1 5 0-display](https://github.com/user-attachments/assets/628dbb8d-dd4b-4a6f-ab9b-d35b26bd6fbc)
-![BTpref1 6 0-meater](https://github.com/user-attachments/assets/37d671f4-4aa4-48b3-984d-0332f5cd7c76)
+![BTpref-retro2 0 0-main_view_cyan](https://github.com/user-attachments/assets/32d1266b-2c4c-46a6-880c-3ed1884f341f)
+![BTpref-retro2 0 0-main_view_amber](https://github.com/user-attachments/assets/18bd5f68-c9b2-402b-b71a-66e80dac2365)
+![BTpref-retro2 0 0-temp_alarm](https://github.com/user-attachments/assets/750c4b4f-d1fe-4853-b18c-f6d65a70f349)
+![BTpref-retro2 0 0-timer](https://github.com/user-attachments/assets/daa7dc4d-ddb1-45dc-b47e-e539bdda1212)
+![BTpref-retro2 0 0-mac_address](https://github.com/user-attachments/assets/4508c643-026a-40ec-a457-311dd6bc7bcf)
+![BTpref-retro2 0 0-wifi](https://github.com/user-attachments/assets/7dc43028-4d93-4fbe-bbe2-c1864379c14e)
+![BTpref-retro2 0 0-options](https://github.com/user-attachments/assets/19b3319a-d9f6-4726-be54-1720253332d5)
+![BTpref-retro2 0 0-warnings](https://github.com/user-attachments/assets/1e46b379-1476-4764-b74a-f269498abbbd)
+![BTpref-retro2 0 0-display](https://github.com/user-attachments/assets/19094a95-a10d-425f-a6e1-3241cfc1e4db)
+![BTpref-retro2 0 0-meater](https://github.com/user-attachments/assets/0d8408ab-4244-4838-aa5d-c71464d69ddc)
+
 
 # Acknowledgments
 This project would not have been possible without the work of the community. Special thanks go to:
