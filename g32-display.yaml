@@ -992,6 +992,8 @@ lvgl:
       arc_color: ${COLOR_MAIN_50}
       indicator:
         radius: 5
+    button:
+      shadow_color: ${COLOR_MAIN_25}
     switch:
       bg_color: ${COLOR_MAIN_25}
       knob:
