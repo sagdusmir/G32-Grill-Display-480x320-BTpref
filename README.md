@@ -6,7 +6,7 @@ The main focus is its use as a mobile grill monitor and thus also as a replaceme
 
 The hardware used, software installation, and all other details for this project are identical to the original and are very well documented there, including pictures. The base is an ESP32 with the touchscreen display "JC3248W535C".
 
-Alternative version with the previous UI [Original Design](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/tree/feature/BTpref)
+Alternative version with the previous UI [Original Design](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/tree/BTpref)
 
 [Case by so99hero](https://www.thingiverse.com/thing:7127557)
 
