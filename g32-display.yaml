@@ -39,22 +39,31 @@ substitutions:
   # COLOR_BAD:      0xff0000  # red
 
   # shades of amber
-  # COLOR_MAIN_100: 0xffaa0e  # 100% brightness
-  # COLOR_MAIN_75:  0xbd7e0a  #  75%
-  # COLOR_MAIN_50:  0x805507  #  50%
-  # COLOR_MAIN_25:  0x3a2703  #  25%
-  # COLOR_GOOD:     0x00ff00
-  # COLOR_WARN:     0xffff00
-  # COLOR_BAD:      0xff0000
+  COLOR_MAIN_100: 0xffaa0e  # 100% brightness
+  COLOR_MAIN_75:  0xbd7e0a  #  75%
+  COLOR_MAIN_50:  0x805507  #  50%
+  COLOR_MAIN_25:  0x3a2703  #  25%
+  COLOR_GOOD:     0x00ff00
+  COLOR_WARN:     0xffff00
+  COLOR_BAD:      0xff0000
 
   # shades of cyan
-  COLOR_MAIN_100: 0x68e2fb  # 100% brightness
-  COLOR_MAIN_75:  0x00acbf  #  75%
-  COLOR_MAIN_50:  0x007582  #  50%
-  COLOR_MAIN_25:  0x003c43  #  25%
-  COLOR_GOOD:     0x75fb8a
-  COLOR_WARN:     0xffff00
-  COLOR_BAD:      0xea838d
+  # COLOR_MAIN_100: 0x68e2fb  # 100% brightness
+  # COLOR_MAIN_75:  0x00acbf  #  75%
+  # COLOR_MAIN_50:  0x007582  #  50%
+  # COLOR_MAIN_25:  0x003c43  #  25%
+  # COLOR_GOOD:     0x75fb8a
+  # COLOR_WARN:     0xffff00
+  # COLOR_BAD:      0xea838d
+
+  # shades of red light
+  # COLOR_MAIN_100: 0xff0059  # 100% brightness
+  # COLOR_MAIN_75:  0xc00044  #  75%
+  # COLOR_MAIN_50:  0x80002e  #  50%
+  # COLOR_MAIN_25:  0x400018  #  25%
+  # COLOR_GOOD:     0xff0059  # 0x00d16a
+  # COLOR_WARN:     0xff9000
+  # COLOR_BAD:      0xe4d300
 
   COLOR_LIGHT:    0xffff00  # probably always yellow
 
@@ -1540,9 +1549,9 @@ lvgl:
                   - script.execute: show_temperatures_page
 
             - label: # version
-                x: 230
+                x: 260
                 y: 4
-                width: 230
+                width: 200
                 text_font: MONTSERRAT_10
                 text_align: RIGHT
                 text_color: ${COLOR_MAIN_25}

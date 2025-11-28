@@ -2,11 +2,12 @@
 
 This is a fork of https://github.com/JBecker32/G32-Display-480x320-BT.
 
+Alternative version with the previous UI [Original Design](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/tree/BTpref)
+
+
 The main focus is its use as a mobile grill monitor and thus also as a replacement for the Otto Wilde app / Otto Wilde Grill Buddy. The connection is made via Bluetooth Low Energy (BLE) and therefore requires no login or any OW servers at all. Tested with firmware v.1.4.5 (old firmware "v13" is NOT compatible!).
 
 The hardware used, software installation, and all other details for this project are identical to the original and are very well documented there, including pictures. The base is an ESP32 with the touchscreen display "JC3248W535C".
-
-Alternative version with the previous UI [Original Design](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/tree/BTpref)
 
 [Case by so99hero](https://www.thingiverse.com/thing:7127557)
 
@@ -31,7 +32,7 @@ What’s different?
 * **Status:** visuylize connection status (WLAN/BLE) and information from the grill itself
 * **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
 * **Configuration:** various settings can be made directly on the grill monitor via the touchscreen (touch the top left)
-* **MEATER®** core temperatures of connected sensors (1–4) are displayed instead of the G32 values, if available
+* **MEATER®** tip temperatures of connected sensors (1–4) are displayed instead of the G32 values, if available
 
 
 ## What’s still missing?
@@ -71,9 +72,16 @@ What’s different?
 Previous releases: see https://github.com/JBecker32/G32-Display-480x320-BT/releases
 
 ## Impressions
+
 ![device_assembly](https://github.com/user-attachments/assets/e1ed5b51-65a1-48ba-af6a-0f25a4d720d0)
 ![BTpref-retro2 0 0-main_view_cyan](https://github.com/user-attachments/assets/32d1266b-2c4c-46a6-880c-3ed1884f341f)
+![BTpref-retro2 0 1-main_view_red_light](https://github.com/user-attachments/assets/555efccb-7f62-41be-9de1-9237aa4ffe6c)
+![BTpref-retro2 0 1-main_view_white](https://github.com/user-attachments/assets/1ba5c8ff-0080-4f08-b29d-0a2fba34e5e9)
+
 ![BTpref-retro2 0 0-main_view_amber](https://github.com/user-attachments/assets/18bd5f68-c9b2-402b-b71a-66e80dac2365)
+
+Some colors do look better in real life, than they do in pictures.  :)
+
 ![BTpref-retro2 0 0-temp_alarm](https://github.com/user-attachments/assets/750c4b4f-d1fe-4853-b18c-f6d65a70f349)
 ![BTpref-retro2 0 0-timer](https://github.com/user-attachments/assets/daa7dc4d-ddb1-45dc-b47e-e539bdda1212)
 ![BTpref-retro2 0 0-mac_address](https://github.com/user-attachments/assets/4508c643-026a-40ec-a457-311dd6bc7bcf)
