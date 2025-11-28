@@ -1554,7 +1554,7 @@ lvgl:
           x: 0
           y: 22
           width: 480
-          height: 297
+          height: 298
           bg_color: 0
           bg_opa: COVER
           pad_all: 0
