@@ -26,25 +26,25 @@ What’s different?
 
 * **Temperatures:** displays temperatures for up to 4 grill zones and 4 external temperature probes
 * **Gas level monitoring:** reads the weight determined by the "Gas Buddy"
-* **Alarms:** temperature alarms can be set for zones and sensors, which can also be signaled acoustically via an integrated optional beeper (touch on the gauge)
-* **Timer:** set a countdown time after which an acoustic alarm sounds (touch the top center)
-* **Display mode:** the two previously existing display modes have been merged into one
-* **Status:** visuylize connection status (WLAN/BLE) and information from the grill itself
+* **Alarms:** temperature alarms can be set for zones and temperature sensors, which can also be signaled acoustically via an integrated optional beeper (touch on the gauge)
+* **Timer:** set a countdown timer after which an acoustic alarm sounds (touch the top center)
+* **Display mode:** the two previously existing display modes have been merged into one (numbers + arcs)
+* **Status:** visualize connection status (WLAN/BLE) and information from the grill itself
 * **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
-* **Configuration:** various settings can be made directly on the grill monitor via the touchscreen (touch the top left)
+* **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left)
 * **MEATER®** tip temperatures of connected sensors (1–4) are displayed instead of the G32 values, if available
 
 
 ## What’s still missing?
 * **Gas Buddy:** calibration of a new gas bottle
-* **G32 light:** setting the brightness when light is turned on
+* **G32 light:** setting the brightness when the light schould turn on
 
 ## History
 * [2025-11-28] BTpref-retro 2.0.1
    - retro style
    - combine numbers and arcs into a single view
    - overall improved touch sensitive areas / usability 
-   - ability the easily change color theme
+   - ability the easily change color theme (requires flashing the device)
 * [2025-11-26] BTpref 1.6.8
    - fixes for G32 reconnect
    - fixes for HA values (especially decimal places)

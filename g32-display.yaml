@@ -600,7 +600,7 @@ globals:
   - id: settings_wifi_password_persistent
     type: std::string
     restore_value: true
-    initial_value: '"${wifi_password}"'  # sses your existing secret as initial default
+    initial_value: '"${wifi_password}"'  # uses your existing secret as initial default
     max_restore_data_length: 65  # max password length: 64
   - id: settings_wifi_password
     type: std::string
