@@ -18,7 +18,7 @@ What’s different?
 
 * integration with Home Assistant is now optional
 * no source code modifications required (only for setting the Home Assistant API token)
-* most settings can be configured directly via the device’s touchscreen
+* most settings can be configured directly via the device’s touchscreen (sadly, the HA API encryption key cannot be updated dynamically)
 * adjustments to the user interface
 
 
