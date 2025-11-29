@@ -40,6 +40,8 @@ What’s different?
 * **G32 light:** setting the brightness when the light schould turn on
 
 ## History
+* [2025-11-29] BTpref-retro 2.0.2
+   - enable warning sign when the alarm sounds
 * [2025-11-28] BTpref-retro 2.0.1
    - retro style
    - combine numbers and arcs into a single view

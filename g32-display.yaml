@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.0.1"
+  version: "BTpref-retro 2.0.2"
   qrcode_text: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
 
   # Credentials des eigenen Wifi Netzwerks
@@ -522,7 +522,7 @@ interval:
   - interval: 1s
     then:
       - script.execute: timer_update
-
+      - lvgl.widget.refresh: warning_on_label
   - interval: ${Beeper_interval}
     then:
       - lambda: |-
@@ -531,15 +531,20 @@ interval:
            || ((id(zone3_limit_value) > 0) && (id(zone3_value) >= id(zone3_limit_value)))
            || ((id(zone4_limit_value) > 0) && (id(zone4_value) >= id(zone4_limit_value))) ) {
             id(my_rtttl).play("${Zone_Limit_Alarm_Sound}");
+            id(warning_on) = true;
           }
           else if ( ((id(sensor1_limit_value) > 0) && (id(sensor1_value) >= id(sensor1_limit_value)))
                  || ((id(sensor2_limit_value) > 0) && (id(sensor2_value) >= id(sensor2_limit_value)))
                  || ((id(sensor3_limit_value) > 0) && (id(sensor3_value) >= id(sensor3_limit_value)))
                  || ((id(sensor4_limit_value) > 0) && (id(sensor4_value) >= id(sensor4_limit_value))) ) {
             id(my_rtttl).play("${Sensor_Limit_Alarm_Sound}");
+            id(warning_on) = true;
           }
           else if( id(timer_alarm) == true ) {
             id(my_rtttl).play("${Timer_Alarm_Sound}");
+            id(warning_on) = true;
+          } else {
+            id(warning_on) = false;
           }
   - interval: 1s
     then:
@@ -1269,20 +1274,19 @@ lvgl:
                   }
                   return lv_color_hex(${COLOR_MAIN_25});
                 text: "\U000F1A4E"
-            # currently unused
-            # - label:
-            #     id: g32_warning_label
-            #     x: 308
-            #     y: 1
-            #     text_font: MONTSERRAT_18
-            #     text_color: !lambda |-
-            #       if( id(warning_on) ) {
-            #         return lv_color_hex(${COLOR_BAD});
-            #       }
-            #       return lv_color_hex(${COLOR_MAIN_25});
-            #     text_align: CENTER
-            #     width: 24
-            #     text: "\uF071"
+            - label:
+                id: warning_on_label
+                x: 308
+                y: 1
+                text_font: MONTSERRAT_18
+                text_color: !lambda |-
+                  if( id(warning_on) ) {
+                    return lv_color_hex(${COLOR_BAD});
+                  }
+                  return lv_color_hex(${COLOR_MAIN_25});
+                text_align: CENTER
+                width: 24
+                text: "\uF071"
             - label: # time background
                 x: 188
                 y: 0
@@ -4544,6 +4548,7 @@ script:
                     if( id(timer_alarm) == false ) {
                       id(timer_alarm) = true;
                       id(my_rtttl).play("${Timer_Alarm_Sound}");
+                      id(warning_on) = true;
                     }
                   }
                 }
