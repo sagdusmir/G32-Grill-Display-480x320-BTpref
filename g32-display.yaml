@@ -6,7 +6,7 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.0.1"
+  version: "BTpref-retro 2.0.2"
   qrcode_text: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
 
   # Credentials des eigenen Wifi Netzwerks
@@ -522,7 +522,9 @@ interval:
   - interval: 1s
     then:
       - script.execute: timer_update
-
+  - interval: 10s
+    then:
+      - lvgl.widget.refresh: warning_on_label
   - interval: ${Beeper_interval}
     then:
       - lambda: |-
@@ -1269,20 +1271,19 @@ lvgl:
                   }
                   return lv_color_hex(${COLOR_MAIN_25});
                 text: "\U000F1A4E"
-            # currently unused
-            # - label:
-            #     id: g32_warning_label
-            #     x: 308
-            #     y: 1
-            #     text_font: MONTSERRAT_18
-            #     text_color: !lambda |-
-            #       if( id(warning_on) ) {
-            #         return lv_color_hex(${COLOR_BAD});
-            #       }
-            #       return lv_color_hex(${COLOR_MAIN_25});
-            #     text_align: CENTER
-            #     width: 24
-            #     text: "\uF071"
+            - label:
+                id: warning_on_label
+                x: 308
+                y: 1
+                text_font: MONTSERRAT_18
+                text_color: !lambda |-
+                  if( id(warning_on) || ( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) || ( id(gas_percent) <= id(settings_min_gas_value_persistent) )) {
+                    return lv_color_hex(${COLOR_BAD});
+                  }
+                  return lv_color_hex(${COLOR_MAIN_25});
+                text_align: CENTER
+                width: 24
+                text: "\uF071"
             - label: # time background
                 x: 188
                 y: 0
