@@ -9,12 +9,6 @@ substitutions:
   version: "BTpref-retro 2.0.2"
   qrcode_text: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
 
-  # Credentials des eigenen Wifi Netzwerks
-  wifi_ssid: "wifi_ssid"
-  wifi_password: "password"
-  # wifi_ssid: !secret wifi_ssid  # oder optional als secret konfigurieren
-  # wifi_password: !secret wifi_password  # oder optional als secret konfigurieren
-
 # hier die Daten aus dem neu erstellten ESPHome Gerät einfügen. Beispiel:
 # Enable Home Assistant API
 # api:
@@ -28,6 +22,8 @@ substitutions:
 #     password: "7fdf9f656d36180bfba92d596c9e7db3"
 # das angezeiget password einfügen:
   ota_password: "7fdf9f656d36180bfba92d596c9e7db3"
+
+  # some color themes
 
   # shades of grey
   # COLOR_MAIN_100: 0xffffff  # 100% brightness
@@ -100,12 +96,15 @@ substitutions:
   g32_characteristic_uuid_tx: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
   # g32_characteristic_uuid_rx: 'dc0f41e1-b6ae-46a8-a19e-1a3bf4342bcb'  # from the original OW app
 
+  wifi_ssid: "wifi_ssid"
+  wifi_password: "password"
+
   meater_mac_address: B8:1F:5E:00:00:00
   meater_service_uuid: 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
   meater_characteristic_uuid_temp: '7edda774-045e-4bbf-909b-45d1991a2876'
   meater_characteristic_uuid_battery: '2adb4877-68d8-4884-bd3c-d83853bf27b8'
 
-  Invalid_Sensor_Value: '1500' # 1500 means invalid
+  Invalid_Sensor_Value: '1500'  # 1500 means "invalid"
 
 esphome:
   name: ${name}
@@ -124,10 +123,13 @@ esphome:
     priority: 1100 # stay above 1000 and below 1500!
     then:
       - lambda: id(boot_start_time) = millis();
+                // the following line prevents the wifi password
+                // from being shown - but makes it nearly impossible
+                // to enter a complex password at all.
                 // lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
 esp32:
   board: esp32-s3-devkitc-1
-  # variant: esp32S3  # use either board: or varian
+  # variant: esp32S3  # use either board: or variant
   flash_size: 16MB
   framework:
     type: esp-idf
@@ -146,12 +148,11 @@ psram:
   mode: octal
   speed: 80MHz # 120mhz is not supported and falls back to 40mhz
 
-# Enable logging
-logger:
+logger:  # Enable logging
   baud_rate: 921600
 
-# Enable Home Assistant API
-api:
+
+api: # Enable Home Assistant API
   encryption:
     key: ${api_encryption_key}
   reboot_timeout: 0s
