@@ -71,7 +71,7 @@ What’s different?
    - on-device configuration screen available via the "G32 Connected" text in the top status bar
    - HA integration is now fully optional but still available
 
-Previous releases: see https://github.com/JBecker32/G32-Display-480x320-BT/releases
+Other releases: see https://github.com/JBecker32/G32-Display-480x320-BT/releases
 
 ## Impressions
 
