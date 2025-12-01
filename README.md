@@ -37,7 +37,7 @@ What’s different?
 
 ## What’s still missing?
 * **Gas Buddy:** calibration of a new gas bottle
-* **G32 light:** setting the brightness when the light schould turn on
+* **G32 light:** setting the brightness when the light should turn on
 
 ## History
 * [2025-11-30] BTpref-retro 2.0.4
