@@ -3665,7 +3665,7 @@ lvgl:
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_align: LEFT
-                                  text: "countdown timer"
+                                  text: "show countdown timer"
                               - switch:
                                   id: settings_hide_timer_switch
                                   x: 40
