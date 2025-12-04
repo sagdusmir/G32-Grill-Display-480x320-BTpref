@@ -40,6 +40,8 @@ What’s different?
 * **G32 light:** setting the brightness when the light should turn on
 
 ## History
+* [2025-12-04] BTpref-retro 2.1.0
+   - automatic version check
 * [2025-11-30] BTpref-retro 2.0.4
    - enable warning sign when gas tank level / soc level is low
 * [2025-11-28] BTpref-retro 2.0.1

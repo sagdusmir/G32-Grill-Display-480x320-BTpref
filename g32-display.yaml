@@ -6,15 +6,12 @@ substitutions:
   # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.0.2"
-  qrcode_text: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
+  version: "BTpref-retro 2.1.0"
+  url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
+  url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
-# hier die Daten aus dem neu erstellten ESPHome Gerät einfügen. Beispiel:
-# Enable Home Assistant API
-# api:
-#   encryption:
-#     key: "OZNMBo2xusQ+BIzO1pfIQepp72VCfBzCWO/pSttPCQg="
-# den dort angezeigten key einfügen:
+  # hier die Daten aus dem neu erstellten ESPHome Gerät einfügen. Beispiel:
+  # Enable Home Assistant API
   api_encryption_key: "E1fyywUUE1DWzu0OzhDkyc4yAnfGwyEfsVNvhytrU6k="
 
 # ota:
@@ -155,7 +152,13 @@ logger:  # Enable logging
 api: # Enable Home Assistant API
   encryption:
     key: ${api_encryption_key}
-  reboot_timeout: 0s
+  reboot_timeout: 0s  
+
+http_request:
+  # Optional global defaults (recommended for reliability)
+  timeout: 5s
+  verify_ssl: true
+  follow_redirects: true
 
 ota:
   - platform: esphome
@@ -177,6 +180,7 @@ wifi:
           id: apply_wifi_started_by_user
           value: 'false'
       - lvgl.widget.refresh: wifi_connect_label
+      - script.execute: check_for_updates
 
   on_disconnect:
     then:
@@ -260,7 +264,8 @@ esp32_ble_tracker:
             ESP_LOGD("ble_adv", "New BLE device");
             ESP_LOGD("ble_adv", "  address: %s", x.address_str().c_str());
             ESP_LOGD("ble_adv", "  RSSI: %d", x.get_rssi());
-            ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
+            ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());
+            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
             for (auto uuid : x.get_service_uuids()) {
               ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
             }
@@ -614,6 +619,9 @@ globals:
   - id: boot_screen_hidden
     type: bool
     initial_value: 'false'
+  - id: latest_version
+    type: std::string
+    initial_value: '"${version}"'
 
   - id: active_sensors      # bits set/reset for every active/inactive Sensor
     type: int
@@ -1577,15 +1585,58 @@ lvgl:
           on_press:
             - lvgl.widget.hide: settings_about
           widgets:            
+            - label:
+                id: latest_version_label1
+                x: 10
+                y: 180
+                width: 220
+                text_align: LEFT
+                text_color: ${COLOR_GOOD}
+                text_font: MONTSERRAT_14
+                text: "Latest version"
+                hidden: !lambda |-
+                  std::string v = "${version}";
+                  std::string v_latest = id(latest_version);
+                  return (v == v_latest);
+            - label:
+                id: latest_version_label2
+                x: 10
+                y: 200
+                width: 220
+                text_align: LEFT
+                text_color: ${COLOR_GOOD}
+                text_font: MONTSERRAT_14
+                text: !lambda |-
+                  return id(latest_version).c_str();
+                hidden: !lambda |-
+                  std::string v = "${version}";
+                  std::string v_latest = id(latest_version);
+                  return (v == v_latest);
+            - label:
+                x: 10
+                y: 240
+                width: 220
+                text_align: LEFT
+                text_color: ${COLOR_MAIN_75}
+                text_font: MONTSERRAT_14
+                text: "Current version"
+            - label:
+                x: 10
+                y: 260
+                width: 220
+                text_align: LEFT
+                text_color: ${COLOR_MAIN_75}
+                text_font: MONTSERRAT_14
+                text: ${version}
             - qrcode:
-                x: 115
+                x: 230
                 y: 24
                 size: 250
                 width: 250
                 height: 250
                 light_color: ${COLOR_MAIN_75}
                 dark_color: 0x000000
-                text: ${qrcode_text}
+                text: ${url_qrcode}
                 clickable: true
                 on_press:
                   - lvgl.widget.hide: settings_about
@@ -4695,3 +4746,38 @@ script:
           value: 'false'
       - lvgl.widget.show: settings_meater_mac_addresses_search_button
       - lvgl.widget.hide: settings_meater_mac_addresses_abort_button
+
+  - id: check_for_updates
+    then:
+      - http_request.get:
+          url: ${url_check_for_updates}
+          request_headers:
+            Accept: application/vnd.github.v3+json
+            User-Agent: ESPHome
+          max_response_buffer_size: 4096
+          capture_response: true
+          on_response:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return response->status_code == 200;'
+                  then:
+                    - lambda: |-
+                        ESP_LOGI("VersionCheck", "returned");
+                        json::parse_json(body, [](JsonObject root) -> bool {
+                          if (root["name"].is<std::string>()) {
+                            id(latest_version) = root["name"].as<std::string>();
+                            return true;
+                          }
+                          return false;
+                        });
+                    - lvgl.widget.refresh: [latest_version_label1, latest_version_label2]
+                  else:
+                    - logger.log:
+                        format: "HTTP request failed with status %d"
+                        args: ['response->status_code']
+
+
+          on_error:
+            then:
+            - logger.log: "Failed to perform HTTP request for version check."
