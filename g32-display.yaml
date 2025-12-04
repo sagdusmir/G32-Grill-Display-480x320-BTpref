@@ -191,13 +191,13 @@ wifi:
           value: 'false'
       - lvgl.widget.refresh: wifi_connect_label
 
-# esp32_ble:
-#   # 1xG32, 4xMeater probes -> maximum 5 connections needed
-#   max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
+esp32_ble:
+  # 1xG32, 4xMeater probes -> maximum 5 connections needed
+  max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
 
 esp32_ble_tracker:
   # 1xG32, 4xMeater probes -> maximum 5 connections needed
-  max_connections: 5  # still working in esphome 2025.9.1. Recently moved to esp32_ble component!
+  # max_connections: 5  # still working in esphome 2025.9.1. Recently moved to esp32_ble component!
   on_ble_advertise:
     then:
       - lambda: |-
@@ -260,8 +260,7 @@ esp32_ble_tracker:
             ESP_LOGD("ble_adv", "New BLE device");
             ESP_LOGD("ble_adv", "  address: %s", x.address_str().c_str());
             ESP_LOGD("ble_adv", "  RSSI: %d", x.get_rssi());
-            ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());
-            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
+            ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
             for (auto uuid : x.get_service_uuids()) {
               ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
             }
@@ -425,8 +424,8 @@ display:
     id: my_display
     spi_id: display_qspi
     dimensions:
-      height: 320
-      width: 480
+      height: 480
+      width: 320
     cs_pin:
       number: 45
       ignore_strapping_warning: true
@@ -1414,13 +1413,13 @@ lvgl:
                         if( y < 0) {
                           return 0;
                         }
-                        int x = id(gas_percent);
-                        if( x <= id(settings_min_gas_value_persistent) ) {
+                        int z = id(gas_percent);
+                        if( z <= id(settings_min_gas_value_persistent) ) {
                           lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${COLOR_BAD}), LV_PART_INDICATOR);
                         } else {                          
                           lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${COLOR_GOOD}), LV_PART_INDICATOR);
                         }
-                        return x;
+                        return z;
                   - label:
                       x: 42
                       y: 1
@@ -1453,11 +1452,11 @@ lvgl:
                         if( y < 0) {
                           return " ";
                         }
-                        int x = id(gas_percent);
-                        return (to_string(x)).c_str();
+                        int z = id(gas_percent);
+                        return (to_string(z)).c_str();
                       text_color: !lambda |-
-                        int x = id(gas_percent);
-                        if( x <= id(settings_min_gas_value_persistent) ) {
+                        int v = id(gas_percent);
+                        if( v <= id(settings_min_gas_value_persistent) ) {
                           return lv_color_hex(${COLOR_BAD});
                         }
                         return lv_color_hex(${COLOR_GOOD});
@@ -1475,8 +1474,8 @@ lvgl:
                         if( y < 0) {
                           return lv_color_hex(${COLOR_MAIN_100});
                         }
-                        int x = id(gas_percent);
-                        if( x <= id(settings_min_gas_value_persistent) ) {
+                        int z = id(gas_percent);
+                        if( z <= id(settings_min_gas_value_persistent) ) {
                           return lv_color_hex(${COLOR_BAD});
                         }
                         return lv_color_hex(${COLOR_GOOD});
@@ -1497,11 +1496,11 @@ lvgl:
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
                       text: !lambda |-
-                        int x = id(gas_weight);
-                        if( x < 0) {
+                        int v = id(gas_weight);
+                        if( v < 0) {
                           return " ";
                         }
-                        return (to_string(x)).c_str();
+                        return (to_string(v)).c_str();
                   - label:
                       x: 455
                       y: -1
