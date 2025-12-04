@@ -1277,7 +1277,7 @@ lvgl:
                 y: 1
                 text_font: MONTSERRAT_18
                 text_color: !lambda |-
-                  if( id(warning_on) || ( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) || ( id(gas_percent) <= id(settings_min_gas_value_persistent) )) {
+                  if( id(g32_connected) && (id(warning_on) || ( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) || ( id(gas_percent) <= id(settings_min_gas_value_persistent)) )) {
                     return lv_color_hex(${COLOR_BAD});
                   }
                   return lv_color_hex(${COLOR_MAIN_25});
