@@ -41,6 +41,7 @@ What’s different?
 
 ## History
 * [2025-12-04] BTpref-retro 2.1.0
+   - updates for ESPHome 2025.11.3
    - automatic version check
 * [2025-11-30] BTpref-retro 2.0.4
    - enable warning sign when gas tank level / soc level is low
