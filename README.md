@@ -4,7 +4,6 @@ This is a fork of https://github.com/JBecker32/G32-Display-480x320-BT.
 
 Alternative version with the previous UI [Original Design](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/tree/BTpref)
 
-
 The main focus is its use as a mobile grill monitor and thus also as a replacement for the Otto Wilde app / Otto Wilde Grill Buddy. The connection is made via Bluetooth Low Energy (BLE) and therefore requires no login or any OW servers at all. Tested with firmware v.1.4.5 (old firmware "v13" is known to be NOT compatible!).
 
 The hardware used, software installation, and all other details for this project are identical to the original and are very well documented there, including pictures. The base is an ESP32 with the touchscreen display "JC3248W535C".
@@ -18,7 +17,7 @@ What’s different?
 
 * integration with Home Assistant is now optional
 * no source code modifications required (only for setting the Home Assistant API token)
-* most settings can be configured directly via the device’s touchscreen (sadly, the HA API encryption key cannot be updated dynamically)
+* most settings can be configured directly via the device’s touchscreen (unfortunately the Home Assistant "API encryption key" cannot be updated dynamically - this must set at compile time)
 * adjustments to the user interface
 
 
