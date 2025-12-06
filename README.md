@@ -40,7 +40,7 @@ What’s different?
 
 ## History
 * [2025-12-06] BTpref-retro 2.1.1
-   - load font files from github - so no the software is onöy a single yaml file
+   - load font files from github - so now the software is only a single yaml file again
 * [2025-12-04] BTpref-retro 2.1.0
    - updates for ESPHome 2025.11.3
    - automatic version check
