@@ -1,9 +1,9 @@
 substitutions:
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  # bitte nur in diesen nächsten Zeilen Änderungen vornehmen                    #
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # You will propably need to to changes only to the following lines: #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-  # der Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
+  # Name of the ESPHome device (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
   version: "BTpref-retro 2.1.0"
@@ -14,31 +14,40 @@ substitutions:
   # Enable Home Assistant API
   api_encryption_key: "E1fyywUUE1DWzu0OzhDkyc4yAnfGwyEfsVNvhytrU6k="
 
-# ota:
-#   - platform: esphome
-#     password: "7fdf9f656d36180bfba92d596c9e7db3"
-# das angezeiget password einfügen:
+  # over-the-air updates (ESPHome CLI or Home Assistant Add-On)
   ota_password: "7fdf9f656d36180bfba92d596c9e7db3"
 
-  # some color themes
+  # Some color themes:
+  #
+  # All consist of a primary color and three additional
+  # colors of reduced luminocity.
+  # -> COLOR_MAIN_100, ... COLOR_MAIN_25
+  #
+  # In addition to that there is a "good" and a "bad"
+  # color. For a less colorful UI you could just use
+  # the primary color for "good", too. But I suggest
+  # having a popping color for the "bad" stuff.
+  # -> COLOR_GOOD, COLOR_BAD
+  #
+  # Last but not least, there is a separate color for
+  # the light bulb symbol...which I usually do not change.
+  # -> COLOR_LIGHT
 
-  # shades of grey
-  # COLOR_MAIN_100: 0xffffff  # 100% brightness
-  # COLOR_MAIN_75:  0xbfbfbf  #  75%
-  # COLOR_MAIN_50:  0x808080  #  50%
-  # COLOR_MAIN_25:  0x404040  #  25%
-  # COLOR_GOOD:     0x00ff00  # green
-  # COLOR_WARN:     0xffff00  # yellow
-  # COLOR_BAD:      0xff0000  # red
+  # shades of white
+  COLOR_MAIN_100: 0xffffff  # 100% brightness
+  COLOR_MAIN_75:  0xbfbfbf  #  75%
+  COLOR_MAIN_50:  0x808080  #  50%
+  COLOR_MAIN_25:  0x404040  #  25%
+  COLOR_GOOD:     0x8BFF85  # "good"
+  COLOR_BAD:      0xff5757  # "bad"
 
   # shades of amber
-  COLOR_MAIN_100: 0xffaa0e  # 100% brightness
-  COLOR_MAIN_75:  0xbd7e0a  #  75%
-  COLOR_MAIN_50:  0x805507  #  50%
-  COLOR_MAIN_25:  0x3a2703  #  25%
-  COLOR_GOOD:     0x00ff00
-  COLOR_WARN:     0xffff00
-  COLOR_BAD:      0xff0000
+  # COLOR_MAIN_100: 0xffb900  # 100% brightness
+  # COLOR_MAIN_75:  0xbd8a00  #  75%
+  # COLOR_MAIN_50:  0x805d00  #  50%
+  # COLOR_MAIN_25:  0x392900  #  25%
+  # COLOR_GOOD:     0x58b100
+  # COLOR_BAD:      0xFF5600
 
   # shades of cyan
   # COLOR_MAIN_100: 0x68e2fb  # 100% brightness
@@ -46,7 +55,6 @@ substitutions:
   # COLOR_MAIN_50:  0x007582  #  50%
   # COLOR_MAIN_25:  0x003c43  #  25%
   # COLOR_GOOD:     0x75fb8a
-  # COLOR_WARN:     0xffff00
   # COLOR_BAD:      0xea838d
 
   # shades of red light
@@ -54,8 +62,7 @@ substitutions:
   # COLOR_MAIN_75:  0xc00044  #  75%
   # COLOR_MAIN_50:  0x80002e  #  50%
   # COLOR_MAIN_25:  0x400018  #  25%
-  # COLOR_GOOD:     0xff0059  # 0x00d16a
-  # COLOR_WARN:     0xff9000
+  # COLOR_GOOD:     0xff0059  # or perhaps 0x00d16a
   # COLOR_BAD:      0xe4d300
 
   COLOR_LIGHT:    0xffff00  # probably always yellow
@@ -84,8 +91,9 @@ substitutions:
   New_MAC_Sound: "click:d=32,o=6,b=120:32c,32p"
 
 
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  # ab hier bitte nur Änderungen vornehmen, wenn man weiß, was man tut und will #
+  # D A N G E R  Z O N E! # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  # From here on, please only make changes if you know what you are doing and   #
+  # what you want to achieve.                                                   #
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   g32_mac_address: 94:E6:86:00:00:00
@@ -101,7 +109,7 @@ substitutions:
   meater_characteristic_uuid_temp: '7edda774-045e-4bbf-909b-45d1991a2876'
   meater_characteristic_uuid_battery: '2adb4877-68d8-4884-bd3c-d83853bf27b8'
 
-  Invalid_Sensor_Value: '1500'  # 1500 means "invalid"
+  Invalid_Sensor_Value: '1500'  # 1500 (and above) means "invalid"
 
 esphome:
   name: ${name}
