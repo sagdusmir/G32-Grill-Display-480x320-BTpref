@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.1.0"
+  version: "BTpref-retro 2.1.1"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -822,7 +822,8 @@ globals:
     initial_value: '0'
 
 font:
-  - file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    # file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
     id: ICON_FONT_24
     size: 24
     glyphs:
@@ -842,12 +843,14 @@ font:
       - "\U000F050F" # mdi-thermometer
       - "\U000F1A4E" # mdi-lightbulb-on-20
       - "\U000F0D3F" # mdi-weight-grams
-  - file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    # file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
     id: ICON_FONT_12
     size: 12
     glyphs:
       - "\U000F009A" # mdi-bell
-  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_22
     size: 22
     glyphs:
@@ -863,7 +866,8 @@ font:
       - "9"
       - "-"
       - " "
-  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_20
     size: 20
     glyphs:
@@ -881,7 +885,8 @@ font:
       - "."
       - ":"
       - " "
-  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_14
     size: 14
     glyphs:
@@ -897,7 +902,8 @@ font:
       - "9"
       - "-"
       - " "
-  - file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_8
     size: 8
     glyphs:
@@ -911,7 +917,8 @@ font:
       - "7"
       - "8"
       - "9"
-  - file: 'fonts/Montserrat/Montserrat-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/Montserrat/Montserrat-Bold.ttf'
+    # file: 'fonts/Montserrat/Montserrat-Bold.ttf'
     id: MONTSERRAT_BOLD_FONT_22
     size: 22
     glyphs:
@@ -926,7 +933,8 @@ font:
       - "c"
       - "t"
       - "d"
-  - file: 'fonts/Montserrat/Montserrat-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/Montserrat/Montserrat-Bold.ttf'
+    # file: 'fonts/Montserrat/Montserrat-Bold.ttf'
     id: MONTSERRAT_BOLD_FONT_18
     size: 18
     glyphs:
@@ -941,7 +949,8 @@ font:
       - "8"
       - "9"
       - " "
-  - file: 'fonts/Montserrat/Montserrat-Bold.ttf'
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/Montserrat/Montserrat-Bold.ttf'
+    # file: 'fonts/Montserrat/Montserrat-Bold.ttf'
     id: MONTSERRAT_BOLD_FONT_14
     size: 14
     glyphs:

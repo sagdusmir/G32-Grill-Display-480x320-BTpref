@@ -39,6 +39,8 @@ What’s different?
 * **G32 light:** setting the brightness when the light should turn on
 
 ## History
+* [2025-12-06] BTpref-retro 2.1.1
+   - load font files from github - so no the software is onöy a single yaml file
 * [2025-12-04] BTpref-retro 2.1.0
    - updates for ESPHome 2025.11.3
    - automatic version check
