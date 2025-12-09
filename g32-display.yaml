@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.1.1"
+  version: "BTpref-retro 2.2.0"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -21,51 +21,35 @@ substitutions:
   #
   # All consist of a primary color and three additional
   # colors of reduced luminocity.
-  # -> COLOR_MAIN_100, ... COLOR_MAIN_25
+  # -> color_100, ... color_25
   #
   # In addition to that there is a "good" and a "bad"
   # color. For a less colorful UI you could just use
   # the primary color for "good", too. But I suggest
   # having a popping color for the "bad" stuff.
-  # -> COLOR_GOOD, COLOR_BAD
+  # -> color_good, color_bad
   #
   # Last but not least, there is a separate color for
   # the light bulb symbol...which I usually do not change.
-  # -> COLOR_LIGHT
+  # -> color_light
 
-  # shades of white
-  COLOR_MAIN_100: 0xffffff  # 100% brightness
-  COLOR_MAIN_75:  0xbfbfbf  #  75%
-  COLOR_MAIN_50:  0x808080  #  50%
-  COLOR_MAIN_25:  0x404040  #  25%
-  COLOR_GOOD:     0x8BFF85  # "good"
-  COLOR_BAD:      0xff5757  # "bad"
+  COLOR_SCHEMES: |
+    //              idx 100%      75%       50%       25%       GOOD      BAD       LIGHT
+    {
+      {"white",     {0, 0xffffff, 0xbfbfbf, 0x808080, 0x404040, 0x8bff85, 0xff5757, 0xffff00}},
+      {"amber",     {1, 0xffb900, 0xbd8a00, 0x805d00, 0x392900, 0x58b100, 0xff5600, 0xffff00}},
+      {"cyan",      {2, 0x68e2fb, 0x00acbf, 0x007582, 0x003c43, 0x75fb8a, 0xea838d, 0xffff00}},
+      {"red light", {3, 0xff0059, 0xc00044, 0x80002e, 0x400018, 0xff0059, 0xe4d300, 0xffff00}}
+    }
 
-  # shades of amber
-  # COLOR_MAIN_100: 0xffb900  # 100% brightness
-  # COLOR_MAIN_75:  0xbd8a00  #  75%
-  # COLOR_MAIN_50:  0x805d00  #  50%
-  # COLOR_MAIN_25:  0x392900  #  25%
-  # COLOR_GOOD:     0x58b100
-  # COLOR_BAD:      0xFF5600
-
-  # shades of cyan
-  # COLOR_MAIN_100: 0x68e2fb  # 100% brightness
-  # COLOR_MAIN_75:  0x00acbf  #  75%
-  # COLOR_MAIN_50:  0x007582  #  50%
-  # COLOR_MAIN_25:  0x003c43  #  25%
-  # COLOR_GOOD:     0x75fb8a
-  # COLOR_BAD:      0xea838d
-
-  # shades of red light
-  # COLOR_MAIN_100: 0xff0059  # 100% brightness
-  # COLOR_MAIN_75:  0xc00044  #  75%
-  # COLOR_MAIN_50:  0x80002e  #  50%
-  # COLOR_MAIN_25:  0x400018  #  25%
-  # COLOR_GOOD:     0xff0059  # or perhaps 0x00d16a
-  # COLOR_BAD:      0xe4d300
-
-  COLOR_LIGHT:    0xffff00  # probably always yellow
+  # shades of white (initial start values since substitutions work best)
+  COLOR_100:   "0xffffff"  # 100% brightness
+  COLOR_75:    "0xbfbfbf"  #  75%
+  COLOR_50:    "0x808080"  #  50%
+  COLOR_25:    "0x404040"  #  25%
+  COLOR_GOOD:  "0x8bff85"
+  COLOR_BAD:   "0xff5757"
+  COLOR_LIGHT: "0xffff00"
 
   # max temperature for zones and sensors
   Zone_Max: "500"
@@ -89,7 +73,6 @@ substitutions:
   Zone_Limit_Alarm_Sound: "dadidadi:d=8,o=5,b=150:d,e,d,e,d,e,d,e"
   Sensor_Limit_Alarm_Sound: "didadida:d=8,o=5,b=150:e,d,e,d,e,d,e,d"
   New_MAC_Sound: "click:d=32,o=6,b=120:32c,32p"
-
 
   # D A N G E R  Z O N E! # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
   # From here on, please only make changes if you know what you are doing and   #
@@ -132,6 +115,7 @@ esphome:
                 // from being shown - but makes it nearly impossible
                 // to enter a complex password at all.
                 // lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
+
 esp32:
   board: esp32-s3-devkitc-1
   # variant: esp32S3  # use either board: or variant
@@ -155,7 +139,6 @@ psram:
 
 logger:  # Enable logging
   baud_rate: 921600
-
 
 api: # Enable Home Assistant API
   encryption:
@@ -202,7 +185,6 @@ wifi:
           id: wifi_connected
           value: 'false'
       - lvgl.widget.refresh: wifi_connect_label
-
 esp32_ble:
   # 1xG32, 4xMeater probes -> maximum 5 connections needed
   max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
@@ -561,6 +543,16 @@ interval:
       - if:
           condition:
             and:
+              - lambda: return !id(boot_screen_color_scheme_init);
+          then:
+            - lambda: |-
+                id(boot_screen_color_scheme_init) = true;
+                id(settings_color_scheme_idx) = id(settings_color_scheme_idx_persistent);
+                id(apply_color_scheme).execute();
+
+      - if:
+          condition:
+            and:
               - lambda: 'return !id(boot_screen_hidden);'
               - lambda: 'return millis() - id(boot_start_time) >= 2000;'
           then:
@@ -621,10 +613,38 @@ globals:
     type: std::string
     initial_value: " "
 
+  - id: color_schemes
+    type: std::map<std::string, std::vector<uint32_t>>
+    initial_value: '${COLOR_SCHEMES}'
+  - id: color_100
+    type: int
+    initial_value: '${COLOR_100}'
+  - id: color_75
+    type: int
+    initial_value: '${COLOR_75}'
+  - id: color_50
+    type: int
+    initial_value: '${COLOR_50}'
+  - id: color_25
+    type: int
+    initial_value: '${COLOR_25}'
+  - id: color_good
+    type: int
+    initial_value: '${COLOR_GOOD}'
+  - id: color_bad
+    type: int
+    initial_value: '${COLOR_BAD}'
+  - id: color_light
+    type: int
+    initial_value: '${COLOR_LIGHT}'
+
   - id: boot_start_time
     type: uint32_t
     initial_value: '0'
   - id: boot_screen_hidden
+    type: bool
+    initial_value: 'false'
+  - id: boot_screen_color_scheme_init
     type: bool
     initial_value: 'false'
   - id: latest_version
@@ -815,9 +835,16 @@ globals:
     initial_value: 'false'
   - id: settings_display_timeout_value_persistent
     type: int
-    initial_value: "0"
+    initial_value: '0'
     restore_value: true
   - id: settings_display_timeout_value
+    type: int
+    initial_value: '0'
+  - id: settings_color_scheme_idx_persistent
+    type: int
+    initial_value: '0'
+    restore_value: true
+  - id: settings_color_scheme_idx
     type: int
     initial_value: '0'
 
@@ -833,7 +860,8 @@ font:
       - "\U000F12A2" # mdi-battery-medium
       - "\U000F12A1" # mdi-battery-low
       - "\U000F008E" # mdi-battery-outline
-      - "\U000F17E6" # mdi-battery-plus      
+      - "\U000F17E6" # mdi-battery-plus
+      - "\U000F0208" # mdi-eye
       - "\U000F0238" # mdi-fire (used for meater)
       - "\U000F029A" # mdi-gauge
       - "\U000F1358" # mdi-propane-tank-outline
@@ -949,6 +977,33 @@ font:
       - "8"
       - "9"
       - " "
+      - "-"
+      - "a"
+      - "b"
+      - "c"
+      - "d"
+      - "e"
+      - "f"
+      - "g"
+      - "h"
+      - "i"
+      - "j"
+      - "k"
+      - "l"
+      - "m"
+      - "n"
+      - "o"
+      - "p"
+      - "q"
+      - "r"
+      - "s"
+      - "t"
+      - "u"
+      - "v"
+      - "w"
+      - "x"
+      - "y"
+      - "z"
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/Montserrat/Montserrat-Bold.ttf'
     # file: 'fonts/Montserrat/Montserrat-Bold.ttf'
     id: MONTSERRAT_BOLD_FONT_14
@@ -1013,7 +1068,6 @@ lvgl:
   outline_width: 0
   theme:
     label:
-      text_color: ${COLOR_MAIN_100}
       bg_color: 0
       bg_opa: COVER
       width: 120
@@ -1025,53 +1079,35 @@ lvgl:
         arc_color: red
     arc:
       radius: 5
-      arc_color: ${COLOR_MAIN_50}
       indicator:
+        arc_rounded: false
         radius: 5
-    button:
-      shadow_color: ${COLOR_MAIN_25}
-    switch:
-      bg_color: ${COLOR_MAIN_25}
-      knob:
-        bg_color: ${COLOR_MAIN_100}
-      indicator:
-        checked:
-          bg_color: ${COLOR_MAIN_75}
     roller:
-      bg_color: ${COLOR_MAIN_50}
-      text_color: ${COLOR_MAIN_25}
-      border_color: ${COLOR_MAIN_50}
       text_font: MONTSERRAT_20
       width: 60
       selected:
-        text_color: ${COLOR_MAIN_100}
-        bg_color: ${COLOR_MAIN_25}
         text_font: MONTSERRAT_BOLD_FONT_18
     slider:
-        bg_opa: COVER
-        bg_color: ${COLOR_MAIN_25}
+      bg_opa: COVER
+      radius: 0
+      adv_hittest: true
+      border_width: 0
+      indicator:
         radius: 0
-        border_width: 0
-        indicator:
-          radius: 0
-          bg_color: ${COLOR_MAIN_50}
-        knob:
-          radius: 2
-          bg_color: ${COLOR_MAIN_100}
+      knob:
+        radius: 2
+
     textarea:
+      width: 340
+      height: 30
       text_font: MONTSERRAT_18
-      bg_color: ${COLOR_MAIN_25}
-      text_color: ${COLOR_MAIN_100}
       border_width: 1
-      border_color: ${COLOR_MAIN_75}
-      textarea_placeholder:
-        text_color: ${COLOR_MAIN_50}
     keyboard:
-      bg_color: ${COLOR_MAIN_25}
-      text_color: ${COLOR_MAIN_100}
+      text_color: ${COLOR_100}
+      bg_color: ${COLOR_25}
       items:
-        bg_color: ${COLOR_MAIN_100}
-        text_color: ${COLOR_MAIN_25}
+        bg_color: ${COLOR_100}
+        text_color: ${COLOR_25}
 
   style_definitions:
     - id: arc_value_style
@@ -1082,7 +1118,6 @@ lvgl:
       arc_opa: COVER
       arc_rounded: false
       arc_width: 6
-      arc_color: ${COLOR_MAIN_25}
     - id: arc_limit_style
       x: 13
       y: 21
@@ -1091,12 +1126,11 @@ lvgl:
       arc_opa: 100%
       arc_rounded: false
       arc_width: 3
-      arc_color: 0x000000
+      arc_color: 0
     - id: item_obj_style
       width: 120
       height: 120
       bg_color: 0
-      text_color: ${COLOR_MAIN_100}
       pad_all: 0
       radius: 0
       outline_width: 0
@@ -1132,13 +1166,14 @@ lvgl:
           border_width: 0
           widgets:
             - spinner:
+                id: boot_spinner
                 align: CENTER
                 spin_time: 1s
                 arc_length: 60deg
                 arc_width: 4
                 arc_color: 0
                 indicator:
-                  arc_color: ${COLOR_MAIN_100}
+                  arc_color: 0  # overridden after color scheme is known
                   arc_width: 4
       - obj:
           id: status_bar_top
@@ -1154,10 +1189,11 @@ lvgl:
           radius: 0
           widgets:            
             - label: # label for entering settings
+                id: cs_title
                 x: 0
                 y: -4
                 text_font: MONTSERRAT_BOLD_FONT_22
-                text_color: ${COLOR_MAIN_100}
+                text_color: !lambda return lv_color_hex(id(color_100));
                 text_align: LEFT
                 long_mode: CLIP
                 width: 185
@@ -1197,9 +1233,9 @@ lvgl:
                       width: 24
                       text_color: !lambda |-
                         if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
-                          return lv_color_hex(${COLOR_BAD});
+                          return lv_color_hex(id(color_bad));
                         }
-                        return lv_color_hex(${COLOR_GOOD});
+                        return lv_color_hex(id(color_good));
                       text: !lambda |-
                         const char* icons[4] = {"\U000F008E","\U000F12A1","\U000F12A2","\U000F12A3"};
                         float soc = id(battery_soc_value);
@@ -1209,12 +1245,13 @@ lvgl:
                         return icons[idx];
 
                   - label:  # battery soc background
+                      id: battery_soc_shadow
                       x: 21
                       y: 7
                       text_font: SEGMENT_FONT_8
                       text_align: RIGHT
                       width: 22
-                      text_color: ${COLOR_MAIN_25}
+                      text_color: !lambda return lv_color_hex(id(color_25));
                       text: "188"
                   - label:
                       id: battery_soc_label
@@ -1226,9 +1263,9 @@ lvgl:
                       width: 22
                       text_color: !lambda |-
                         if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
-                          return lv_color_hex(${COLOR_BAD});
+                          return lv_color_hex(id(color_bad));
                         }
-                        return lv_color_hex(${COLOR_GOOD});
+                        return lv_color_hex(id(color_good));
                       text: !lambda |-
                         return (to_string(static_cast<int>(id(battery_soc_value)))).c_str();
                   - label:
@@ -1240,9 +1277,9 @@ lvgl:
                       width: 7
                       text_color: !lambda |-
                         if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
-                          return lv_color_hex(${COLOR_BAD});
+                          return lv_color_hex(id(color_bad));
                         }
-                        return lv_color_hex(${COLOR_GOOD});
+                        return lv_color_hex(id(color_good));
                       text: "%"
             - label: # symbol for successfull BT connection
                 id: g32bt_connect_label
@@ -1253,9 +1290,9 @@ lvgl:
                 width: 24
                 text_color: !lambda |-
                   if( id(g32_connected) ) {
-                    return lv_color_hex(${COLOR_GOOD});
+                    return lv_color_hex(id(color_good));
                   }
-                  return lv_color_hex(${COLOR_MAIN_25});
+                  return lv_color_hex(id(color_25));
                 text: "\U000F00AF"
             - label: # symbol for successfull WIFI connection
                 id: wifi_connect_label
@@ -1266,9 +1303,9 @@ lvgl:
                 width: 24
                 text_color: !lambda |-
                   if( id(wifi_connected) ) {
-                    return lv_color_hex(${COLOR_GOOD});
+                    return lv_color_hex(id(color_good));
                   }
-                  return lv_color_hex(${COLOR_MAIN_25});
+                  return lv_color_hex(id(color_25));
                 text: "\uF1EB" # WIFI symbol
             - label: # symbol for 'firebox open'
                 id: firebox_open_label
@@ -1279,9 +1316,9 @@ lvgl:
                 width: 24
                 text_color: !lambda |-
                   if( id(firebox_open) ) {
-                    return lv_color_hex(${COLOR_GOOD});
+                    return lv_color_hex(id(color_good));
                   }
-                  return lv_color_hex(${COLOR_MAIN_25});
+                  return lv_color_hex(id(color_25));
                 text: "\uF093" # arrow up
             - label: # symbol for 'light on'
                 id: light_on_label
@@ -1292,9 +1329,9 @@ lvgl:
                 width: 24
                 text_color: !lambda |-
                   if( id(light_on) ) {
-                    return lv_color_hex(${COLOR_LIGHT});
+                    return lv_color_hex(id(color_light));
                   }
-                  return lv_color_hex(${COLOR_MAIN_25});
+                  return lv_color_hex(id(color_25));
                 text: "\U000F1A4E"
             - label:
                 id: warning_on_label
@@ -1303,17 +1340,18 @@ lvgl:
                 text_font: MONTSERRAT_18
                 text_color: !lambda |-
                   if( id(g32_connected) && (id(warning_on) || ( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) || ( id(gas_percent) <= id(settings_min_gas_value_persistent)) )) {
-                    return lv_color_hex(${COLOR_BAD});
+                    return lv_color_hex(id(color_bad));
                   }
-                  return lv_color_hex(${COLOR_MAIN_25});
+                  return lv_color_hex(id(color_25));
                 text_align: CENTER
                 width: 24
                 text: "\uF071"
             - label: # time background
+                id: display_time_shadow
                 x: 188
                 y: 0
                 text_font: SEGMENT_FONT_20
-                text_color: ${COLOR_MAIN_25}
+                text_color: !lambda return lv_color_hex(id(color_25));
                 text_align: CENTER
                 bg_color: 0
                 width: 104
@@ -1325,7 +1363,7 @@ lvgl:
                 x: 188
                 y: 0
                 text_font: SEGMENT_FONT_20
-                text_color: ${COLOR_MAIN_100}
+                text_color: !lambda return lv_color_hex(id(color_100));
                 text_align: CENTER
                 bg_opa: TRANSP
                 bg_color: 0
@@ -1364,7 +1402,7 @@ lvgl:
                 width: 104
                 bg_opa: COVER
                 text_font: SEGMENT_FONT_20
-                text_color: ${COLOR_MAIN_25}
+                text_color: !lambda return lv_color_hex(id(color_25));
                 text_align: CENTER
                 text: "88:88:88"
                 hidden: true
@@ -1375,6 +1413,7 @@ lvgl:
                 width: 104
                 bg_opa: TRANSP
                 text_font: SEGMENT_FONT_20
+                text_color: !lambda return lv_color_hex(id(color_100));
                 text_align: CENTER
                 text: "00:00:00"
                 hidden: true
@@ -1412,11 +1451,13 @@ lvgl:
                 radius: 0
                 widgets:
                   - label:
+                      id: gas_icon
                       x: 2
                       y: 0
                       width: 20
                       height: 22
                       text_font: ICON_FONT_24
+                      text_color: !lambda return lv_color_hex(id(color_100));
                       text_align: CENTER
                       text: "\U000F1358"
                   - bar:
@@ -1429,10 +1470,10 @@ lvgl:
                       min_value: 1
                       max_value: 100
                       bg_opa: COVER
-                      bg_color: ${COLOR_MAIN_25}
+                      bg_color: !lambda return lv_color_hex(id(color_25));
                       indicator:
                         radius: 0
-                        bg_color: ${COLOR_MAIN_100}  # placeholder
+                        bg_color: !lambda return lv_color_hex(id(color_100)); // placeholder
                       value: !lambda |-
                         int y = id(gas_weight);
                         if( y < 0) {
@@ -1440,9 +1481,9 @@ lvgl:
                         }
                         int z = id(gas_percent);
                         if( z <= id(settings_min_gas_value_persistent) ) {
-                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${COLOR_BAD}), LV_PART_INDICATOR);
+                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(id(color_bad)), LV_PART_INDICATOR);
                         } else {                          
-                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(${COLOR_GOOD}), LV_PART_INDICATOR);
+                          lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(id(color_good)), LV_PART_INDICATOR);
                         }
                         return z;
                   - label:
@@ -1457,12 +1498,13 @@ lvgl:
                       text: "  |   |   |   |   |   |   |   |   |   |   |   |   |"
 
                   - label:  # gas percent label background
+                      id: gas_percent_label_shadow
                       x: 331
                       y: 6
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
                       width: 35
-                      text_color: ${COLOR_MAIN_25}
+                      text_color: !lambda return lv_color_hex(id(color_25));
                       text: "188"
                   - label:
                       id: gas_percent_label
@@ -1482,9 +1524,9 @@ lvgl:
                       text_color: !lambda |-
                         int v = id(gas_percent);
                         if( v <= id(settings_min_gas_value_persistent) ) {
-                          return lv_color_hex(${COLOR_BAD});
+                          return lv_color_hex(id(color_bad));
                         }
-                        return lv_color_hex(${COLOR_GOOD});
+                        return lv_color_hex(id(color_good));
                   - label:
                       id: gas_percent_label_unit
                       x: 372
@@ -1497,20 +1539,21 @@ lvgl:
                       text_color: !lambda |-
                         int y = id(gas_weight);
                         if( y < 0) {
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         }
                         int z = id(gas_percent);
                         if( z <= id(settings_min_gas_value_persistent) ) {
-                          return lv_color_hex(${COLOR_BAD});
+                          return lv_color_hex(id(color_bad));
                         }
-                        return lv_color_hex(${COLOR_GOOD});
+                        return lv_color_hex(id(color_good));
                   - label:  # gas weight label background
+                      id: gas_weight_label_shadow
                       x: 394
                       y: 6
                       width: 55
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
-                      text_color: ${COLOR_MAIN_25}
+                      text_color: !lambda return lv_color_hex(id(color_25));
                       text: "18888"
                   - label:
                       id: gas_weight_label
@@ -1519,6 +1562,7 @@ lvgl:
                       width: 55
                       bg_opa: TRANSP
                       text_font: SEGMENT_FONT_14
+                      text_color: !lambda return lv_color_hex(id(color_100));
                       text_align: RIGHT
                       text: !lambda |-
                         int v = id(gas_weight);
@@ -1527,9 +1571,11 @@ lvgl:
                         }
                         return (to_string(v)).c_str();
                   - label:
+                      id: gas_weight_symbol
                       x: 455
                       y: -1
                       text_font: ICON_FONT_24
+                      text_color: !lambda return lv_color_hex(id(color_100));
                       text_align: LEFT
                       width: 20 # 24
                       height: 20
@@ -1549,25 +1595,27 @@ lvgl:
           radius: 0
           widgets:
             - obj:
+                id: settings_status_bar_top_bar
                 x: 0
                 y: 4
                 width: 480
                 height: 18
-                border_color: ${COLOR_MAIN_75}
+                border_color: !lambda return lv_color_hex(id(color_75));
                 border_width: 10
                 border_side:
                   - TOP
                 radius: 10
                 pad_all: 0
-                bg_color: 0x000000
+                bg_color: 0
             - label:
+                id: settings_status_bar_top_title
                 x: 195
                 y: 0
                 width: 90
                 bg_opa: COVER
                 text_font: MONTSERRAT_BOLD_FONT_14
+                text_color: !lambda return lv_color_hex(id(color_75));
                 text_align: CENTER
-                text_color: ${COLOR_MAIN_75}
                 text: "SETTINGS"
                 clickable: true
                 on_press:
@@ -1575,12 +1623,13 @@ lvgl:
                   - script.execute: show_temperatures_page
 
             - label: # version
+                id: settings_status_bar_top_version
                 x: 260
                 y: 4
                 width: 200
                 text_font: MONTSERRAT_10
+                text_color: !lambda return lv_color_hex(id(color_25));
                 text_align: RIGHT
-                text_color: ${COLOR_MAIN_25}
                 bg_opa: TRANSP
                 text: ${version}
                 clickable: true
@@ -1608,7 +1657,7 @@ lvgl:
                 y: 180
                 width: 220
                 text_align: LEFT
-                text_color: ${COLOR_GOOD}
+                text_color: !lambda return lv_color_hex(id(color_good));
                 text_font: MONTSERRAT_14
                 text: "Latest version"
                 hidden: !lambda |-
@@ -1621,7 +1670,7 @@ lvgl:
                 y: 200
                 width: 220
                 text_align: LEFT
-                text_color: ${COLOR_GOOD}
+                text_color: !lambda return lv_color_hex(id(color_good));
                 text_font: MONTSERRAT_14
                 text: !lambda |-
                   return id(latest_version).c_str();
@@ -1630,19 +1679,21 @@ lvgl:
                   std::string v_latest = id(latest_version);
                   return (v == v_latest);
             - label:
+                id: current_version_label1
                 x: 10
                 y: 240
                 width: 220
                 text_align: LEFT
-                text_color: ${COLOR_MAIN_75}
+                text_color: !lambda return lv_color_hex(id(color_75));
                 text_font: MONTSERRAT_14
                 text: "Current version"
             - label:
+                id: current_version_label2
                 x: 10
                 y: 260
                 width: 220
                 text_align: LEFT
-                text_color: ${COLOR_MAIN_75}
+                text_color: !lambda return lv_color_hex(id(color_75));
                 text_font: MONTSERRAT_14
                 text: ${version}
             - qrcode:
@@ -1651,7 +1702,7 @@ lvgl:
                 size: 250
                 width: 250
                 height: 250
-                light_color: ${COLOR_MAIN_75}
+                light_color: 0xbfbfbf
                 dark_color: 0x000000
                 text: ${url_qrcode}
                 clickable: true
@@ -1673,25 +1724,27 @@ lvgl:
       pad_all: 0
       widgets:
         - obj:  # only for drawing the horizontal divider
+            id: zones_bar
             x: 0
             y: 32
             width: 480
             height: 20
-            border_color: ${COLOR_MAIN_75}
+            border_color: !lambda return lv_color_hex(id(color_75));
             border_width: 10
             border_side:
               - TOP
             radius: 10
             pad_all: 0
-            bg_color: 0x000000
+            bg_color: 0
         - label:
+            id: zones_title
             x: 210
             y: 28
             width: 62
             bg_opa: COVER
             text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
-            text_color: ${COLOR_MAIN_75}
+            text_color: !lambda return lv_color_hex(id(color_75));
             text: "ZONES"
 
         - obj:  # zones
@@ -1702,7 +1755,7 @@ lvgl:
             pad_all: 0
             border_width: 0
             radius: 0
-            bg_color: 0x000000
+            bg_color: 0
             widgets:
               - obj:  # zone 1
                   id: zone1_obj
@@ -1731,18 +1784,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: zone1_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: zone1_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: zone1_label
@@ -1754,9 +1809,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(zone1_limit_value) != 0) && (id(zone1_value) >= id(zone1_limit_value)) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone1_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -1772,17 +1827,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone1_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: zone1_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: zone1_limit_label
                         x: 17
@@ -1791,7 +1847,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone1_limit_value) == 0 ) {
                             return (" ");
@@ -1800,11 +1856,11 @@ lvgl:
                     - arc:
                         id: zone1_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(zone1_value) >= ${Invalid_Sensor_Value} ) {
@@ -1817,8 +1873,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone1_limit_value);
@@ -1849,18 +1904,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: zone2_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: zone2_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: zone2_label
@@ -1872,9 +1929,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(zone2_limit_value) != 0) && (id(zone2_value) >= id(zone2_limit_value)) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone2_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -1890,17 +1947,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone2_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: zone2_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: zone2_limit_label
                         x: 17
@@ -1909,7 +1967,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone2_limit_value) == 0 ) {
                             return (" ");
@@ -1918,11 +1976,11 @@ lvgl:
                     - arc:
                         id: zone2_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(zone2_value) >= ${Invalid_Sensor_Value} ) {
@@ -1935,8 +1993,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone2_limit_value);
@@ -1967,18 +2024,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: zone3_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: zone3_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: zone3_label
@@ -1990,9 +2049,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(zone3_limit_value) != 0) && (id(zone3_value) >= id(zone3_limit_value)) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone3_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -2008,17 +2067,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone3_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: zone3_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: zone3_limit_label
                         x: 17
@@ -2027,7 +2087,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone3_limit_value) == 0 ) {
                             return (" ");
@@ -2036,11 +2096,11 @@ lvgl:
                     - arc:
                         id: zone3_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(zone3_value) >= ${Invalid_Sensor_Value} ) {
@@ -2053,8 +2113,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone3_limit_value);
@@ -2085,18 +2144,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: zone4_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: zone4_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: zone4_label
@@ -2108,9 +2169,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(zone4_limit_value) != 0) && (id(zone4_value) >= id(zone4_limit_value)) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone4_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -2127,17 +2188,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(zone4_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: zone4_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: zone4_limit_label
                         x: 17
@@ -2146,7 +2208,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(zone4_limit_value) == 0 ) {
                             return (" ");
@@ -2155,11 +2217,11 @@ lvgl:
                     - arc:
                         id: zone4_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(zone4_value) >= ${Invalid_Sensor_Value} ) {
@@ -2172,32 +2234,30 @@ lvgl:
                         min_value: 1
                         max_value: ${Zone_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone4_limit_value);
 
         - obj:  # only for drawing the horizontal divider
+            id: probes_bar
             x: 0
             y: 165
             width: 480
-            height: 138 # 128
-            border_color: ${COLOR_MAIN_75}
+            border_color: !lambda return lv_color_hex(id(color_75));
+            height: 138
             border_width: 10
             border_side:
               - TOP
             radius: 10
             pad_all: 0
         - label:
+            id: probes_title
             y: 161
             bg_opa: COVER
             text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
-            text_color: ${COLOR_MAIN_75}
-            # x: 199
-            # width: 82
-            # text: "SENSORS"
+            text_color: !lambda return lv_color_hex(id(color_75));
             x: 146
             width: 188
             text: "TEMPERATURE PROBES"
@@ -2210,7 +2270,7 @@ lvgl:
             pad_all: 0
             border_width: 0
             radius: 0
-            bg_color: 0x000000
+            bg_color: 0
             widgets:              
               - obj: # sensor 1
                   id: sensor1_obj
@@ -2246,18 +2306,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: sensor1_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: sensor1_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: sensor1_battery
@@ -2270,9 +2332,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 0)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[0] < 20){                      
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_GOOD});
+                          return lv_color_hex(id(color_good));
                         text: !lambda |-
                           int v = id(meater_values_battery)[0];
                           if (v > 80) {
@@ -2298,9 +2360,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(sensor1_limit_value) != 0) && ((id(sensor1_value) >= id(sensor1_limit_value) || id(sensor1_value) >= ${Invalid_Sensor_Value})) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor1_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -2316,17 +2378,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(sensor1_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: sensor1_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: sensor1_limit_label
                         x: 17
@@ -2335,7 +2398,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor1_limit_value) == 0 ) {
                             return (" ");
@@ -2344,11 +2407,11 @@ lvgl:
                     - arc:
                         id: sensor1_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(sensor1_value) >= ${Invalid_Sensor_Value}) {
@@ -2361,8 +2424,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor1_limit_value);
@@ -2400,18 +2462,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: sensor2_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: sensor2_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: sensor2_battery
@@ -2424,9 +2488,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 1)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[1] < 20){                      
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_GOOD});
+                          return lv_color_hex(id(color_good));
                         text: !lambda |-
                           int v = id(meater_values_battery)[1];
                           if (v > 80) {
@@ -2452,9 +2516,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(sensor2_limit_value) != 0) && ((id(sensor2_value) >= id(sensor2_limit_value) || id(sensor2_value) >= ${Invalid_Sensor_Value})) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor2_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -2470,17 +2534,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(sensor2_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: sensor2_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: sensor2_limit_label
                         x: 17
@@ -2489,7 +2554,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor2_limit_value) == 0 ) {
                             return (" ");
@@ -2498,11 +2563,11 @@ lvgl:
                     - arc:
                         id: sensor2_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(sensor2_value) >= ${Invalid_Sensor_Value}) {
@@ -2515,8 +2580,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor2_limit_value);
@@ -2554,18 +2618,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: sensor3_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: sensor3_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: sensor3_battery
@@ -2578,9 +2644,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 2)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[2] < 20){                      
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_GOOD});
+                          return lv_color_hex(id(color_good));
                         text: !lambda |-
                           int v = id(meater_values_battery)[2];
                           if (v > 80) {
@@ -2606,9 +2672,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(sensor3_limit_value) != 0) && ((id(sensor3_value) >= id(sensor3_limit_value) || id(sensor3_value) >= ${Invalid_Sensor_Value})) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor3_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -2624,17 +2690,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(sensor3_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: sensor3_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: sensor3_limit_label
                         x: 17
@@ -2643,7 +2710,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor3_limit_value) == 0 ) {
                             return (" ");
@@ -2652,11 +2719,11 @@ lvgl:
                     - arc:
                         id: sensor3_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(sensor3_value) >= ${Invalid_Sensor_Value}) {
@@ -2669,8 +2736,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor3_limit_value);
@@ -2708,18 +2774,20 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
                   widgets:
                     - label:
+                        id: sensor4_obj_unit
                         x: 0
                         y: 96
                         text_font: MONTSERRAT_12
                         text: '°C'
-                        text_color: ${COLOR_MAIN_75}
+                        text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
+                        id: sensor4_label_shadow
                         x: 17
                         y: 40
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
                     - label:
                         id: sensor4_battery
@@ -2732,9 +2800,9 @@ lvgl:
                           return (id(active_meaters) & (1 << 3)) == 0;
                         text_color: !lambda |-
                           if (id(meater_values_battery)[3] < 20){                      
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_GOOD});
+                          return lv_color_hex(id(color_good));
                         text: !lambda |-
                           int v = id(meater_values_battery)[3];
                           if (v > 80) {
@@ -2760,9 +2828,9 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_color: !lambda |-
                           if( (id(sensor4_limit_value) != 0) && ((id(sensor4_value) >= id(sensor4_limit_value) || id(sensor4_value) >= ${Invalid_Sensor_Value})) ) {
-                            return lv_color_hex(${COLOR_BAD});
+                            return lv_color_hex(id(color_bad));
                           }
-                          return lv_color_hex(${COLOR_MAIN_100});
+                          return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor4_value) >= ${Invalid_Sensor_Value}) {
                             return ("---");
@@ -2778,17 +2846,18 @@ lvgl:
                         text: "\U000F009A"
                         text_color: !lambda |-
                           if ( id(sensor4_limit_value) != 0) {
-                            return lv_color_hex(${COLOR_MAIN_100});
+                            return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(${COLOR_MAIN_25});
+                          return lv_color_hex(id(color_25));
                     - label:  # background
+                        id: sensor4_limit_label_shadow
                         x: 17
                         y: 68
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: ${COLOR_MAIN_25}
+                        text_color: !lambda return lv_color_hex(id(color_25));
                     - label:
                         id: sensor4_limit_label
                         x: 17
@@ -2797,7 +2866,7 @@ lvgl:
                         bg_opa: TRANSP
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
-                        text_color: ${COLOR_MAIN_100}
+                        text_color: !lambda return lv_color_hex(id(color_100));
                         text: !lambda |-
                           if( id(sensor4_limit_value) == 0 ) {
                             return (" ");
@@ -2806,11 +2875,11 @@ lvgl:
                     - arc:
                         id: sensor4_arc
                         styles: arc_value_style
+                        arc_color: !lambda return lv_color_hex(id(color_25));
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
                           if( id(sensor4_value) >= ${Invalid_Sensor_Value}) {
@@ -2823,8 +2892,7 @@ lvgl:
                         min_value: 1
                         max_value: ${Sensor_Max}
                         indicator:
-                          arc_color: ${COLOR_MAIN_100}
-                          arc_rounded: false
+                          arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor4_limit_value);
@@ -2835,46 +2903,54 @@ lvgl:
       pad_all: 0
       widgets:
         - obj:
+            id: timer_bar
             x: 0
             y: 32
             width: 480
             height: 20
-            border_color: ${COLOR_MAIN_75}
+            border_color: !lambda return lv_color_hex(id(color_75));
             border_width: 10
             border_side:
               - TOP
             radius: 10
             pad_all: 0
-            bg_color: 0x000000
+            bg_color: 0
         - label:
+            id: timer_title
             x: 157
             y: 28
             width: 166
             bg_opa: COVER
             text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
-            text_color: ${COLOR_MAIN_75}
+            text_color: !lambda return lv_color_hex(id(color_75));
             text: "COUNTDOWN TIMER"
 
         - label:
+            id: timer_unit_h
             x: 120
             y: 70
             width: 50
             text_font: MONTSERRAT_20
+            text_color: !lambda return lv_color_hex(id(color_100));
             text_align: CENTER
             text: "H"
         - label:
+            id: timer_unit_m
             x: 215
             y: 70
             width: 50
             text_font: MONTSERRAT_20
+            text_color: !lambda return lv_color_hex(id(color_100));
             text_align: CENTER
             text: "M"
         - label:
+            id: timer_unit_s
             x: 310
             y: 70
             width: 50
             text_font: MONTSERRAT_20
+            text_color: !lambda return lv_color_hex(id(color_100));
             text_align: CENTER
             text: "S"
 
@@ -2882,16 +2958,24 @@ lvgl:
             id: timer_roller_h
             x: 115
             y: 100
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            text_color: !lambda return lv_color_hex(id(color_25));
+            border_color: !lambda return lv_color_hex(id(color_50));
+            selected:
+              text_color: !lambda return lv_color_hex(id(color_100));
+              bg_color: !lambda return lv_color_hex(id(color_25));
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
             on_value:
               - lambda: |-
                   id(helper_h) = x;
 
         - label:
+            id: timer_sep1
             x: 180
             y: 154
             width: 30
             text_font: MONTSERRAT_20
+            text_color: !lambda return lv_color_hex(id(color_100));
             text_align: CENTER
             text: ":"
 
@@ -2899,15 +2983,23 @@ lvgl:
             id: timer_roller_m
             x: 210
             y: 100
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            text_color: !lambda return lv_color_hex(id(color_25));
+            border_color: !lambda return lv_color_hex(id(color_50));
+            selected:
+              text_color: !lambda return lv_color_hex(id(color_100));
+              bg_color: !lambda return lv_color_hex(id(color_25));
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             on_value:
               - lambda: |-
                   id(helper_m) = x;
         - label:
+            id: timer_sep2
             x: 275
             y: 154
             width: 30
             text_font: MONTSERRAT_20
+            text_color: !lambda return lv_color_hex(id(color_100));
             text_align: CENTER
             text: ":"
 
@@ -2915,23 +3007,33 @@ lvgl:
             id: timer_roller_s
             x: 305
             y: 100
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            text_color: !lambda return lv_color_hex(id(color_25));
+            border_color: !lambda return lv_color_hex(id(color_50));
+            selected:
+              text_color: !lambda return lv_color_hex(id(color_100));
+              bg_color: !lambda return lv_color_hex(id(color_25));
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             on_value:
               - lambda: |-
                   id(helper_s) = x;
 
         - button:
+            id: timer_button_clear
             x: 12
             y: 60
             width: 70
             height: 200
-            bg_color: ${COLOR_MAIN_50}
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            shadow_color: !lambda return lv_color_hex(id(color_25));
             widgets:
               - label:
+                  id: timer_button_clear_label
                   align: CENTER
                   text_font: MONTSERRAT_26
+                  text_color: !lambda return lv_color_hex(id(color_100));
+                  bg_color: !lambda return lv_color_hex(id(color_50));
                   text: "CLR"
-                  bg_color: ${COLOR_MAIN_50}
             on_click:
               then:
                 - lvgl.roller.update:
@@ -2948,17 +3050,21 @@ lvgl:
                     hidden: !lambda |-
                       return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
         - button:
+            id: timer_button_set
             x: 398
             y: 60
             width: 70
             height: 200
-            bg_color: ${COLOR_MAIN_50}
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            shadow_color: !lambda return lv_color_hex(id(color_25));
             widgets:
               - label:
+                  id: timer_button_set_label
                   align: CENTER
                   text_font: MONTSERRAT_26
+                  text_color: !lambda return lv_color_hex(id(color_100));
+                  bg_color: !lambda return lv_color_hex(id(color_50));
                   text: "SET"
-                  bg_color: ${COLOR_MAIN_50}
             on_click:
               - lambda: |-
                   id(timer_h) = id(helper_h);
@@ -3070,17 +3176,18 @@ lvgl:
               id(last_sensor_lower_digits) = id(sensor_limit_value) % 100;
       widgets:
         - obj:
+            id: sensor_limit_headline_bar
             x: 0
             y: 32
             width: 480
             height: 20
-            border_color: ${COLOR_MAIN_75}
+            border_color: !lambda return lv_color_hex(id(color_75));
             border_width: 10
             border_side:
               - TOP
             radius: 10
             pad_all: 0
-            bg_color: 0x000000
+            bg_color: 0
         - label:
             id: sensor_limit_headline_label
             x: 170
@@ -3089,15 +3196,16 @@ lvgl:
             bg_opa: COVER
             text_font: MONTSERRAT_BOLD_FONT_14
             text_align: CENTER
-            text_color: ${COLOR_MAIN_75}
+            text_color: !lambda return lv_color_hex(id(color_75));
             text: "SENSOR 1 ALARM"
         - label:
+            id: sensor_limits_min_value
             x: 22
             y: 110
             width: 40
             text_font: MONTSERRAT_16
             text_align: CENTER
-            text_color: ${COLOR_MAIN_50}
+            text_color: !lambda return lv_color_hex(id(color_50));
             text: "0"
         - label:
             id: sensor_limits_max_value
@@ -3106,7 +3214,7 @@ lvgl:
             width: 40
             text_font: MONTSERRAT_16
             text_align: CENTER
-            text_color: ${COLOR_MAIN_50}
+            text_color: !lambda return lv_color_hex(id(color_50));
             text: !lambda |-
               return to_string(static_cast<int>(id(sensor_max_value)));
         - slider:
@@ -3115,10 +3223,15 @@ lvgl:
             y: 80
             height: 15
             width: 396
+            bg_color: !lambda return lv_color_hex(id(color_25));
             min_value: 0
             max_value: ${Zone_Max}
             value: !lambda return id(sensor_limit_value);
             adv_hittest: true
+            indicator:
+              bg_color: !lambda return lv_color_hex(id(color_50));
+            knob:
+              bg_color: !lambda return lv_color_hex(id(color_100));
             on_value:
               - lambda: id(sensor_limit_value) = x;
               - lvgl.label.update:
@@ -3183,6 +3296,12 @@ lvgl:
             id: sensor_limits_hundreds_roller
             x: 145
             y: 130
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            text_color: !lambda return lv_color_hex(id(color_25));
+            border_color: !lambda return lv_color_hex(id(color_50));
+            selected:
+              text_color: !lambda return lv_color_hex(id(color_100));
+              bg_color: !lambda return lv_color_hex(id(color_25));
             text_font: MONTSERRAT_20
             options: [] # dynamically set
             on_value:
@@ -3239,6 +3358,12 @@ lvgl:
             id: sensor_limits_tens_roller
             x: 210
             y: 130
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            text_color: !lambda return lv_color_hex(id(color_25));
+            border_color: !lambda return lv_color_hex(id(color_50));
+            selected:
+              text_color: !lambda return lv_color_hex(id(color_100));
+              bg_color: !lambda return lv_color_hex(id(color_25));
             options: [] # dynamically set
             on_value:
               - lambda: |-
@@ -3272,6 +3397,12 @@ lvgl:
             id: sensor_limits_ones_roller
             x: 275
             y: 130
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            text_color: !lambda return lv_color_hex(id(color_25));
+            border_color: !lambda return lv_color_hex(id(color_50));
+            selected:
+              text_color: !lambda return lv_color_hex(id(color_100));
+              bg_color: !lambda return lv_color_hex(id(color_25));
             options: [] # dynamically set
             on_value:
               - lambda: |-
@@ -3284,9 +3415,11 @@ lvgl:
                   lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
                   id(last_sensor_lower_digits) = val % 100;
         - label:
+            id: sensor_limits_unit
             x: 342
             y: 183
             text_font: MONTSERRAT_20
+            text_color: !lambda return lv_color_hex(id(color_100));
             text_align: LEFT
             text: "°C"
 
@@ -3300,17 +3433,21 @@ lvgl:
             text_color: 0 # not visible - for debugging slider + rollers + stored value
 
         - button:
+            id: sensor_limits_button_clear
             x: 12
             y: 160
             width: 70
             height: 100
-            bg_color: ${COLOR_MAIN_50}
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            shadow_color: !lambda return lv_color_hex(id(color_25));
             widgets:
               - label:
+                  id: sensor_limits_button_clear_label
                   align: CENTER
                   text_font: MONTSERRAT_26
+                  text_color: !lambda return lv_color_hex(id(color_100));
+                  bg_color: !lambda return lv_color_hex(id(color_50));
                   text: "CLR"
-                  bg_color: ${COLOR_MAIN_50}
             on_click:
               then:
                 - lambda: |-
@@ -3324,17 +3461,21 @@ lvgl:
                     lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, 0, LV_ANIM_ON);
                     lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, 0, LV_ANIM_ON);
         - button:
+            id: sensor_limits_button_okay
             x: 398
             y: 160
             width: 70
             height: 100
-            bg_color: ${COLOR_MAIN_50}
+            bg_color: !lambda return lv_color_hex(id(color_50));
+            shadow_color: !lambda return lv_color_hex(id(color_25));
             widgets:
               - label:
+                  id: sensor_limits_button_okay_label
                   align: CENTER
                   text_font: MONTSERRAT_26
+                  text_color: !lambda return lv_color_hex(id(color_100));
+                  bg_color: !lambda return lv_color_hex(id(color_50));
                   text: "OK"
-                  bg_color: ${COLOR_MAIN_50}
             on_click:
               then:
               - lambda: |-
@@ -3412,6 +3553,9 @@ lvgl:
               id(settings_enable_temperature_limits) = id(settings_enable_temperature_limits_persistent);
               id(settings_hide_inactive_sensors) = id(settings_hide_inactive_sensors_persistent);
 
+              id(settings_display_timeout_value) = id(settings_display_timeout_value_persistent);
+              id(settings_color_scheme_idx) = id(settings_color_scheme_idx_persistent);
+
               // Restore gas roller by value
               char gas_target[3];
               int gas_val = id(settings_min_gas_value);
@@ -3477,6 +3621,39 @@ lvgl:
                 }
                 index++;
               }
+          - lambda: |-
+              std::string roller_options;
+              int persisted_idx = id(settings_color_scheme_idx);
+              int current_idx = 0;
+              int selected_idx = 0;
+
+              // Build options string and find the correct selected index
+              for (const auto& pair : id(color_schemes)) {
+                const auto& vec = pair.second;
+
+                // Safety: skip malformed entries
+                if (vec.empty()) {
+                  current_idx++;
+                  continue;
+                }
+
+                int scheme_index = static_cast<int>(vec[0]);  // <-- this is your 0,1,2,3
+
+                if (!roller_options.empty()) roller_options += "\n";
+                roller_options += pair.first;  // display name: "white", "amber", etc.
+
+                // Match by the stored index number (0,1,2,3)
+                if (scheme_index == persisted_idx) {
+                  selected_idx = current_idx;
+                }
+
+                current_idx++;
+              }
+
+              // Apply to roller
+              lv_roller_set_options(id(settings_color_scheme_roller)->obj, roller_options.c_str(), LV_ROLLER_MODE_NORMAL);
+              lv_roller_set_selected(id(settings_color_scheme_roller)->obj, selected_idx, LV_ANIM_OFF);
+
           - lvgl.widget.refresh: [settings_wifi_ssid_textarea, settings_wifi_password_textarea]
           - lvgl.widget.update:
               id: settings_hide_soc_switch
@@ -3531,7 +3708,7 @@ lvgl:
                   y: 0
                   width: 480
                   height: 297
-                  text_color: ${COLOR_MAIN_50}
+                  text_color: !lambda return lv_color_hex(id(color_50));
                   pad_all: 0
                   content_style:
                     scrollable: false
@@ -3542,11 +3719,11 @@ lvgl:
                     text_font: ICON_FONT_24
                     width: 50
                     items:
-                      text_color: ${COLOR_MAIN_50}
+                      text_color: !lambda return lv_color_hex(id(color_50));
                       checked:
-                        bg_color: ${COLOR_MAIN_100}
-                        border_color: ${COLOR_MAIN_100}
-                        text_color: ${COLOR_MAIN_100}
+                        bg_color: !lambda return lv_color_hex(id(color_100));
+                        border_color: !lambda return lv_color_hex(id(color_100));
+                        text_color: !lambda return lv_color_hex(id(color_100));
                   on_value:
                     - lvgl.widget.hide: my_keyboard
                   tabs:
@@ -3565,10 +3742,12 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_ble_mac_title
                                   x: 0
                                   y: 35
                                   width: 380
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "MAC address\nof the G32 Connected"
                               - label:
@@ -3577,6 +3756,7 @@ lvgl:
                                   y: 90
                                   width: 170
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: !lambda |-
                                     return id(settings_g32_mac_address);
@@ -3586,6 +3766,7 @@ lvgl:
                                   y: 90
                                   width: 20
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "\uF00C"
                                   hidden: true
@@ -3595,13 +3776,16 @@ lvgl:
                                   y: 155
                                   width: 140
                                   height: 50
-                                  bg_color: ${COLOR_MAIN_50}
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  shadow_color: !lambda return lv_color_hex(id(color_25));
                                   widgets:
                                     - label:
+                                        id: settings_g32_mac_address_search_button_label
                                         align: CENTER
                                         text_font: MONTSERRAT_20
+                                        text_color: !lambda return lv_color_hex(id(color_100));
+                                        bg_color: !lambda return lv_color_hex(id(color_50));
                                         text: "Search"
-                                        bg_color: ${COLOR_MAIN_50}
                                   on_click:
                                     then:
                                       - script.execute: ble_g32_scan_start
@@ -3611,14 +3795,17 @@ lvgl:
                                   y: 155
                                   width: 140
                                   height: 50
-                                  bg_color: ${COLOR_MAIN_50}
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  shadow_color: !lambda return lv_color_hex(id(color_25));
                                   hidden: true
                                   widgets:
                                     - label:
+                                        id: settings_g32_mac_address_abort_button_label
                                         align: CENTER
                                         text_font: MONTSERRAT_20
+                                        text_color: !lambda return lv_color_hex(id(color_100));
+                                        bg_color: !lambda return lv_color_hex(id(color_50));
                                         text: "Stop"
-                                        bg_color: ${COLOR_MAIN_50}
                                   on_click:
                                     then:
                                       - script.execute: ble_g32_scan_stop
@@ -3638,18 +3825,21 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_wifi_title
                                   x: 0
                                   y: 30
                                   width: 380
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "WiFi credentials"
                               - textarea:
                                   id: settings_wifi_ssid_textarea
                                   x: 20
                                   y: 60
-                                  width: 340
-                                  height: 30
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color:  !lambda return lv_color_hex(id(color_75));
                                   placeholder_text: "SSID"
                                   one_line: true
                                   text: !lambda |-
@@ -3661,8 +3851,9 @@ lvgl:
                                   id: settings_wifi_password_textarea
                                   x: 20
                                   y: 100
-                                  width: 340
-                                  height: 30
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color:  !lambda return lv_color_hex(id(color_75));
                                   placeholder_text: "Password"
                                   one_line: true
                                   # password_mode: true  # onscreen keyboard makes this a pain to used
@@ -3687,18 +3878,19 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_hide_soc_switch_label
                                   x: 110
                                   y: 29
                                   width: 220
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "show battery level"
                               - switch:
                                   id: settings_hide_soc_switch
                                   x: 40
                                   y: 25
-                                  width: 50
-                                  height: 25
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
                                       return id(settings_hide_soc) == 0;
@@ -3707,18 +3899,19 @@ lvgl:
                                         id(settings_hide_soc) = (x == 0);
 
                               - label:
+                                  id: settings_show_time_switch_label
                                   x: 110
                                   y: 74
                                   width: 220
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "show time (requires WiFi)"
                               - switch:
                                   id: settings_show_time_switch
                                   x: 40
                                   y: 70
-                                  width: 50
-                                  height: 25
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
                                       return id(settings_show_time);
@@ -3727,18 +3920,19 @@ lvgl:
                                         id(settings_show_time) = x;
 
                               - label:
+                                  id: settings_hide_timer_switch_label
                                   x: 110
                                   y: 119
                                   width: 220
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "show countdown timer"
                               - switch:
                                   id: settings_hide_timer_switch
                                   x: 40
                                   y: 115
-                                  width: 50
-                                  height: 25
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
                                       return id(settings_hide_timer) == 0;
@@ -3747,18 +3941,19 @@ lvgl:
                                         id(settings_hide_timer) = (x == 0);
 
                               - label:
+                                  id: settings_enable_temperature_limits_switch_label
                                   x: 110
                                   y: 164
                                   width: 220
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "temperature warnings"
                               - switch:
                                   id: settings_enable_temperature_limits_switch
                                   x: 40
                                   y: 160
-                                  width: 50
-                                  height: 25
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
                                       return id(settings_enable_temperature_limits);
@@ -3767,18 +3962,19 @@ lvgl:
                                         id(settings_enable_temperature_limits) = x;
 
                               - label:
+                                  id: settings_hide_inactive_sensors_switch_label
                                   x: 110
                                   y: 209
                                   width: 220
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "hide inactive temp sensors"
                               - switch:
                                   id: settings_hide_inactive_sensors_switch
                                   x: 40
                                   y: 205
-                                  width: 50
-                                  height: 25
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
                                       return id(settings_hide_inactive_sensors);
@@ -3801,23 +3997,33 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_min_gas_title
                                   x: 0
                                   y: 35
                                   width: 190
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "Gas level\nwarning"
                               - label:
+                                  id: settings_min_gas_unit
                                   x: 131
                                   y: 144
                                   width: 20
                                   text_font: MONTSERRAT_20
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "%"
                               - roller:
                                   id: settings_min_gas_roller
                                   x: 65
                                   y: 90
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  text_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color: !lambda return lv_color_hex(id(color_50));
+                                  selected:
+                                    text_color: !lambda return lv_color_hex(id(color_100));
+                                    bg_color: !lambda return lv_color_hex(id(color_25));
                                   options: ['60','55','50','45','40','35','30','25','20','15','10','05']
                                   on_value:
                                     - lambda: |-
@@ -3836,23 +4042,33 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_min_soc_title
                                   x: 0
                                   y: 35
                                   width: 190
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "Battery level\nwarning"
                               - label:
+                                  id: settings_min_soc_unit
                                   x: 131
                                   y: 144
                                   width: 20
                                   text_font: MONTSERRAT_20
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "%"
                               - roller:
                                   id: settings_min_soc_roller
                                   x: 65
                                   y: 90
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  text_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color: !lambda return lv_color_hex(id(color_50));
+                                  selected:
+                                    text_color: !lambda return lv_color_hex(id(color_100));
+                                    bg_color: !lambda return lv_color_hex(id(color_25));
                                   options: ['50','40','30','20','10']
                                   on_value:
                                     - lambda: |-
@@ -3860,7 +4076,7 @@ lvgl:
                                         id(settings_min_soc_value) = val;
 
 
-                    - name: "\U000F17E6"  # display
+                    - name: "\U000F0208"  # display
                       id: settings_tab_display
                       pad_all: 0
                       widgets:
@@ -3875,29 +4091,91 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_display_timeout_title
                                   x: 0
                                   y: 35
-                                  width: 380
+                                  width: 190
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "Disable display\nbacklight after"
                               - label:
-                                  x: 197
+                                  id: settings_display_timeout_unit
+                                  x: 131
                                   y: 144
-                                  width: 150
+                                  width: 10
                                   text_font: MONTSERRAT_20
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
-                                  text: "seconds"
+                                  text: "s"
                               - roller:
                                   id: settings_display_timeout_roller
-                                  x: 160
+                                  x: 65
                                   y: 90
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  text_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color: !lambda return lv_color_hex(id(color_50));
+                                  selected:
+                                    text_color: !lambda return lv_color_hex(id(color_100));
+                                    bg_color: !lambda return lv_color_hex(id(color_25));
                                   options: ['0','600','300','240','180','60']
                                   on_value:
                                     - lambda: |-
                                         int val = atoi(text.c_str());
                                         id(settings_display_timeout_value) = val;
                                         // ESP_LOGI("debug", "display_imeout=%d", id(settings_display_timeout_value));
+                        - obj: # color scheme
+                            x: 190
+                            y: 0
+                            width: 190
+                            height: 297
+                            pad_all: 0
+                            border_width: 0
+                            bg_color: 0
+                            radius: 0
+                            widgets:
+                              - label:
+                                  id: settings_color_scheme_title
+                                  x: 0
+                                  y: 35
+                                  width: 190
+                                  text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  text_align: CENTER
+                                  text: "Color Scheme\nfor this UI"
+                              - roller:
+                                  id: settings_color_scheme_roller
+                                  x: 25
+                                  y: 90
+                                  width: 140
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  text_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color: !lambda return lv_color_hex(id(color_50));
+                                  selected:
+                                    text_color: !lambda return lv_color_hex(id(color_100));
+                                    bg_color: !lambda return lv_color_hex(id(color_25));
+                                  options: []  # synamically set
+                                  on_value:
+                                    - lambda: |-
+                                        // x = current selected index in the roller (0-based position in current list)
+                                        int roller_pos = x;
+                                        int current_pos = 0;
+                                        int found_scheme_idx = 0;  // default to first scheme if something goes wrong
+
+                                        for (const auto& pair : id(color_schemes)) {
+                                          const auto& vec = pair.second;
+                                          if (vec.empty()) {
+                                            current_pos++;
+                                            continue;
+                                          }
+                                          if (current_pos == roller_pos) {
+                                            found_scheme_idx = static_cast<int>(vec[0]);  // this is your 0,1,2,3 from the vector!
+                                            break;
+                                          }
+                                          current_pos++;
+                                        }
+                                        id(settings_color_scheme_idx) = found_scheme_idx;
+                                        id(apply_color_scheme).execute();
                     - name: "\U000F0238"  # Meater
                       id: settings_tab_ble_meater
                       pad_all: 0
@@ -3913,17 +4191,21 @@ lvgl:
                             radius: 0
                             widgets:
                               - label:
+                                  id: settings_meater_title
                                   x: 0
                                   y: 35
                                   width: 380
                                   text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "MAC addresses of the MEATER(R) probes"
                               - label:
+                                  id: settings_meater_hint
                                   x: 0
                                   y: 265
                                   width: 380
                                   text_font: MONTSERRAT_12
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
                                   text: "You can remove single MAC addresses by\nclicking on that address."
                               - label:
@@ -3932,6 +4214,7 @@ lvgl:
                                   y: 75
                                   width: 170
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[0];
@@ -3947,6 +4230,7 @@ lvgl:
                                   y: 75
                                   width: 20
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "\uF00C"
                                   hidden: true
@@ -3956,6 +4240,7 @@ lvgl:
                                   y: 117
                                   width: 170
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[1];
@@ -3971,6 +4256,7 @@ lvgl:
                                   y: 117
                                   width: 20
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "\uF00C"
                                   hidden: true
@@ -3980,6 +4266,7 @@ lvgl:
                                   y: 159
                                   width: 170
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[2];
@@ -3995,6 +4282,7 @@ lvgl:
                                   y: 159
                                   width: 20
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "\uF00C"
                                   hidden: true
@@ -4004,6 +4292,7 @@ lvgl:
                                   y: 201
                                   width: 170
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: !lambda |-
                                     return id(settings_meater_mac_addresses)[3];
@@ -4019,6 +4308,7 @@ lvgl:
                                   y: 201
                                   width: 20
                                   text_font: MONTSERRAT_18
+                                  text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
                                   text: "\uF00C"
                                   hidden: true
@@ -4028,13 +4318,16 @@ lvgl:
                                   y: 70
                                   width: 120
                                   height: 155
-                                  bg_color: ${COLOR_MAIN_50}
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  shadow_color: !lambda return lv_color_hex(id(color_25));
                                   widgets:
                                     - label:
+                                        id: settings_meater_mac_addresses_search_button_label
                                         align: CENTER
                                         text_font: MONTSERRAT_20
                                         text: "Search"
-                                        bg_color: ${COLOR_MAIN_50}
+                                        text_color: !lambda return lv_color_hex(id(color_100));
+                                        bg_color: !lambda return lv_color_hex(id(color_50));
                                   on_click:
                                     then:
                                       - script.execute: ble_meater_scan_start
@@ -4043,15 +4336,18 @@ lvgl:
                                   x: 230
                                   y: 70
                                   width: 120
-                                  height: 180
-                                  bg_color: ${COLOR_MAIN_50}
+                                  height: 155
+                                  bg_color: !lambda return lv_color_hex(id(color_50));
+                                  shadow_color: !lambda return lv_color_hex(id(color_25));
                                   hidden: true
                                   widgets:
                                     - label:
+                                        id: settings_meater_mac_addresses_abort_button_label
                                         align: CENTER
                                         text_font: MONTSERRAT_20
                                         text: "Stop"
-                                        bg_color: ${COLOR_MAIN_50}
+                                        text_color: !lambda return lv_color_hex(id(color_100));
+                                        bg_color: !lambda return lv_color_hex(id(color_50));
                                   on_click:
                                     then:
                                       - script.execute: ble_meater_scan_stop
@@ -4067,17 +4363,21 @@ lvgl:
                   radius: 0
                   widgets:
                     - button:  # okay
+                        id: settings_button_okay
                         x: 0
                         y: 50
                         width: 50
                         height: 90
-                        bg_color: ${COLOR_MAIN_50}
+                        bg_color: !lambda return lv_color_hex(id(color_50));
+                        shadow_color: !lambda return lv_color_hex(id(color_25));
                         widgets:
                           - label:
-                              align: CENTER
+                              id: settings_button_okay_label
                               text_font: MONTSERRAT_20
+                              text_color: !lambda return lv_color_hex(id(color_100));
+                              bg_color: !lambda return lv_color_hex(id(color_50));
+                              align: CENTER
                               text: "\uF0C7"
-                              bg_color: ${COLOR_MAIN_50}
                         on_click:
                           - lvgl.widget.hide: my_keyboard
                           - lambda: |-
@@ -4100,7 +4400,9 @@ lvgl:
 
                               id(settings_min_gas_value_persistent) = id(settings_min_gas_value);
                               id(settings_min_soc_value_persistent) = id(settings_min_soc_value);
+
                               id(settings_display_timeout_value_persistent) = id(settings_display_timeout_value);
+                              id(settings_color_scheme_idx_persistent) = id(settings_color_scheme_idx);
 
                               id(settings_hide_soc_persistent) = id(settings_hide_soc);
                               id(settings_show_time_persistent) = id(settings_show_time);
@@ -4151,21 +4453,27 @@ lvgl:
                           - lvgl.widget.show: settings_persist_hint
 
                     - button:  # abort
+                        id: settings_button_abort
                         x: 0
                         y: 155
                         width: 50
                         height: 90
-                        bg_color: ${COLOR_MAIN_50}
+                        bg_color: !lambda return lv_color_hex(id(color_50));
+                        shadow_color: !lambda return lv_color_hex(id(color_25));
                         widgets:
                           - label:
+                              id: settings_button_abort_label
                               align: CENTER
                               text_font: MONTSERRAT_20
+                              text_color: !lambda return lv_color_hex(id(color_100));
+                              bg_color: !lambda return lv_color_hex(id(color_50));
                               text: "\uF00D"
-                              bg_color: ${COLOR_MAIN_50}
                         on_click:
                           - lvgl.widget.hide: my_keyboard
                           - script.execute: apply_mac_address
                           - script.execute: show_temperatures_page
+                          - lambda: id(settings_color_scheme_idx) = id(settings_color_scheme_idx_persistent);
+                          - script.execute: apply_color_scheme
 
               - obj:
                   id: settings_persist_hint
@@ -4179,12 +4487,18 @@ lvgl:
                   pad_all: 0
                   bg_color: 0
                   hidden: true
+                  clickable: true
+                  on_click:
+                    then:
+                      - script.execute: show_temperatures_page
                   widgets:
                     - label:
+                        id: settings_persist_hint_title
                         x: 0
                         y: 35
                         width: 480
                         text_font: MONTSERRAT_14
+                        text_color: !lambda return lv_color_hex(id(color_100));                        
                         text_align: CENTER
                         text: "NOTICE:\nPersisting the settings may\ntake up to 60 seconds!\nSo wait a bit before powering off the device."
                     - button:
@@ -4193,17 +4507,17 @@ lvgl:
                         y: 155
                         width: 240
                         height: 50
-                        bg_color: ${COLOR_MAIN_50}
+                        bg_color: !lambda return lv_color_hex(id(color_50));
+                        shadow_color: !lambda return lv_color_hex(id(color_25));
                         widgets:
                           - label:
+                              id: settings_persist_hint_button_label
                               align: CENTER
                               text_font: MONTSERRAT_20
+                              text_color: !lambda return lv_color_hex(id(color_100));                              
+                              bg_color: !lambda return lv_color_hex(id(color_50));
                               width: 230
                               text: "Understood"
-                              bg_color: ${COLOR_MAIN_50}
-                        on_click:
-                          then:
-                            - script.execute: show_temperatures_page
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 sensor:
@@ -4631,9 +4945,9 @@ script:
           id: timer_value
           text_color: !lambda |-
             if( id(timer_alarm) == true ) {
-              return lv_color_hex(${COLOR_BAD});
+              return lv_color_hex(id(color_bad));
             } else {
-              return lv_color_hex(${COLOR_MAIN_100});
+              return lv_color_hex(id(color_100));
             }
 
   - id: apply_mac_address
@@ -4688,6 +5002,9 @@ script:
             - script.execute: apply_mac_address
             - script.execute: apply_wifi
             - script.execute: apply_meater_mac_addresses
+            - lambda: |-
+                id(settings_color_scheme_idx) = id(settings_color_scheme_idx_persistent);
+                id(apply_color_scheme).execute();
             - lvgl.widget.hide: boot_screen
             - lvgl.widget.show: [status_bar_top, status_bar_bottom]
 
@@ -4791,10 +5108,335 @@ script:
                     - lvgl.widget.refresh: [latest_version_label1, latest_version_label2]
                   else:
                     - logger.log:
-                        format: "HTTP request failed with status %d"
+                        format: "HTTP VersionCheck request failed with status %d"
                         args: ['response->status_code']
 
 
           on_error:
             then:
             - logger.log: "Failed to perform HTTP request for version check."
+  - id: apply_color_scheme
+    then:
+      - lambda: |-
+          int target_idx = id(settings_color_scheme_idx);   // current selected index (0,1,2,3)
+          const std::vector<uint32_t>* selected_vec = nullptr;
+          std::string selected_name = "unknown";
+
+          // First: find the matching scheme by index (vec[0])
+          for (const auto& pair : id(color_schemes)) {
+            const auto& vec = pair.second;
+            if (vec.empty()) continue;
+
+            int scheme_idx = static_cast<int>(vec[0]);   // your 0,1,2,3
+            if (scheme_idx == target_idx) {
+              selected_vec = &vec;         // remember the correct vector
+              selected_name = pair.first;  // remember the name for logging
+              break;                       // found it → exit loop early
+            }
+          }
+
+          // If nothing found (corrupted data?), fall back to first scheme (index 0)
+          if (!selected_vec) {
+            ESP_LOGW("color_scheme", "Invalid index %d → falling back to default (white)", target_idx);
+            for (const auto& pair : id(color_schemes)) {
+              const auto& vec = pair.second;
+              if (vec.empty()) continue;
+              if (static_cast<int>(vec[0]) == 0) {
+                selected_vec = &vec;
+                selected_name = pair.first;
+                id(settings_color_scheme_idx) = 0;
+                id(settings_color_scheme_idx_persistent) = 0;
+                break;
+              }
+            }
+          }
+
+          if (selected_vec && selected_vec->size() >= 8) {
+            id(color_100)   = (*selected_vec)[1];
+            id(color_75)    = (*selected_vec)[2];
+            id(color_50)    = (*selected_vec)[3];
+            id(color_25)    = (*selected_vec)[4];
+            id(color_good)  = (*selected_vec)[5];
+            id(color_bad)   = (*selected_vec)[6];
+            id(color_light) = (*selected_vec)[7];
+
+            // THIS IS THE MAGIC LINE: tells every LVGL object that styles changed
+            lv_obj_report_style_change(NULL);
+
+            ESP_LOGI("color_scheme", "Applied scheme '%s' (index %d)", selected_name.c_str(), target_idx);
+          } else {
+            ESP_LOGE("color_scheme", "Failed to apply color scheme – data corrupted");
+          }
+      - lambda: |-
+          lv_obj_set_style_arc_color(boot_spinner, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+      - lvgl.widget.refresh:
+          - cs_title
+          - battery_symbol
+          - battery_soc_shadow
+          - battery_soc_label
+          - battery_soc_label_unit
+          - g32bt_connect_label
+          - wifi_connect_label
+          - firebox_open_label
+          - light_on_label
+          - warning_on_label
+          - display_time_shadow
+          - display_time
+          - timer_value_bg
+          - timer_value
+          - gas_icon
+          - gas_percent_bar
+          - gas_percent_label_shadow
+          - gas_percent_label
+          - gas_percent_label_unit
+          - gas_weight_label_shadow
+          - gas_weight_label
+          - gas_weight_symbol
+          - settings_status_bar_top_bar
+          - settings_status_bar_top_title
+          - settings_status_bar_top_version
+          - latest_version_label1
+          - latest_version_label2
+          - current_version_label1
+          - current_version_label2
+          - zones_bar
+          - zones_title
+          - zone1_obj
+          - zone1_obj_unit
+          - zone1_label_shadow
+          - zone1_label
+          - zone1_limit_label_bell
+          - zone1_limit_label_shadow
+          - zone1_limit_label
+          - zone1_arc
+          - zone1_limit_arc
+          - zone2_obj
+          - zone2_obj_unit
+          - zone2_label_shadow
+          - zone2_label
+          - zone2_limit_label_bell
+          - zone2_limit_label_shadow
+          - zone2_limit_label
+          - zone2_arc
+          - zone2_limit_arc
+          - zone3_obj
+          - zone3_obj_unit
+          - zone3_label_shadow
+          - zone3_label
+          - zone3_limit_label_bell
+          - zone3_limit_label_shadow
+          - zone3_limit_label
+          - zone3_arc
+          - zone3_limit_arc
+          - zone4_obj
+          - zone4_obj_unit
+          - zone4_label_shadow
+          - zone4_label
+          - zone4_limit_label_bell
+          - zone4_limit_label_shadow
+          - zone4_limit_label
+          - zone4_arc
+          - zone4_limit_arc
+          - probes_bar
+          - probes_title
+          - probes_bar
+          - probes_title
+          - sensor1_obj
+          - sensor1_obj_unit
+          - sensor1_label_shadow
+          - sensor1_battery
+          - sensor1_label
+          - sensor1_limit_label_bell
+          - sensor1_limit_label_shadow
+          - sensor1_limit_label
+          - sensor1_arc
+          - sensor1_limit_arc
+          - sensor2_obj
+          - sensor2_obj_unit
+          - sensor2_label_shadow
+          - sensor2_battery
+          - sensor2_label
+          - sensor2_limit_label_bell
+          - sensor2_limit_label_shadow
+          - sensor2_limit_label
+          - sensor2_arc
+          - sensor2_limit_arc
+          - sensor3_obj
+          - sensor3_obj_unit
+          - sensor3_label_shadow
+          - sensor3_battery
+          - sensor3_label
+          - sensor3_limit_label_bell
+          - sensor3_limit_label_shadow
+          - sensor3_limit_label
+          - sensor3_arc
+          - sensor3_limit_arc
+          - sensor4_obj
+          - sensor4_obj_unit
+          - sensor4_label_shadow
+          - sensor4_battery
+          - sensor4_label
+          - sensor4_limit_label_bell
+          - sensor4_limit_label_shadow
+          - sensor4_limit_label
+          - sensor4_arc
+          - sensor4_limit_arc
+          - timer_bar
+          - timer_title
+          - timer_unit_h
+          - timer_unit_m
+          - timer_unit_s
+          - timer_roller_h
+          - timer_sep1
+          - timer_roller_m
+          - timer_sep2
+          - timer_roller_s
+          - timer_button_clear
+          - timer_button_clear_label
+          - timer_button_set
+          - timer_button_set_label
+          - sensor_limit_headline_bar
+          - sensor_limit_headline_label
+          - sensor_limits_min_value
+          - sensor_limits_max_value
+          - sensor_limit_slider
+          - sensor_limits_hundreds_roller
+          - sensor_limits_tens_roller
+          - sensor_limits_ones_roller
+          - sensor_limits_unit
+          - sensor_limits_button_clear
+          - sensor_limits_button_clear_label
+          - sensor_limits_button_okay
+          - sensor_limits_button_okay_label
+          - settings_ble_mac_title
+          - settings_mac_address_label
+          - settings_mac_address_updated
+          - settings_g32_mac_address_search_button
+          - settings_g32_mac_address_search_button_label
+          - settings_g32_mac_address_abort_button
+          - settings_g32_mac_address_abort_button_label
+          - settings_wifi_title
+          - settings_wifi_ssid_textarea
+          - settings_wifi_password_textarea
+          - settings_hide_soc_switch_label
+          - settings_hide_soc_switch
+          - settings_show_time_switch_label
+          - settings_show_time_switch
+          - settings_hide_timer_switch_label
+          - settings_hide_timer_switch
+          - settings_enable_temperature_limits_switch_label
+          - settings_enable_temperature_limits_switch
+          - settings_hide_inactive_sensors_switch_label
+          - settings_hide_inactive_sensors_switch
+          - settings_min_gas_title
+          - settings_min_gas_unit
+          - settings_min_gas_roller
+          - settings_min_soc_title
+          - settings_min_soc_unit
+          - settings_min_soc_roller
+          - settings_display_timeout_title
+          - settings_display_timeout_unit
+          - settings_display_timeout_roller
+          - settings_color_scheme_title
+          - settings_color_scheme_roller
+          - settings_meater_title
+          - settings_meater_hint
+          - settings_meater0_label
+          - settings_meater0_updated
+          - settings_meater1_label
+          - settings_meater1_updated
+          - settings_meater2_label
+          - settings_meater2_updated
+          - settings_meater3_label
+          - settings_meater3_updated
+          - settings_meater_mac_addresses_search_button
+          - settings_meater_mac_addresses_search_button_label
+          - settings_meater_mac_addresses_abort_button
+          - settings_meater_mac_addresses_abort_button_label
+          - settings_button_okay
+          - settings_button_okay_label
+          - settings_button_abort
+          - settings_button_abort_label
+          - settings_persist_hint_title
+          - settings_persist_hint_button
+          - settings_persist_hint_button_label
+
+
+      - lambda: |-
+          // Update nested parts
+          
+          lv_obj_set_style_arc_color(zone1_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone2_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone3_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone4_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone1_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone2_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone3_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(zone4_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor1_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor2_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor3_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor4_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor1_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor2_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor3_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+          lv_obj_set_style_arc_color(sensor4_limit_arc, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+
+          lv_obj_set_style_text_color(id(timer_roller_h)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(timer_roller_h)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+          lv_obj_set_style_text_color(id(timer_roller_m)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(timer_roller_m)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+          lv_obj_set_style_text_color(id(timer_roller_s)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(timer_roller_s)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+
+          lv_obj_set_style_bg_color(sensor_limit_slider, lv_color_hex(id(color_50)), LV_PART_INDICATOR);
+          lv_obj_set_style_bg_color(sensor_limit_slider, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_text_color(id(sensor_limits_hundreds_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(sensor_limits_hundreds_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+          lv_obj_set_style_text_color(id(sensor_limits_tens_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(sensor_limits_tens_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+          lv_obj_set_style_text_color(id(sensor_limits_ones_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(sensor_limits_ones_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+
+
+          static constexpr lv_style_selector_t TABITEM_CHECKED =
+              static_cast<lv_style_selector_t>(LV_PART_ITEMS) |
+              static_cast<lv_style_selector_t>(LV_STATE_CHECKED);
+          lv_obj_t * tab_btns = lv_tabview_get_tab_btns(
+              reinterpret_cast<lv_obj_t*>(settings_tabview)
+          );
+          if (tab_btns) {              
+            lv_obj_set_style_text_color(tab_btns, lv_color_hex(id(color_50)), LV_PART_ITEMS);
+            lv_obj_set_style_text_color(tab_btns, lv_color_hex(id(color_100)), TABITEM_CHECKED);
+            lv_obj_set_style_bg_color(tab_btns, lv_color_hex(id(color_100)), TABITEM_CHECKED);
+            lv_obj_set_style_border_color(tab_btns, lv_color_hex(id(color_100)), TABITEM_CHECKED);
+          }
+
+          lv_obj_set_style_text_color(settings_wifi_ssid_textarea, lv_color_hex(id(color_50)), LV_PART_TEXTAREA_PLACEHOLDER);
+          lv_obj_set_style_text_color(settings_wifi_password_textarea, lv_color_hex(id(color_50)), LV_PART_TEXTAREA_PLACEHOLDER);
+
+          lv_obj_set_style_text_color(id(settings_min_gas_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(settings_min_gas_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+          lv_obj_set_style_text_color(id(settings_min_soc_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(settings_min_soc_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+          lv_obj_set_style_text_color(id(settings_display_timeout_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(settings_display_timeout_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+
+          lv_obj_set_style_text_color(id(settings_color_scheme_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
+          lv_obj_set_style_bg_color(id(settings_color_scheme_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
+
+          static constexpr lv_style_selector_t INDICATOR_CHECKED =
+              static_cast<lv_style_selector_t>(LV_PART_INDICATOR) |
+              static_cast<lv_style_selector_t>(LV_STATE_CHECKED);
+          lv_obj_set_style_bg_color(settings_hide_soc_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_hide_soc_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+          lv_obj_set_style_bg_color(settings_show_time_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_show_time_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+          lv_obj_set_style_bg_color(settings_hide_timer_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_hide_timer_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+          lv_obj_set_style_bg_color(settings_enable_temperature_limits_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_enable_temperature_limits_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+          lv_obj_set_style_bg_color(settings_hide_inactive_sensors_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_hide_inactive_sensors_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+
+      - lvgl.widget.redraw:
