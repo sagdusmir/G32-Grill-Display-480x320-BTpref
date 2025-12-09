@@ -96,7 +96,7 @@ Some colors do look better in real life, than they do in pictures.  :)
 ![BTpref-retro2 0 0-wifi](https://github.com/user-attachments/assets/7dc43028-4d93-4fbe-bbe2-c1864379c14e)
 ![BTpref-retro2 0 0-options](https://github.com/user-attachments/assets/19b3319a-d9f6-4726-be54-1720253332d5)
 ![BTpref-retro2 0 0-warnings](https://github.com/user-attachments/assets/1e46b379-1476-4764-b74a-f269498abbbd)
-![BTpref-retro2 0 0-display](https://github.com/user-attachments/assets/19094a95-a10d-425f-a6e1-3241cfc1e4db)
+![BTpref-retro2 2 0-display](https://github.com/user-attachments/assets/6d8f0b91-ae05-4f82-b3d8-83a30ff6e5a7)
 ![BTpref-retro2 0 0-meater](https://github.com/user-attachments/assets/0d8408ab-4244-4838-aa5d-c71464d69ddc)
 ![BTpref-retro2 1 0-version](https://github.com/user-attachments/assets/a2dd64ca-0ce5-44a7-b69c-8b4dc60d78ce)
 
