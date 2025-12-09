@@ -40,7 +40,7 @@ What’s different?
 
 ## History
 * [2025-12-09] BTpref-retro 2.2.0
-   - color theme can now be changed in the settings without changing the source code
+   - color theme can now be selected in the settings without changing the source code
 * [2025-12-06] BTpref-retro 2.1.1
    - load font files from github - so now the software is only a single yaml file again
 * [2025-12-04] BTpref-retro 2.1.0
