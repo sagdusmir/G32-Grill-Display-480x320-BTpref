@@ -1,8 +1,8 @@
 # G32 Connected Grill Monitor and Display
 
-This is a fork of https://github.com/JBecker32/G32-Display-480x320-BT.
+This is a fork of https://github.com/JBecker32/G32-Display-480x320-BT
 
-Alternative version with the previous UI [Original Design](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/tree/BTpref)
+and is designed to be used with a JC3248W535C display module (display, touchscreen, and ESP32 in one nice package)
 
 The main focus is its use as a mobile grill monitor and thus also as a replacement for the Otto Wilde app / Otto Wilde Grill Buddy. The connection is made via Bluetooth Low Energy (BLE) and therefore requires no login or any OW servers at all. Tested with firmware v.1.4.5 (old firmware "v13" is known to be NOT compatible!).
 
@@ -78,6 +78,14 @@ What’s different?
    - HA integration is now fully optional but still available
 
 Other releases: see https://github.com/JBecker32/G32-Display-480x320-BT/releases
+
+## Uploading the software to the ESP ##
+
+- Install the 'esphome' command line tool
+- download this repository
+- connect the JC3248W535C
+- 'esphome run g32-display.yaml'
+  
 
 ## Impressions
 
