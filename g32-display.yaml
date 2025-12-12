@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.2.0"
+  version: "BTpref-retro 2.3.0"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 

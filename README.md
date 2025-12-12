@@ -39,6 +39,8 @@ What’s different?
 * **G32 light:** setting the brightness when the light should turn on
 
 ## History
+* [2025-12-12] BTpref-retro 2.3.0
+   - allow configuring the OTA password in the settings
 * [2025-12-09] BTpref-retro 2.2.0
    - color scheme can now be selected in the settings without changing the source code
 * [2025-12-06] BTpref-retro 2.1.1
