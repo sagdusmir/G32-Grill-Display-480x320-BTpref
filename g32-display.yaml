@@ -39,7 +39,8 @@ substitutions:
       {"white",     {0, 0xffffff, 0xbfbfbf, 0x808080, 0x404040, 0x8bff85, 0xff5757, 0xffff00}},
       {"amber",     {1, 0xffb900, 0xbd8a00, 0x805d00, 0x392900, 0x58b100, 0xff5600, 0xffff00}},
       {"cyan",      {2, 0x68e2fb, 0x00acbf, 0x007582, 0x003c43, 0x75fb8a, 0xea838d, 0xffff00}},
-      {"red light", {3, 0xff0059, 0xc00044, 0x80002e, 0x400018, 0xff0059, 0xe4d300, 0xffff00}}
+      {"red light", {3, 0xff0059, 0xc00044, 0x80002e, 0x400018, 0xff0059, 0xe4d300, 0xffff00}},
+      {"green",     {4, 0x06bd00, 0x058d00, 0x046f00, 0x003008, 0x00ff00, 0xfe3a03, 0xffff00}}
     }
 
   # shades of white (initial start values since substitutions work best)
@@ -153,6 +154,7 @@ http_request:
 
 ota:
   - platform: esphome
+    id: my_ota
     password: ${ota_password}
 
 wifi:
@@ -612,6 +614,14 @@ globals:
   - id: settings_wifi_password
     type: std::string
     initial_value: " "
+  - id: settings_ota_password_persistent
+    type: std::string
+    restore_value: true
+    initial_value: '"${ota_password}"'
+    max_restore_data_length: 65  # max password length: 64
+  - id: settings_ota_password
+    type: std::string
+    initial_value: '""'
 
   - id: color_schemes
     type: std::map<std::string, std::vector<uint32_t>>
@@ -3543,6 +3553,7 @@ lvgl:
 
               id(settings_wifi_ssid) = id(settings_wifi_ssid_persistent);
               id(settings_wifi_password) = ""; // id(settings_wifi_password_persistent);  // do not show wifi password because it would be shown to the user
+              id(settings_ota_password) = ""; // id(settings_ota_password_persistent);  // do not show wifi password because it would be shown to the user
 
               id(settings_min_gas_value) = id(settings_min_gas_value_persistent);
               id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
@@ -3654,7 +3665,7 @@ lvgl:
               lv_roller_set_options(id(settings_color_scheme_roller)->obj, roller_options.c_str(), LV_ROLLER_MODE_NORMAL);
               lv_roller_set_selected(id(settings_color_scheme_roller)->obj, selected_idx, LV_ANIM_OFF);
 
-          - lvgl.widget.refresh: [settings_wifi_ssid_textarea, settings_wifi_password_textarea]
+          - lvgl.widget.refresh: [settings_wifi_ssid_textarea, settings_wifi_password_textarea, settings_ota_password_textarea]
           - lvgl.widget.update:
               id: settings_hide_soc_switch
               state:
@@ -3845,6 +3856,9 @@ lvgl:
                                   text: !lambda |-
                                     return id(settings_wifi_ssid);
                                   on_click:
+                                    - lvgl.widget.update:
+                                        id: my_keyboard
+                                        align: BOTTOM_MID
                                     - lambda: lv_keyboard_set_textarea(id(my_keyboard)->obj, settings_wifi_ssid_textarea);
                                     - lvgl.widget.show: my_keyboard
                               - textarea:
@@ -3855,12 +3869,44 @@ lvgl:
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   border_color:  !lambda return lv_color_hex(id(color_75));
                                   placeholder_text: "Password"
+                                  max_length: 64
                                   one_line: true
-                                  # password_mode: true  # onscreen keyboard makes this a pain to used
+                                  # password_mode: true  # onscreen keyboard makes this a pain to use
                                   text: !lambda |-
                                     return id(settings_wifi_password);
                                   on_click:
+                                    - lvgl.widget.update:
+                                        id: my_keyboard
+                                        align: BOTTOM_MID
                                     - lambda: lv_keyboard_set_textarea(id(my_keyboard)->obj, settings_wifi_password_textarea);
+                                    - lvgl.widget.show: my_keyboard
+                              - label:
+                                  id: settings_ota_title
+                                  x: 0
+                                  y: 180
+                                  width: 380
+                                  text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  text_align: CENTER
+                                  text: "OTA password (should be set initially!)"
+                              - textarea:
+                                  id: settings_ota_password_textarea
+                                  x: 20
+                                  y: 210
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
+                                  border_color:  !lambda return lv_color_hex(id(color_75));
+                                  placeholder_text: "OTA Password"
+                                  max_length: 64
+                                  one_line: true
+                                  # password_mode: true  # onscreen keyboard makes this a pain to use
+                                  text: !lambda |-
+                                    return id(settings_ota_password);
+                                  on_click:
+                                    - lvgl.widget.update:
+                                        id: my_keyboard
+                                        align: TOP_MID
+                                    - lambda: lv_keyboard_set_textarea(id(my_keyboard)->obj, settings_ota_password_textarea);
                                     - lvgl.widget.show: my_keyboard
 
                     - name: "\U000F0DD0"  #  settings
@@ -4393,9 +4439,13 @@ lvgl:
 
                               id(settings_wifi_ssid) = std::string(lv_textarea_get_text(settings_wifi_ssid_textarea));
                               id(settings_wifi_password) = std::string(lv_textarea_get_text(settings_wifi_password_textarea));
+                              id(settings_ota_password) = std::string(lv_textarea_get_text(settings_ota_password_textarea));
                               id(settings_wifi_ssid_persistent) = id(settings_wifi_ssid);
                               if (!id(settings_wifi_password).empty()) {
                                 id(settings_wifi_password_persistent) = id(settings_wifi_password);
+                              }
+                              if (!id(settings_ota_password).empty()) {
+                                id(settings_ota_password_persistent) = id(settings_ota_password);
                               }
 
                               id(settings_min_gas_value_persistent) = id(settings_min_gas_value);
@@ -4433,6 +4483,7 @@ lvgl:
                               }
                           - lvgl.widget.refresh: [battery_symbol_obj, display_time]
                           - script.execute: apply_wifi
+                          - script.execute: apply_ota_password
                           - script.execute: apply_mac_address
                           - script.execute: apply_meater_mac_addresses
 
@@ -4509,6 +4560,9 @@ lvgl:
                         height: 50
                         bg_color: !lambda return lv_color_hex(id(color_50));
                         shadow_color: !lambda return lv_color_hex(id(color_25));
+                        on_click:
+                          then:
+                            - script.execute: show_temperatures_page
                         widgets:
                           - label:
                               id: settings_persist_hint_button_label
@@ -4992,7 +5046,10 @@ script:
               meaters[i]->set_address(addr);
               ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
             }
-
+  - id: apply_ota_password
+    then:
+       - lambda: !lambda |-
+           id(my_ota).set_auth_password(id(settings_ota_password_persistent));
   - id: hide_boot_screen
     then:
       - if:
@@ -5001,6 +5058,7 @@ script:
           then:
             - script.execute: apply_mac_address
             - script.execute: apply_wifi
+            - script.execute: apply_ota_password
             - script.execute: apply_meater_mac_addresses
             - lambda: |-
                 id(settings_color_scheme_idx) = id(settings_color_scheme_idx_persistent);
@@ -5318,6 +5376,8 @@ script:
           - settings_wifi_title
           - settings_wifi_ssid_textarea
           - settings_wifi_password_textarea
+          - settings_ota_title
+          - settings_ota_password_textarea
           - settings_hide_soc_switch_label
           - settings_hide_soc_switch
           - settings_show_time_switch_label
@@ -5414,6 +5474,7 @@ script:
 
           lv_obj_set_style_text_color(settings_wifi_ssid_textarea, lv_color_hex(id(color_50)), LV_PART_TEXTAREA_PLACEHOLDER);
           lv_obj_set_style_text_color(settings_wifi_password_textarea, lv_color_hex(id(color_50)), LV_PART_TEXTAREA_PLACEHOLDER);
+          lv_obj_set_style_text_color(settings_ota_password_textarea, lv_color_hex(id(color_50)), LV_PART_TEXTAREA_PLACEHOLDER);
 
           lv_obj_set_style_text_color(id(settings_min_gas_roller)->obj, lv_color_hex(id(color_100)), LV_PART_SELECTED);
           lv_obj_set_style_bg_color(id(settings_min_gas_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
