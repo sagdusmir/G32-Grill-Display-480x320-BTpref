@@ -85,11 +85,17 @@ Other releases: see https://github.com/JBecker32/G32-Display-480x320-BT/releases
 
 ## Uploading the software to the ESP ##
 
+Option A) (recommended)
+
 - Install the 'esphome' command line tool
 - download this repository
 - connect the JC3248W535C
 - 'esphome run g32-display.yaml'
-  
+
+Option B)
+
+- use the ESPHome Device Builder Add-on for Home Assistant to upload the yaml config
+
 
 ## Impressions
 ![device_assembly](https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469)
