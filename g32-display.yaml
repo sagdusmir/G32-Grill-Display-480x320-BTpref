@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.3.1"
+  version: "BTpref-retro 2.3.2"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -43,7 +43,8 @@ substitutions:
       {"night red",  {3, 0xff0059, 0xc00044, 0x80002e, 0x400018, 0xff0059, 0xe4d300, 0xffff00}},
       {"green",      {4, 0x06bd00, 0x058d00, 0x046f00, 0x003008, 0x00ff00, 0xfe3a03, 0xffff00}},
       {"night blue", {5, 0x1a00ff, 0x1300b6, 0x0d007a, 0x040028, 0x00ff4d, 0xff0092, 0xffff00}},
-      {"purple",     {6, 0xff00e4, 0xc000ac, 0x800073, 0x32002d, 0x00ffb0, 0xff1100, 0xffff00}}
+      {"purple",     {6, 0xff00e4, 0xc000ac, 0x800073, 0x32002d, 0x00ffb0, 0xff1100, 0xffff00}},
+      {"yellow",     {7, 0xffda00, 0xbea300, 0x806d00, 0x262000, 0x64dc00, 0xff5900, 0xffff00}}
     }
 
   # shades of white (initial start values since substitutions work best)
