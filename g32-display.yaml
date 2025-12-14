@@ -14,6 +14,8 @@ substitutions:
   api_encryption_key: "E1fyywUUE1DWzu0OzhDkyc4yAnfGwyEfsVNvhytrU6k="
 
   # over-the-air updates (ESPHome CLI or Home Assistant add-On)
+  # Hint: if you changed this value on the device, you might have to alter
+  # this value here to match it. esphome cli uses the value from the yaml for the ota update!
   ota_password: "7fdf9f656d36180bfba92d596c9e7db3"
 
   # Some color themes:
