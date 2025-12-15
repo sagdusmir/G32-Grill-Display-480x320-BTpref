@@ -500,7 +500,7 @@ output:
     id: rtttl_out
 
   # or a beeper with a transisitor for amplification
-  # But in my experiance it is north the effort. Similar (low) volume.
+  # But in my experience it is north the effort. Similar (low) volume.
   # - platform: ledc
   #   pin: 17
   #   id: rtttl_out
