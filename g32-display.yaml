@@ -5226,12 +5226,13 @@ script:
             id(color_bad)   = (*selected_vec)[6];
             id(color_light) = (*selected_vec)[7];
 
-            // THIS IS THE MAGIC LINE: tells every LVGL object that styles changed
+            // THIS SCHOULD BE THE MAGIC LINE: tells every LVGL object that styles changed
+            // BUT: DOES NOT WORK at the moment
             lv_obj_report_style_change(NULL);
 
             ESP_LOGI("color_scheme", "Applied scheme '%s' (index %d)", selected_name.c_str(), target_idx);
           } else {
-            ESP_LOGE("color_scheme", "Failed to apply color scheme – data corrupted");
+            ESP_LOGE("color_scheme", "Failed to apply color scheme – data invalid");
           }
       - lambda: |-
           lv_obj_set_style_arc_color(boot_spinner, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
@@ -5508,4 +5509,4 @@ script:
           lv_obj_set_style_bg_color(settings_hide_inactive_sensors_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
           lv_obj_set_style_bg_color(settings_hide_inactive_sensors_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
 
-      - lvgl.widget.redraw:
+      - lvgl.widget.redraw:  # TODO: test if this has ANY effect
