@@ -196,7 +196,7 @@ wifi:
       - lvgl.widget.refresh: wifi_connect_label
 esp32_ble:
   # 1xG32, 4xMeater probes -> maximum 5 connections needed
-  max_connections: 5  # new option since 2025-10-15, used to be under the esp32_ble_tracker component
+  max_connections: 5  # new option since 2025.10.15, used to be under the esp32_ble_tracker component
 
 esp32_ble_tracker:
   # 1xG32, 4xMeater probes -> maximum 5 connections needed
