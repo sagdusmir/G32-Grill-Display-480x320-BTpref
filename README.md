@@ -97,6 +97,16 @@ Option B) (might end up in a boot loop)
 - use the ESPHome Device Builder Add-on for Home Assistant to upload the yaml config
 
 
+## Troubleshooting ##
+
+There are currently two known issues related to using an older version of esphome.
+Both of them are very easy to fix in the YAML file:
+
+1. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation.
+
+2. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:".
+
+
 ## Impressions
 ![device_assembly](https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469)
 ![BTpref-retro2 0 0-main_view_cyan](https://github.com/user-attachments/assets/eca960b4-9641-4546-98c3-ed16e00ab826)
