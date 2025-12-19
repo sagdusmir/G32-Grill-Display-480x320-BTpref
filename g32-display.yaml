@@ -1504,17 +1504,106 @@ lvgl:
                           lv_obj_set_style_bg_color(id(gas_percent_bar), lv_color_hex(id(color_good)), LV_PART_INDICATOR);
                         }
                         return z;
-                  - label:
-                      x: 42
-                      y: 1
-                      width: 293
-                      height: 21
-                      bg_opa: TRANSP
-                      text_font: MONTSERRAT_20
-                      text_align: LEFT
-                      text_color: 0
-                      text: "  |   |   |   |   |   |   |   |   |   |   |   |   |"
-
+                  - label:  # 1/10
+                      x: 29
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 2/10
+                      x: 59
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 3/10
+                      x: 89
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 4/10
+                      x: 119
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 5/10
+                      x: 149
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 6/10
+                      x: 179
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 7/10
+                      x: 209
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 8/10
+                      x: 239
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  # 9/10
+                      x: 269
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
+                  - label:  #107/10
+                      x: 299
+                      y: 5
+                      width: 32
+                      height: 16
+                      bg_opa: TRANSP                      
+                      border_width: 2
+                      radius: 4
+                      border_color: 0
+                      text: " "
                   - label:  # gas percent label background
                       id: gas_percent_label_shadow
                       x: 331
