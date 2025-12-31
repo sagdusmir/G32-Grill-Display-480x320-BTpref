@@ -10,7 +10,7 @@ The hardware used, software installation, and all other details for this project
 
 [Case by so99hero](https://www.thingiverse.com/thing:7127557)
 
-[Case (remixed by me)](https://www.thingiverse.com/thing:7182655) that also includes a variant that can be hung to any OW module handle.
+[Case (remixed by me)](https://www.thingiverse.com/thing:7182655) that also includes a variant that can be hung to any OW module handle and an additional model that allows you to retrofit an existing case with the detachable hanger.
 
 
 What’s different?
