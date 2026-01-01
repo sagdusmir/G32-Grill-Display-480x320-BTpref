@@ -145,8 +145,8 @@ psram:
   speed: 80MHz # 120mhz is not supported and falls back to 40mhz
 
 logger:
-  baud_rate: 921600  # enable logging
-  # baud_rate: 0  # no logging -> saves power
+  # baud_rate: 921600  # enable logging
+  baud_rate: 0  # no logging -> saves power
 
 api: # enable Home Assistant API
   encryption:
