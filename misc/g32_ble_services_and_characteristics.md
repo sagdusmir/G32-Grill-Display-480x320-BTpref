@@ -47,5 +47,5 @@ Device OWG-G32C-XXXXXXXX
   - 830e02f7-843b-49c3-a4fa-613587247e6c [Read, Write]
 
 - Service dc0f41e1-b6ae-46a8-а19e-1a3bf4342bcb
-  - dcØf41e1-b6ae-46a8-a19e-1a3bf4342bcb Write]
+  - dc0f41e1-b6ae-46a8-a19e-1a3bf4342bcb Write]
   - dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb [Read, Notify]
