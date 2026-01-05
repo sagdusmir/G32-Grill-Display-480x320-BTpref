@@ -1,4 +1,4 @@
-# Services and Characteristics scan
+# BLE Services and Characteristics scan
 
 Device OWG-G32C-XXXXXXXX
 
