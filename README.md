@@ -96,7 +96,7 @@ Option A) (more reliable, recommended)
 
 Option B) (might end up in a boot loop)
 
-- use the ESPHome Device Builder Add-on for Home Assistant to upload the yaml config
+- use the ESPHome Device Builder Add-on for Home Assistant to upload the g32-display.yaml config file
 
 
 ## Troubleshooting ##
