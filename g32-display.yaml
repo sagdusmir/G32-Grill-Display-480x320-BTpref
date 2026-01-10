@@ -420,10 +420,10 @@ spi:
   data_pins: [21, 48, 40, 39]
 
 display:
-  - platform: mipi_spi
-    model: JC3248W535
-#  - platform: qspi_dbi
-#    model: axs15231
+  # - platform: mipi_spi
+  #   model: axs15231  # JC4832W535 or axs15231 / JC3248W535C variant
+  - platform: qspi_dbi
+    model: JC4832W535
     data_rate: 40MHz
     id: my_display
     spi_id: display_qspi
@@ -435,15 +435,16 @@ display:
       ignore_strapping_warning: true
     rotation: 90  # 90 for landscape, 270 for landscape inverted
     auto_clear_enabled: false  # has to be set to 'false' for lvgl
+    update_interval: never  # LVGL handles rendering
 
 #-------------------------------------------
 # Touchscreen gt911 i2c
 #-------------------------------------------
 i2c:
-  sda: 4
-  scl: 8
-  id: touchscreen_bus
-# scan: true
+  - id: touchscreen_bus
+    sda: GPIO4
+    scl: GPIO8
+    scan: false
 
 touchscreen:
   - platform: axs15231
