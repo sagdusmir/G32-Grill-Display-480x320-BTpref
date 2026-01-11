@@ -42,7 +42,7 @@ What’s different?
 * [2026-01-11] BTpref-retro 2.4.0
    - reduced UI with increased temperature font size if temperature alarms are disabled
    - new option in settings: "dynamic temp. warning info"
-     This will automatically switch between old UI and reduced UI depending on if a temperature alarm was configured.
+     will automatically switch between old UI and reduced UI depending on if a temperature alarm was configured (disabled by default).
    - bugfix: scanning for meater probes does not reset all mac addresses any more
 * [2025-12-19] BTpref-retro 2.3.3
    - gas level indicator bar segmentation now makes sense
