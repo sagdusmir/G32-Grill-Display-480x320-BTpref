@@ -17,7 +17,7 @@ What’s different?
 
 * integration with Home Assistant is now optional
 * no source code modifications required (only for setting the Home Assistant API token)
-* most settings can be configured directly via the device’s touchscreen (unfortunately the Home Assistant "API encryption key" cannot be updated dynamically - this must be known at compile time)
+* most settings can be configured directly via the device’s touchscreen (unfortunately the Home Assistant "API encryption key" cannot be updated dynamically - it is required at compile time)
 * adjustments to the user interface
 
 
@@ -27,7 +27,7 @@ What’s different?
 * **Gas level monitoring:** reads the weight determined by the "Gas Buddy"
 * **Alarms:** temperature alarms can be set for zones and temperature sensors, which can also be signaled acoustically via an integrated optional beeper (touch on the vizualisation of a zone or temp probe)
 * **Timer:** set a countdown timer after which an acoustic alarm sounds (touch the top center)
-* **Display mode:** the two previously existing display modes have been merged into one (numbers + arcs)
+* **Display mode:** the two previously existing display modes have been merged into one
 * **Status:** visualize connection status (WLAN/BLE) and information from the grill itself
 * **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
 * **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left)
