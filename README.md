@@ -124,11 +124,13 @@ Both of them are very easy to fix in the YAML file:
 ![BTpref-retro2 0 0-timer](https://github.com/user-attachments/assets/fe0e1212-1340-475d-b816-25a6abb685c0)
 ![BTpref-retro2 0 0-mac_address](https://github.com/user-attachments/assets/bd0b3435-790f-4acd-af92-3104471958ae)
 ![BTpref-retro2 3 0-wifi](https://github.com/user-attachments/assets/35becd29-fdcb-43d7-98a9-295b38a00ef4)
-![BTpref-retro2 3 1-options](https://github.com/user-attachments/assets/b6e9c2d8-9c50-45ff-9c59-34328ca54e4e)
+![BTpref-retro2 4 0-options](https://github.com/user-attachments/assets/ffce5ac6-7dd9-40de-8065-80f8ed486f1a)
 ![BTpref-retro2 3 1-warnings](https://github.com/user-attachments/assets/6b73301e-6cd6-405d-8f65-c555cd4398c3)
 ![BTpref-retro2 2 0-display](https://github.com/user-attachments/assets/8848e7dd-ddc9-4c12-a840-eedf1176ef42)
 ![BTpref-retro2 0 0-meater](https://github.com/user-attachments/assets/344972be-d253-450e-8157-0753d1509755)
 ![BTpref-retro2 1 0-version](https://github.com/user-attachments/assets/cc267afa-6d3d-407d-ba66-0fad921ef926)
+![BTpref-retro2 4 0-reduced-temp-alarm-info](https://github.com/user-attachments/assets/94bd44cf-5bbd-4d45-9673-ba5b1ec7d3ea)
+
 
 
 # Acknowledgments
