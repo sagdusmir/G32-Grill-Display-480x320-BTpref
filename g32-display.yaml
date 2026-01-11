@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.3.3"
+  version: "BTpref-retro 2.4.0"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -351,7 +351,9 @@ ble_client:
             id: active_sensors
             value: "0"
         - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
+        - lvgl.widget.refresh: [zone1_label_large, zone2_label_large, zone3_label_large, zone4_label_large]
         - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+        - lvgl.widget.refresh: [sensor1_label_large, sensor2_label_large, sensor3_label_large, sensor4_label_large]
 
   - mac_address: ${meater_mac_address}
     id: meater0
@@ -831,6 +833,13 @@ globals:
   - id: settings_enable_temperature_limits
     type: bool
     initial_value: 'true'
+  - id: settings_enable_auto_hiding_temperature_limits_persistent
+    type: bool
+    initial_value: 'false'
+    restore_value: true
+  - id: settings_enable_auto_hiding_temperature_limits
+    type: bool
+    initial_value: 'false'
   - id: settings_hide_inactive_sensors_persistent
     type: bool
     initial_value: 'false'
@@ -896,6 +905,23 @@ font:
     size: 12
     glyphs:
       - "\U000F009A" # mdi-bell
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
+    id: SEGMENT_FONT_37
+    size: 37
+    glyphs:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "-"
+      - " "
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_22
@@ -1907,6 +1933,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
                     - label:
                         id: zone1_label
                         x: 17
@@ -1925,6 +1954,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(zone1_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
+                    - label:  # background large
+                        id: zone1_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value)));
+                    - label:
+                        id: zone1_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(zone1_limit_value) != 0) && (id(zone1_value) >= id(zone1_limit_value)) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(zone1_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(zone1_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value)));
                     - label:  # alarm bell
                         id: zone1_limit_label_bell
                         x: 87
@@ -1938,6 +2003,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
                     - label:  # background
                         id: zone1_limit_label_shadow
                         x: 17
@@ -1947,6 +2015,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
                     - label:
                         id: zone1_limit_label
                         x: 17
@@ -1961,6 +2032,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(zone1_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
                     - arc:
                         id: zone1_arc
                         styles: arc_value_style
@@ -1985,6 +2059,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone1_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
               - obj:  # zone 2
                   id: zone2_obj
                   x: 120
@@ -2027,6 +2104,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
                     - label:
                         id: zone2_label
                         x: 17
@@ -2045,6 +2125,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(zone2_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
+                    - label:  # background large
+                        id: zone2_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value)));
+                    - label:
+                        id: zone2_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(zone2_limit_value) != 0) && (id(zone2_value) >= id(zone2_limit_value)) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(zone2_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(zone2_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value)));
                     - label:  # alarm bell
                         id: zone2_limit_label_bell
                         x: 87
@@ -2058,6 +2174,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
                     - label:  # background
                         id: zone2_limit_label_shadow
                         x: 17
@@ -2067,6 +2186,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
                     - label:
                         id: zone2_limit_label
                         x: 17
@@ -2081,6 +2203,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(zone2_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
                     - arc:
                         id: zone2_arc
                         styles: arc_value_style
@@ -2105,6 +2230,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone2_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
               - obj:  # zone 3
                   id: zone3_obj
                   x: 240
@@ -2147,6 +2275,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
                     - label:
                         id: zone3_label
                         x: 17
@@ -2165,6 +2296,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(zone3_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
+                    - label:  # background large
+                        id: zone3_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value)));
+                    - label:
+                        id: zone3_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(zone3_limit_value) != 0) && (id(zone3_value) >= id(zone3_limit_value)) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(zone3_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(zone3_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value)));
                     - label:  # alarm bell
                         id: zone3_limit_label_bell
                         x: 87
@@ -2178,6 +2345,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
                     - label:  # background
                         id: zone3_limit_label_shadow
                         x: 17
@@ -2187,6 +2357,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
                     - label:
                         id: zone3_limit_label
                         x: 17
@@ -2201,6 +2374,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(zone3_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
                     - arc:
                         id: zone3_arc
                         styles: arc_value_style
@@ -2225,6 +2401,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone3_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
               - obj:  # zone 4
                   id: zone4_obj
                   x: 360
@@ -2267,6 +2446,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
                     - label:
                         id: zone4_label
                         x: 17
@@ -2285,6 +2467,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(zone4_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
+                    - label:  # background large
+                        id: zone4_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value)));
+                    - label:
+                        id: zone4_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(zone4_limit_value) != 0) && (id(zone4_value) >= id(zone4_limit_value)) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(zone4_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(zone4_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value)));
                     - label:  # alarm bell
                         id: zone4_limit_label_bell
                         x: 87
@@ -2299,6 +2517,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
                     - label:  # background
                         id: zone4_limit_label_shadow
                         x: 17
@@ -2308,6 +2529,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
                     - label:
                         id: zone4_limit_label
                         x: 17
@@ -2322,6 +2546,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(zone4_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
                     - arc:
                         id: zone4_arc
                         styles: arc_value_style
@@ -2346,6 +2573,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(zone4_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
 
         - obj:  # only for drawing the horizontal divider
             id: probes_bar
@@ -2429,6 +2659,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
                     - label:
                         id: sensor1_battery
                         x: 52
@@ -2476,6 +2709,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(sensor1_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
+                    - label:  # background large
+                        id: sensor1_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value)));
+                    - label:
+                        id: sensor1_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(sensor1_limit_value) != 0) && ((id(sensor1_value) >= id(sensor1_limit_value) || id(sensor1_value) >= ${Invalid_Sensor_Value})) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(sensor1_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(sensor1_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value)));
                     - label:  # alarm bell
                         id: sensor1_limit_label_bell
                         x: 87
@@ -2489,6 +2758,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
                     - label:  # background
                         id: sensor1_limit_label_shadow
                         x: 17
@@ -2498,6 +2770,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
                     - label:
                         id: sensor1_limit_label
                         x: 17
@@ -2512,6 +2787,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(sensor1_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
                     - arc:
                         id: sensor1_arc
                         styles: arc_value_style
@@ -2536,6 +2814,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor1_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
               - obj: # sensor 2
                   id: sensor2_obj
                   x: 120
@@ -2585,6 +2866,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
                     - label:
                         id: sensor2_battery
                         x: 52
@@ -2632,6 +2916,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(sensor2_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
+                    - label:  # background large
+                        id: sensor2_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value)));
+                    - label:
+                        id: sensor2_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(sensor2_limit_value) != 0) && ((id(sensor2_value) >= id(sensor2_limit_value) || id(sensor2_value) >= ${Invalid_Sensor_Value})) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(sensor2_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(sensor2_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value)));
                     - label:  # alarm bell
                         id: sensor2_limit_label_bell
                         x: 87
@@ -2645,6 +2965,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
                     - label:  # background
                         id: sensor2_limit_label_shadow
                         x: 17
@@ -2654,6 +2977,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
                     - label:
                         id: sensor2_limit_label
                         x: 17
@@ -2668,6 +2994,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(sensor2_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
                     - arc:
                         id: sensor2_arc
                         styles: arc_value_style
@@ -2692,6 +3021,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor2_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
               - obj: # sensor 3
                   id: sensor3_obj
                   x: 240
@@ -2741,6 +3073,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
                     - label:
                         id: sensor3_battery
                         x: 52
@@ -2788,6 +3123,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(sensor3_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
+                    - label:  # background large
+                        id: sensor3_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value)));
+                    - label:
+                        id: sensor3_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(sensor3_limit_value) != 0) && ((id(sensor3_value) >= id(sensor3_limit_value) || id(sensor3_value) >= ${Invalid_Sensor_Value})) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(sensor3_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(sensor3_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value)));
                     - label:  # alarm bell
                         id: sensor3_limit_label_bell
                         x: 87
@@ -2801,6 +3172,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
                     - label:  # background
                         id: sensor3_limit_label_shadow
                         x: 17
@@ -2810,6 +3184,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
                     - label:
                         id: sensor3_limit_label
                         x: 17
@@ -2824,6 +3201,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(sensor3_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
                     - arc:
                         id: sensor3_arc
                         styles: arc_value_style
@@ -2848,6 +3228,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor3_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
               - obj: # sensor 4
                   id: sensor4_obj
                   x: 360
@@ -2897,6 +3280,9 @@ lvgl:
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
                     - label:
                         id: sensor4_battery
                         x: 52
@@ -2944,6 +3330,42 @@ lvgl:
                             return ("---");
                           }
                           return (to_string(static_cast<int>(id(sensor4_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
+                    - label:  # background large
+                        id: sensor4_label_large_shadow
+                        x: 15
+                        y: 48
+                        width: 90
+                        text_font: SEGMENT_FONT_37
+                        text: "888"
+                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_align: RIGHT
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value)));
+                    - label:
+                        id: sensor4_label_large
+                        x: 15
+                        y: 48
+                        width: 90
+                        bg_opa: TRANSP
+                        text_align: RIGHT
+                        text_font: SEGMENT_FONT_37
+                        text_color: !lambda |-
+                          if( (id(sensor4_limit_value) != 0) && ((id(sensor4_value) >= id(sensor4_limit_value) || id(sensor4_value) >= ${Invalid_Sensor_Value})) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_100));
+                        text: !lambda |-
+                          if( id(sensor4_value) >= ${Invalid_Sensor_Value}) {
+                            return ("---");
+                          }
+                          return (to_string(static_cast<int>(id(sensor4_value)))).c_str();
+                        hidden: !lambda |-
+                          return !(!id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value)));
                     - label:  # alarm bell
                         id: sensor4_limit_label_bell
                         x: 87
@@ -2957,6 +3379,9 @@ lvgl:
                             return lv_color_hex(id(color_100));
                           }
                           return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
                     - label:  # background
                         id: sensor4_limit_label_shadow
                         x: 17
@@ -2966,6 +3391,9 @@ lvgl:
                         text_align: RIGHT
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
                     - label:
                         id: sensor4_limit_label
                         x: 17
@@ -2980,6 +3408,9 @@ lvgl:
                             return (" ");
                           }
                           return (to_string(static_cast<int>(id(sensor4_limit_value)))).c_str();
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
                     - arc:
                         id: sensor4_arc
                         styles: arc_value_style
@@ -3004,6 +3435,9 @@ lvgl:
                           arc_opa: 75%
                           arc_width: 3
                         value: !lambda return id(sensor4_limit_value);
+                        hidden: !lambda |-
+                          return !id(settings_enable_temperature_limits_persistent) ||
+                            (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: timer_page
@@ -3617,15 +4051,23 @@ lvgl:
                       if( id(sensor4_limit_value) == 0 )  id(active_sensors) &= ~0x08;
                       break;
                   }
-              # refresh all widgets on arcs_page
+              # refresh all widgets depending on limits
               - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
+              - lvgl.widget.refresh: [zone1_label_shadow, zone2_label_shadow, zone3_label_shadow, zone4_label_shadow]
+              - lvgl.widget.refresh: [zone1_label_large, zone2_label_large, zone3_label_large, zone4_label_large]
+              - lvgl.widget.refresh: [zone1_label_large_shadow, zone2_label_large_shadow, zone3_label_large_shadow, zone4_label_large_shadow]
               - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
               - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
+              - lvgl.widget.refresh: [zone1_limit_label_shadow, zone2_limit_label_shadow, zone3_limit_label_shadow, zone4_limit_label_shadow]
               - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
               - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
               - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+              - lvgl.widget.refresh: [sensor1_label_shadow, sensor2_label_shadow, sensor3_label_shadow, sensor4_label_shadow]
+              - lvgl.widget.refresh: [sensor1_label_large, sensor2_label_large, sensor3_label_large, sensor4_label_large]
+              - lvgl.widget.refresh: [sensor1_label_large_shadow, sensor2_label_large_shadow, sensor3_label_large_shadow, sensor4_label_large_shadow]
               - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
               - lvgl.widget.refresh: [sensor1_limit_label, sensor2_limit_label, sensor3_limit_label, sensor4_limit_label]
+              - lvgl.widget.refresh: [sensor1_limit_label_shadow, sensor2_limit_label_shadow, sensor3_limit_label_shadow, sensor4_limit_label_shadow]
               - lvgl.widget.refresh: [sensor1_limit_label_bell, sensor2_limit_label_bell, sensor3_limit_label_bell, sensor4_limit_label_bell]
               - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
 
@@ -3660,6 +4102,7 @@ lvgl:
               id(settings_show_time) = id(settings_show_time_persistent);
               id(settings_hide_timer) = id(settings_hide_timer_persistent);
               id(settings_enable_temperature_limits) = id(settings_enable_temperature_limits_persistent);
+              id(settings_enable_auto_hiding_temperature_limits) = id(settings_enable_auto_hiding_temperature_limits_persistent);
               id(settings_hide_inactive_sensors) = id(settings_hide_inactive_sensors_persistent);
 
               id(settings_display_timeout_value) = id(settings_display_timeout_value_persistent);
@@ -3784,6 +4227,11 @@ lvgl:
               state:
                 checked: !lambda |-
                   return id(settings_enable_temperature_limits);
+          - lvgl.widget.update:
+              id: settings_enable_auto_hiding_temperature_limits_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_enable_auto_hiding_temperature_limits);
           - lvgl.widget.update:
               id: settings_hide_inactive_sensors_switch
               state:
@@ -4106,9 +4554,30 @@ lvgl:
                                         id(settings_enable_temperature_limits) = x;
 
                               - label:
+                                  id: settings_enable_auto_hiding_temperature_limits_switch_label
+                                  x: 110
+                                  y: 203
+                                  width: 240
+                                  text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  text_align: LEFT
+                                  text: "dynamic temp. warning info (only if temp. warnings enabled)"
+                              - switch:
+                                  id: settings_enable_auto_hiding_temperature_limits_switch
+                                  x: 40
+                                  y: 205
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_enable_auto_hiding_temperature_limits);
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_enable_auto_hiding_temperature_limits) = x;
+
+                              - label:
                                   id: settings_hide_inactive_sensors_switch_label
                                   x: 110
-                                  y: 209
+                                  y: 254
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4117,7 +4586,7 @@ lvgl:
                               - switch:
                                   id: settings_hide_inactive_sensors_switch
                                   x: 40
-                                  y: 205
+                                  y: 250
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -4556,6 +5025,7 @@ lvgl:
                               id(settings_show_time_persistent) = id(settings_show_time);
                               id(settings_hide_timer_persistent) = id(settings_hide_timer);
                               id(settings_enable_temperature_limits_persistent) = id(settings_enable_temperature_limits);
+                              id(settings_enable_auto_hiding_temperature_limits_persistent) = id(settings_enable_auto_hiding_temperature_limits);
                               id(settings_hide_inactive_sensors_persistent) = id(settings_hide_inactive_sensors);
 
                               ESP_LOGI("settings", "g32_mac_address: %s", id(settings_g32_mac_address_persistent).c_str());
@@ -4579,26 +5049,11 @@ lvgl:
                                 id(sensor3_limit_value) = 0;
                                 id(sensor4_limit_value) = 0;
                               }
-                          - lvgl.widget.refresh: [battery_symbol_obj, display_time]
+                          - script.execute: apply_color_scheme
                           - script.execute: apply_wifi
                           - script.execute: apply_ota_password
                           - script.execute: apply_mac_address
                           - script.execute: apply_meater_mac_addresses
-
-                          - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit, gas_percent_bar]
-
-                          # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
-                          - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
-                          - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
-                          - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
-                          - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
-                          - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
-                          - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
-                          - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
-                          - lvgl.widget.refresh: [sensor1_limit_label, sensor2_limit_label, sensor3_limit_label, sensor4_limit_label]
-                          - lvgl.widget.refresh: [sensor1_limit_label_bell, sensor2_limit_label_bell, sensor3_limit_label_bell, sensor4_limit_label_bell]
-                          - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
-
                           - lvgl.widget.show: settings_persist_hint
 
                     - button:  # abort
@@ -4774,7 +5229,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone1_value) = x;
-      - lvgl.widget.refresh: [zone1_label, zone1_arc]
+      - lvgl.widget.refresh: [zone1_label, zone1_label_large, zone1_arc]
 
   - platform: template
     name: "G32 Zone 2"
@@ -4784,7 +5239,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone2_value) = x;
-      - lvgl.widget.refresh: [zone2_label, zone2_arc]
+      - lvgl.widget.refresh: [zone2_label, zone2_label_large, zone2_arc]
 
   - platform: template
     name: "G32 Zone 3"
@@ -4794,7 +5249,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone3_value) = x;
-      - lvgl.widget.refresh: [zone3_label, zone3_arc]
+      - lvgl.widget.refresh: [zone3_label, zone3_label_large, zone3_arc]
 
   - platform: template
     name: "G32 Zone 4"
@@ -4804,7 +5259,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       - lambda: id(zone4_value) = x;
-      - lvgl.widget.refresh: [zone4_label, zone4_arc]
+      - lvgl.widget.refresh: [zone4_label, zone4_label_large, zone4_arc]
 
   - platform: template
     name: "G32 Sensor 1"
@@ -4814,7 +5269,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor1_value) = x;
-      - lvgl.widget.refresh: [sensor1_label, sensor1_arc, sensor1_obj]
+      - lvgl.widget.refresh: [sensor1_label, sensor1_label_large, sensor1_arc, sensor1_obj]
       - lvgl.widget.refresh: [sensor1_battery]
 
   - platform: template
@@ -4825,7 +5280,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor2_value) = x;
-      - lvgl.widget.refresh: [sensor2_label, sensor2_arc, sensor2_obj]
+      - lvgl.widget.refresh: [sensor2_label, sensor2_label_large, sensor2_arc, sensor2_obj]
       - lvgl.widget.refresh: [sensor2_battery]
 
   - platform: template
@@ -4836,7 +5291,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor3_value) = x;
-      - lvgl.widget.refresh: [sensor3_label, sensor3_arc, sensor3_obj]
+      - lvgl.widget.refresh: [sensor3_label, sensor3_label_large, sensor3_arc, sensor3_obj]
       - lvgl.widget.refresh: [sensor3_battery]
 
   - platform: template
@@ -4847,7 +5302,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       - lambda: id(sensor4_value) = x;
-      - lvgl.widget.refresh: [sensor4_label, sensor4_arc, sensor4_obj]
+      - lvgl.widget.refresh: [sensor4_label, sensor4_label_large, sensor4_arc, sensor4_obj]
       - lvgl.widget.refresh: [sensor4_battery]
 
   - platform: template
@@ -5167,14 +5622,16 @@ script:
             # some things to refresh from persisted settings
             - lvgl.widget.refresh: [battery_symbol_obj, display_time]
 
-            # for settings_enable_temperature_limits_persistent and settings_hide_inactive_sensors_persistent
+            # for settings_enable_temperature_limits_persistent, settings_enable_auto_hiding_temperature_limits_persistent, and settings_hide_inactive_sensors_persistent
             - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
+            - lvgl.widget.refresh: [zone1_label_large, zone2_label_large, zone3_label_large, zone4_label_large]
             - lvgl.widget.refresh: [zone1_arc, zone2_arc, zone3_arc, zone4_arc]
             - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
             - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
             - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
             - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
             - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
+            - lvgl.widget.refresh: [sensor1_label_large, sensor2_label_large, sensor3_label_large, sensor4_label_large]
             - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
             - lvgl.widget.refresh: [sensor1_limit_label, sensor2_limit_label, sensor3_limit_label, sensor4_limit_label]
             - lvgl.widget.refresh: [sensor1_limit_label_bell, sensor2_limit_label_bell, sensor3_limit_label_bell, sensor4_limit_label_bell]
@@ -5217,13 +5674,14 @@ script:
       - globals.set:
           id: ble_meaters_found
           value: '0'
-      - lambda: |-
-          id(settings_meater_mac_addresses) = {
-            "${meater_mac_address}",
-            "${meater_mac_address}",
-            "${meater_mac_address}",
-            "${meater_mac_address}"
-          };
+      # this would reset all meater mac addresses on scan start
+      # - lambda: |-
+      #     id(settings_meater_mac_addresses) = {
+      #       "${meater_mac_address}",
+      #       "${meater_mac_address}",
+      #       "${meater_mac_address}",
+      #       "${meater_mac_address}"
+      #     };
       - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
       - lvgl.widget.hide: settings_meater_mac_addresses_search_button
       - lvgl.widget.show: settings_meater_mac_addresses_abort_button
@@ -5362,6 +5820,8 @@ script:
           - zone1_obj_unit
           - zone1_label_shadow
           - zone1_label
+          - zone1_label_large_shadow
+          - zone1_label_large
           - zone1_limit_label_bell
           - zone1_limit_label_shadow
           - zone1_limit_label
@@ -5371,6 +5831,8 @@ script:
           - zone2_obj_unit
           - zone2_label_shadow
           - zone2_label
+          - zone2_label_large_shadow
+          - zone2_label_large
           - zone2_limit_label_bell
           - zone2_limit_label_shadow
           - zone2_limit_label
@@ -5380,6 +5842,8 @@ script:
           - zone3_obj_unit
           - zone3_label_shadow
           - zone3_label
+          - zone3_label_large_shadow
+          - zone3_label_large
           - zone3_limit_label_bell
           - zone3_limit_label_shadow
           - zone3_limit_label
@@ -5389,6 +5853,8 @@ script:
           - zone4_obj_unit
           - zone4_label_shadow
           - zone4_label
+          - zone4_label_large_shadow
+          - zone4_label_large
           - zone4_limit_label_bell
           - zone4_limit_label_shadow
           - zone4_limit_label
@@ -5403,6 +5869,8 @@ script:
           - sensor1_label_shadow
           - sensor1_battery
           - sensor1_label
+          - sensor1_label_large_shadow
+          - sensor1_label_large
           - sensor1_limit_label_bell
           - sensor1_limit_label_shadow
           - sensor1_limit_label
@@ -5413,6 +5881,8 @@ script:
           - sensor2_label_shadow
           - sensor2_battery
           - sensor2_label
+          - sensor2_label_large_shadow
+          - sensor2_label_large
           - sensor2_limit_label_bell
           - sensor2_limit_label_shadow
           - sensor2_limit_label
@@ -5423,6 +5893,8 @@ script:
           - sensor3_label_shadow
           - sensor3_battery
           - sensor3_label
+          - sensor3_label_large_shadow
+          - sensor3_label_large
           - sensor3_limit_label_bell
           - sensor3_limit_label_shadow
           - sensor3_limit_label
@@ -5433,6 +5905,8 @@ script:
           - sensor4_label_shadow
           - sensor4_battery
           - sensor4_label
+          - sensor4_label_large_shadow
+          - sensor4_label_large
           - sensor4_limit_label_bell
           - sensor4_limit_label_shadow
           - sensor4_limit_label
@@ -5485,6 +5959,8 @@ script:
           - settings_hide_timer_switch
           - settings_enable_temperature_limits_switch_label
           - settings_enable_temperature_limits_switch
+          - settings_enable_auto_hiding_temperature_limits_switch_label
+          - settings_enable_auto_hiding_temperature_limits_switch
           - settings_hide_inactive_sensors_switch_label
           - settings_hide_inactive_sensors_switch
           - settings_min_gas_title
@@ -5596,7 +6072,7 @@ script:
           lv_obj_set_style_bg_color(settings_hide_timer_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
           lv_obj_set_style_bg_color(settings_enable_temperature_limits_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
           lv_obj_set_style_bg_color(settings_enable_temperature_limits_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+          lv_obj_set_style_bg_color(settings_enable_auto_hiding_temperature_limits_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_enable_auto_hiding_temperature_limits_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
           lv_obj_set_style_bg_color(settings_hide_inactive_sensors_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
           lv_obj_set_style_bg_color(settings_hide_inactive_sensors_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
-
-      - lvgl.widget.redraw:  # TODO: test if this has ANY effect
