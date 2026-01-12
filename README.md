@@ -147,6 +147,7 @@ This project would not have been possible without the work of the community. Spe
 [ralmoe/g32-docker-client](https://github.com/ralmoe/g32-docker-client)
 
 [MortenVinding/MEATER.yaml (accuracy)](https://gist.github.com/MortenVinding/a513c0094d0df41a4425612257b3cabc)
+
 [so99hero/Standalone Case JC3248W535C](https://www.thingiverse.com/thing:7127557)
 
 
