@@ -4820,7 +4820,7 @@ lvgl:
                                   text_font: MONTSERRAT_12
                                   text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: CENTER
-                                  text: "You can remove single MAC addresses by\nclicking on that address."
+                                  text: "You can remove single MAC addresses by\nclicking on that address before starting search."
                               - label:
                                   id: settings_meater0_label
                                   x: 30
@@ -4834,9 +4834,14 @@ lvgl:
                                   clickable: true
                                   on_click:
                                     then:
-                                      - lambda: |-
-                                          id(settings_meater_mac_addresses)[0] = "${meater_mac_address}";
-                                      - lvgl.widget.refresh: settings_meater0_label
+                                      - if:
+                                          condition: 
+                                            lambda: 'return !id(ble_meater_scan_started_by_user);'
+                                          then:
+                                            - lambda: |-
+                                                id(settings_meater_mac_addresses)[0] = "${meater_mac_address}";
+                                            - lvgl.widget.refresh: settings_meater0_label
+                                            - lvgl.widget.hide: settings_meater0_updated
                               - label:
                                   id: settings_meater0_updated
                                   x: 195
@@ -4860,9 +4865,14 @@ lvgl:
                                   clickable: true
                                   on_click:
                                     then:
-                                      - lambda: |-
-                                          id(settings_meater_mac_addresses)[1] = "${meater_mac_address}";
-                                      - lvgl.widget.refresh: settings_meater1_label
+                                      - if:
+                                          condition: 
+                                            lambda: 'return !id(ble_meater_scan_started_by_user);'
+                                          then:
+                                            - lambda: |-
+                                                id(settings_meater_mac_addresses)[1] = "${meater_mac_address}";
+                                            - lvgl.widget.refresh: settings_meater1_label
+                                            - lvgl.widget.hide: settings_meater1_updated
                               - label:
                                   id: settings_meater1_updated
                                   x: 195
@@ -4886,9 +4896,14 @@ lvgl:
                                   clickable: true
                                   on_click:
                                     then:
-                                      - lambda: |-
-                                          id(settings_meater_mac_addresses)[2] = "${meater_mac_address}";
-                                      - lvgl.widget.refresh: settings_meater2_label
+                                      - if:
+                                          condition: 
+                                            lambda: 'return !id(ble_meater_scan_started_by_user);'
+                                          then:
+                                            - lambda: |-
+                                                id(settings_meater_mac_addresses)[2] = "${meater_mac_address}";
+                                            - lvgl.widget.refresh: settings_meater2_label
+                                            - lvgl.widget.hide: settings_meater2_updated
                               - label:
                                   id: settings_meater2_updated
                                   x: 195
@@ -4912,9 +4927,14 @@ lvgl:
                                   clickable: true
                                   on_click:
                                     then:
-                                      - lambda: |-
-                                          id(settings_meater_mac_addresses)[3] = "${meater_mac_address}";
-                                      - lvgl.widget.refresh: settings_meater3_label
+                                      - if:
+                                          condition: 
+                                            lambda: 'return !id(ble_meater_scan_started_by_user);'
+                                          then:
+                                            - lambda: |-
+                                                id(settings_meater_mac_addresses)[3] = "${meater_mac_address}";
+                                            - lvgl.widget.refresh: settings_meater3_label
+                                            - lvgl.widget.hide: settings_meater3_updated
                               - label:
                                   id: settings_meater3_updated
                                   x: 195
