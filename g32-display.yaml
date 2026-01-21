@@ -486,6 +486,7 @@ touchscreen:
 # RTTTL speaker (speaker header, external DAC)
 #---------------------------------------------
 # i2s_audio:
+#   # external DAC: NS4168
 #   i2s_lrclk_pin: GPIO02
 #   i2s_bclk_pin: GPIO42
 
