@@ -8,92 +8,44 @@ The main focus is its use as a mobile grill monitor and thus also as a replaceme
 
 The hardware used, software installation, and all other details for this project are identical to the original and are very well documented there, including pictures. The base is an ESP32 with the touchscreen display "JC3248W535C".
 
-[Case by so99hero](https://www.thingiverse.com/thing:7127557)
-
-[Case (remixed by me)](https://www.thingiverse.com/thing:7182655) that also includes a variant that can be hung to any OW module handle and an additional model that allows you to retrofit an existing case with the detachable hanger.
-
-
-What’s different?
-
-* integration with Home Assistant is now optional
-* no source code modifications required (only for setting the Home Assistant API token)
-* most settings can be configured directly via the device’s touchscreen (unfortunately the Home Assistant "API encryption key" cannot be updated dynamically - it is required at compile time)
-* adjustments to the user interface
-
-
 ## Features
 
 * **Temperatures:** displays temperatures for up to 4 grill zones and 4 external temperature probes
 * **Gas level monitoring:** reads the weight determined by the "Gas Buddy"
 * **Alarms:** temperature alarms can be set for zones and temperature sensors, which can also be signaled acoustically via an integrated optional beeper / speaker (touch on the vizualisation of a zone or tempterature probe)
 * **Timer:** set a countdown timer after which an acoustic alarm sounds (touch the top center)
-* **Display mode:** the two previously existing display modes have been merged into one
 * **Status:** visualize connection status (WLAN/BLE) and information from the grill itself
-* **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
 * **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left "G32 Connected" text)
-* **MEATER®** the tip temperatures of connected sensors (1–4) are displayed instead of the G32 values, if available. Battery SOC is shown at the bottom of the gauge.
-
+* **Color Schemes:** some predefined color schemes are available in the settings and even new ones can be easily added by editing the source code
+* **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
+* **MEATER® (optional):** the tip temperatures and battery SOC of connected sensors (1–4) are displayed instead of the G32 values, if available
+* **Home Assistant (optinoal):** most measurements are exposed to Home Assistant
 
 ## What’s still missing?
 * **Gas Buddy:** calibration of a new gas bottle
-* **G32 light:** setting the brightness when the light should turn on
+* **G32 light:** setting the brightness level for turning on the light in the lid
+
+## BOM (bill of materials)
+ * __JC3248W535C__ (ESP32-S3 Development Board with WiFi, Bluetooth, and a 480x320 Pixel 3,5" touchscreen)
+ * optional: a buzzer or a speaker
+   * buzzer (default)
+     * a passive piezo buzzer (piezo 10085 passive, piezo 12085 passive)
+     * a JST 1.25 2pin connector cable
+   * speaker (needs minor adjustments in the yaml)
+     * a small 8Ohm / 1W speaker with a JST 1.25 2pin connector
+ * optional: battery (1 cell LiPo/Li-Ion with protection circuit and JST 1.25 2pin connecter __with correct polarity__). 2000mAh to 3000mAh recommended.
+ * optional: one of these 3d printed cases and 4 machine screws (M2x4mm, or M2x6mm)
+   * [Case by so99hero](https://www.thingiverse.com/thing:7127557)
+   * [Case (remixed by me)](https://www.thingiverse.com/thing:7182655)
+     that also includes a variant that can be hung to any OW module handle and an additional model that allows you to retrofit an existing case with the detachable hanger.
+
+The total cost should be around 35€ if you have a friend with a 3d printer. Some items might not be available individually, but only in packs of several.
 
 ## History
-* [2026-01-21] BTpref-retro 2.4.1
-   - configuration to make use of the speaker header and the external DAC for nicer and slightly louder audio
-* [2026-01-11] BTpref-retro 2.4.0
-   - reduced UI with increased temperature font size if temperature alarms are disabled
-   - new option in settings: "dynamic temp. warning info"
-     will automatically switch between old UI and reduced UI depending on if a temperature alarm was configured (disabled by default).
-   - bugfix: scanning for meater probes does not reset all mac addresses any more
-* [2025-12-19] BTpref-retro 2.3.3
-   - gas level indicator bar segmentation now makes sense
-* [2025-12-14] BTpref-retro 2.3.2
-   - more color schemes
-* [2025-12-12] BTpref-retro 2.3.0
-   - allow configuring the OTA password in the settings
-* [2025-12-09] BTpref-retro 2.2.0
-   - color scheme can now be selected in the settings without changing the source code
-* [2025-12-06] BTpref-retro 2.1.1
-   - load font files from github - so now the software is only a single yaml file again
-* [2025-12-04] BTpref-retro 2.1.0
-   - updates for ESPHome 2025.11.3
-   - automatic version check
-* [2025-11-30] BTpref-retro 2.0.4
-   - enable warning sign when gas tank level / soc level is low
-* [2025-11-28] BTpref-retro 2.0.1
-   - retro style
-   - combine numbers and arcs into a single view
-   - overall improved touch sensitive areas / usability 
-   - ability the easily change color theme (requires flashing the device)
-* [2025-11-26] BTpref 1.6.8
-   - fixes for G32 reconnect
-   - fixes for HA values (especially decimal places)
-* [2025-11-12] BTpref 1.6.7
-   - usability if WiFi password configuration improved
-   - revised Meater configuration page
-* [2025-11-06] BTpref 1.6.6
-   - delete individual Meater MAC addresses by touching the respective address
-* [2025-10-28] BTpref 1.6.5
-   - improved Meater accuracy
-   - Meater battery level is now shown in the arc view
-* [2025-10-24] BTpref 1.6.0
-   - Meater support (Meater "Plus" should also work)
-* [2025-10-23] BTpref 1.5.4
-   - visual hint when G32 MAC scan was successful
-* [2025-10-20] BTpref 1.5.3
-   - typo in the WiFi settings UI
-* [2025-10-19] BTpref 1.5.2
-   - fixed position status bar top/bottom
-   - countdown timer combined with optional clock display (top center)
-   - new UI for setting temperature alarms
-   - on-device configuration screen available via the "G32 Connected" text in the top status bar
-   - HA integration is now fully optional but still available
+See [changelog.md](changelog.md).
 
-Other releases: see https://github.com/JBecker32/G32-Display-480x320-BT/releases
 
 ## Uploading the software to the ESP ##
-
 Option A) (more reliable, recommended)
 
 - Install the 'esphome' command line tool
