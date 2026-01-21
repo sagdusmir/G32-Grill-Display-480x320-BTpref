@@ -25,13 +25,13 @@ What’s different?
 
 * **Temperatures:** displays temperatures for up to 4 grill zones and 4 external temperature probes
 * **Gas level monitoring:** reads the weight determined by the "Gas Buddy"
-* **Alarms:** temperature alarms can be set for zones and temperature sensors, which can also be signaled acoustically via an integrated optional beeper (touch on the vizualisation of a zone or temp probe)
+* **Alarms:** temperature alarms can be set for zones and temperature sensors, which can also be signaled acoustically via an integrated optional beeper / speaker (touch on the vizualisation of a zone or tempterature probe)
 * **Timer:** set a countdown timer after which an acoustic alarm sounds (touch the top center)
 * **Display mode:** the two previously existing display modes have been merged into one
 * **Status:** visualize connection status (WLAN/BLE) and information from the grill itself
 * **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
-* **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left)
-* **MEATER®** tip temperatures of connected sensors (1–4) are displayed instead of the G32 values, if available
+* **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left "G32 Connected" text)
+* **MEATER®** the tip temperatures of connected sensors (1–4) are displayed instead of the G32 values, if available. Battery SOC is shown at the bottom of the gauge.
 
 
 ## What’s still missing?
