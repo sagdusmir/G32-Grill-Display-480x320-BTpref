@@ -502,12 +502,6 @@ output:
     pin: 9
     id: rtttl_out
 
-  # or a beeper with a transisitor for amplification
-  # But in my experience it is not worth the effort. I got a similar (low) volume.
-  # - platform: ledc
-  #   pin: 17
-  #   id: rtttl_out
-
 #-------------------------------------------
 # Internal lights
 #-------------------------------------------
