@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.0"
+  version: "BTpref-retro 2.4.1"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -61,10 +61,6 @@ substitutions:
   # max temperature for zones and sensors
   Zone_Max: "500"
   Sensor_Max: "130"
-
-  # Speaker (beeper) "volume" setting. 1.0 = max, 0.1 = min.
-  # A higher value might lead to clipping. Check what works out best for you.
-  Beeper_Max: "0.8"
 
   # interval for alarm sound
   Beeper_interval: "5s"
@@ -486,6 +482,21 @@ touchscreen:
             - lvgl.widget.redraw:
             - light.turn_on: backlight
 
+#---------------------------------------------
+# RTTTL speaker (speaker header, external DAC)
+#---------------------------------------------
+# i2s_audio:
+#   i2s_lrclk_pin: GPIO02
+#   i2s_bclk_pin: GPIO42
+
+# speaker:
+#   - platform: i2s_audio
+#     id: my_speaker
+#     dac_type: external
+#     i2s_dout_pin: GPIO41
+#     channel: mono
+#     buffer_duration: 0.1s
+
 #-------------------------------------------
 # Internal outputs
 #-------------------------------------------
@@ -494,7 +505,9 @@ output:
     platform: ledc
     pin: 1
 
-  # either a simple beeper
+  #-------------------------------------------
+  # RTTTL buzzer (GPIO pin)
+  #-------------------------------------------
   - id: helper_low_beeper
     platform: ledc
     pin: 14
@@ -512,13 +525,20 @@ light:
     output: gpio_backlight_pwm
     restore_mode: ALWAYS_ON
 
-#-------------------------------------------
-# Internal RTTTL speaker
-#-------------------------------------------
 rtttl:
   id: my_rtttl
+
+  #-------------------------------------------
+  # RTTTL buzzer (GPIO pin)
+  #-------------------------------------------
   output: rtttl_out
-  gain: ${Beeper_Max}
+  gain: 80%
+
+  #-------------------------------------------
+  # RTTTL speaker (speaker header, external DAC)
+  #-------------------------------------------
+  # speaker: my_speaker
+  # gain: 100%
 
 interval:
   - interval: 1s

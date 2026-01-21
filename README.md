@@ -39,6 +39,8 @@ What’s different?
 * **G32 light:** setting the brightness when the light should turn on
 
 ## History
+* [2026-01-21] BTpref-retro 2.4.1
+   - configuration to make use of the speaker header and the external DAC for nicer and slightly louder audio
 * [2026-01-11] BTpref-retro 2.4.0
    - reduced UI with increased temperature font size if temperature alarms are disabled
    - new option in settings: "dynamic temp. warning info"
