@@ -1303,7 +1303,22 @@ lvgl:
                             soc <= 40 ? 1 :
                             soc <= 80 ? 2 : 3;
                         return icons[idx];
-
+                  - line:
+                      id: battery_symbol_fix  # glyph scaling artefact
+                      points:
+                        - 12, 12
+                        - 18, 12
+                      line_width: 1
+                      line_rounded: false
+                      line_color: !lambda |-
+                          float soc = id(battery_soc_value);
+                          if (soc <= 40) {
+                            return lv_color_hex(0x000000);
+                          }
+                          if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
+                            return lv_color_hex(id(color_bad));
+                          }
+                          return lv_color_hex(id(color_good));
                   - label:  # battery soc background
                       id: battery_soc_shadow
                       x: 21
@@ -5197,7 +5212,7 @@ sensor:
     update_interval: 4s        # new value after 4s*15(=window size) = 60s!
     on_value:
       - lambda: id(battery_soc_value) = x;
-      - lvgl.widget.refresh: [battery_soc_label, battery_soc_label_unit, battery_symbol]
+      - lvgl.widget.refresh: [battery_soc_label, battery_soc_label_unit, battery_symbol, battery_symbol_fix]
 
   - platform: ble_rssi
     mac_address: ${g32_mac_address}
@@ -5822,6 +5837,7 @@ script:
       - lvgl.widget.refresh:
           - cs_title
           - battery_symbol
+          - battery_symbol_fix
           - battery_soc_shadow
           - battery_soc_label
           - battery_soc_label_unit
