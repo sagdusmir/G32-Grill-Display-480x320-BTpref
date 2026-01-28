@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.1"
+  version: "BTpref-retro 2.4.2"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -135,6 +135,12 @@ esp32:
       CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
       CONFIG_SPIRAM_FETCH_INSTRUCTIONS: "y"
       CONFIG_SPIRAM_RODATA: "y"
+      CONFIG_ESP_WIFI_TASK_CORE_ID: "0"
+      CONFIG_BT_BTC_TASK_CORE_ID: "0"
+      CONFIG_BT_NIMBLE_PINNED_TO_CORE: "0"
+      CONFIG_TCPIP_TASK_CORE_ID: "0"
+      CONFIG_ESP_TIMER_TASK_CORE_ID: "0"
+      CONFIG_ESP_MAIN_TASK_AFFINITY_CPU1: "y"
 
 psram:
   mode: octal
@@ -346,10 +352,7 @@ ble_client:
         - globals.set:
             id: active_sensors
             value: "0"
-        - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
-        - lvgl.widget.refresh: [zone1_label_large, zone2_label_large, zone3_label_large, zone4_label_large]
-        - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
-        - lvgl.widget.refresh: [sensor1_label_large, sensor2_label_large, sensor3_label_large, sensor4_label_large]
+        - script.execute: refresh_all_temps
 
   - mac_address: ${meater_mac_address}
     id: meater0
@@ -922,8 +925,8 @@ font:
       - "\U000F009A" # mdi-bell
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
-    id: SEGMENT_FONT_37
-    size: 37
+    id: SEGMENT_FONT_35
+    size: 35
     glyphs:
       - "0"
       - "1"
@@ -1121,6 +1124,7 @@ time:
 #-------------------------------------------
 lvgl:
   draw_rounding: 8 # necessary for the axs15231 display controller
+  buffer_size: 50%
   displays: my_display
   touchscreens: my_touch
   bg_color: 0
@@ -1989,10 +1993,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
                     - label:  # background large
                         id: zone1_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -2001,12 +2005,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value)));
                     - label:
                         id: zone1_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(zone1_limit_value) != 0) && (id(zone1_value) >= id(zone1_limit_value)) ) {
                             return lv_color_hex(id(color_bad));
@@ -2160,10 +2164,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
                     - label:  # background large
                         id: zone2_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -2172,12 +2176,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value)));
                     - label:
                         id: zone2_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(zone2_limit_value) != 0) && (id(zone2_value) >= id(zone2_limit_value)) ) {
                             return lv_color_hex(id(color_bad));
@@ -2331,10 +2335,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
                     - label:  # background large
                         id: zone3_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -2343,12 +2347,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value)));
                     - label:
                         id: zone3_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(zone3_limit_value) != 0) && (id(zone3_value) >= id(zone3_limit_value)) ) {
                             return lv_color_hex(id(color_bad));
@@ -2502,10 +2506,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
                     - label:  # background large
                         id: zone4_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -2514,12 +2518,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value)));
                     - label:
                         id: zone4_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(zone4_limit_value) != 0) && (id(zone4_value) >= id(zone4_limit_value)) ) {
                             return lv_color_hex(id(color_bad));
@@ -2744,10 +2748,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
                     - label:  # background large
                         id: sensor1_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -2756,12 +2760,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value)));
                     - label:
                         id: sensor1_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(sensor1_limit_value) != 0) && ((id(sensor1_value) >= id(sensor1_limit_value) || id(sensor1_value) >= ${Invalid_Sensor_Value})) ) {
                             return lv_color_hex(id(color_bad));
@@ -2951,10 +2955,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
                     - label:  # background large
                         id: sensor2_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -2963,12 +2967,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value)));
                     - label:
                         id: sensor2_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(sensor2_limit_value) != 0) && ((id(sensor2_value) >= id(sensor2_limit_value) || id(sensor2_value) >= ${Invalid_Sensor_Value})) ) {
                             return lv_color_hex(id(color_bad));
@@ -3158,10 +3162,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
                     - label:  # background large
                         id: sensor3_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -3170,12 +3174,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value)));
                     - label:
                         id: sensor3_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(sensor3_limit_value) != 0) && ((id(sensor3_value) >= id(sensor3_limit_value) || id(sensor3_value) >= ${Invalid_Sensor_Value})) ) {
                             return lv_color_hex(id(color_bad));
@@ -3365,10 +3369,10 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
                     - label:  # background large
                         id: sensor4_label_large_shadow
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text: "888"
                         text_color: !lambda return lv_color_hex(id(color_25));
                         text_align: RIGHT
@@ -3377,12 +3381,12 @@ lvgl:
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value)));
                     - label:
                         id: sensor4_label_large
-                        x: 15
+                        x: 14
                         y: 48
                         width: 90
                         bg_opa: TRANSP
                         text_align: RIGHT
-                        text_font: SEGMENT_FONT_37
+                        text_font: SEGMENT_FONT_35
                         text_color: !lambda |-
                           if( (id(sensor4_limit_value) != 0) && ((id(sensor4_value) >= id(sensor4_limit_value) || id(sensor4_value) >= ${Invalid_Sensor_Value})) ) {
                             return lv_color_hex(id(color_bad));
@@ -4082,24 +4086,7 @@ lvgl:
                       break;
                   }
               # refresh all widgets depending on limits
-              - lvgl.widget.refresh: [zone1_label, zone2_label, zone3_label, zone4_label]
-              - lvgl.widget.refresh: [zone1_label_shadow, zone2_label_shadow, zone3_label_shadow, zone4_label_shadow]
-              - lvgl.widget.refresh: [zone1_label_large, zone2_label_large, zone3_label_large, zone4_label_large]
-              - lvgl.widget.refresh: [zone1_label_large_shadow, zone2_label_large_shadow, zone3_label_large_shadow, zone4_label_large_shadow]
-              - lvgl.widget.refresh: [zone1_limit_arc, zone2_limit_arc, zone3_limit_arc, zone4_limit_arc]
-              - lvgl.widget.refresh: [zone1_limit_label, zone2_limit_label, zone3_limit_label, zone4_limit_label]
-              - lvgl.widget.refresh: [zone1_limit_label_shadow, zone2_limit_label_shadow, zone3_limit_label_shadow, zone4_limit_label_shadow]
-              - lvgl.widget.refresh: [zone1_limit_label_bell, zone2_limit_label_bell, zone3_limit_label_bell, zone4_limit_label_bell]
-              - lvgl.widget.refresh: [sensor1_obj, sensor2_obj, sensor3_obj, sensor4_obj]
-              - lvgl.widget.refresh: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
-              - lvgl.widget.refresh: [sensor1_label_shadow, sensor2_label_shadow, sensor3_label_shadow, sensor4_label_shadow]
-              - lvgl.widget.refresh: [sensor1_label_large, sensor2_label_large, sensor3_label_large, sensor4_label_large]
-              - lvgl.widget.refresh: [sensor1_label_large_shadow, sensor2_label_large_shadow, sensor3_label_large_shadow, sensor4_label_large_shadow]
-              - lvgl.widget.refresh: [sensor1_limit_arc, sensor2_limit_arc, sensor3_limit_arc, sensor4_limit_arc]
-              - lvgl.widget.refresh: [sensor1_limit_label, sensor2_limit_label, sensor3_limit_label, sensor4_limit_label]
-              - lvgl.widget.refresh: [sensor1_limit_label_shadow, sensor2_limit_label_shadow, sensor3_limit_label_shadow, sensor4_limit_label_shadow]
-              - lvgl.widget.refresh: [sensor1_limit_label_bell, sensor2_limit_label_bell, sensor3_limit_label_bell, sensor4_limit_label_bell]
-              - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
+              - script.execute: refresh_all_limits
 
               - lvgl.page.show: arcs_page
 
@@ -4502,7 +4489,7 @@ lvgl:
                               - label:
                                   id: settings_hide_soc_switch_label
                                   x: 110
-                                  y: 29
+                                  y: 31
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4523,7 +4510,7 @@ lvgl:
                               - label:
                                   id: settings_show_time_switch_label
                                   x: 110
-                                  y: 74
+                                  y: 76
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4544,7 +4531,7 @@ lvgl:
                               - label:
                                   id: settings_hide_timer_switch_label
                                   x: 110
-                                  y: 119
+                                  y: 121
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4565,7 +4552,7 @@ lvgl:
                               - label:
                                   id: settings_enable_temperature_limits_switch_label
                                   x: 110
-                                  y: 164
+                                  y: 166
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4607,12 +4594,12 @@ lvgl:
                               - label:
                                   id: settings_hide_inactive_sensors_switch_label
                                   x: 110
-                                  y: 254
+                                  y: 256
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
-                                  text: "hide inactive temp sensors"
+                                  text: "hide inactive temp. sensors"
                               - switch:
                                   id: settings_hide_inactive_sensors_switch
                                   x: 40
@@ -5529,6 +5516,117 @@ binary_sensor:
       - lvgl.widget.refresh: firebox_open_label
 
 script:
+  # Consolidated refresh scripts for performance optimization
+  - id: refresh_all_temps
+    then:
+      - lvgl.widget.refresh:
+          - zone1_label
+          - zone1_label_large
+          - zone1_arc
+          - zone2_label
+          - zone2_label_large
+          - zone2_arc
+          - zone3_label
+          - zone3_label_large
+          - zone3_arc
+          - zone4_label
+          - zone4_label_large
+          - zone4_arc
+          - sensor1_label
+          - sensor1_label_large
+          - sensor1_arc
+          - sensor1_obj
+          - sensor2_label
+          - sensor2_label_large
+          - sensor2_arc
+          - sensor2_obj
+          - sensor3_label
+          - sensor3_label_large
+          - sensor3_arc
+          - sensor3_obj
+          - sensor4_label
+          - sensor4_label_large
+          - sensor4_arc
+          - sensor4_obj
+      - lvgl.widget.redraw:
+
+  - id: refresh_all_limits
+    then:
+      - lvgl.widget.refresh:
+          - zone1_label
+          - zone1_label_shadow
+          - zone1_label_large
+          - zone1_label_large_shadow
+          - zone1_limit_arc
+          - zone1_limit_label
+          - zone1_limit_label_shadow
+          - zone1_limit_label_bell
+          - zone2_label
+          - zone2_label_shadow
+          - zone2_label_large
+          - zone2_label_large_shadow
+          - zone2_limit_arc
+          - zone2_limit_label
+          - zone2_limit_label_shadow
+          - zone2_limit_label_bell
+          - zone3_label
+          - zone3_label_shadow
+          - zone3_label_large
+          - zone3_label_large_shadow
+          - zone3_limit_arc
+          - zone3_limit_label
+          - zone3_limit_label_shadow
+          - zone3_limit_label_bell
+          - zone4_label
+          - zone4_label_shadow
+          - zone4_label_large
+          - zone4_label_large_shadow
+          - zone4_limit_arc
+          - zone4_limit_label
+          - zone4_limit_label_shadow
+          - zone4_limit_label_bell
+          - sensor1_obj
+          - sensor1_label
+          - sensor1_label_shadow
+          - sensor1_label_large
+          - sensor1_label_large_shadow
+          - sensor1_limit_arc
+          - sensor1_limit_label
+          - sensor1_limit_label_shadow
+          - sensor1_limit_label_bell
+          - sensor1_battery
+          - sensor2_obj
+          - sensor2_label
+          - sensor2_label_shadow
+          - sensor2_label_large
+          - sensor2_label_large_shadow
+          - sensor2_limit_arc
+          - sensor2_limit_label
+          - sensor2_limit_label_shadow
+          - sensor2_limit_label_bell
+          - sensor2_battery
+          - sensor3_obj
+          - sensor3_label
+          - sensor3_label_shadow
+          - sensor3_label_large
+          - sensor3_label_large_shadow
+          - sensor3_limit_arc
+          - sensor3_limit_label
+          - sensor3_limit_label_shadow
+          - sensor3_limit_label_bell
+          - sensor3_battery
+          - sensor4_obj
+          - sensor4_label
+          - sensor4_label_shadow
+          - sensor4_label_large
+          - sensor4_label_large_shadow
+          - sensor4_limit_arc
+          - sensor4_limit_label
+          - sensor4_limit_label_shadow
+          - sensor4_limit_label_bell
+          - sensor4_battery
+      - lvgl.widget.redraw:
+
   - id: time_update
     then:
       - if:
@@ -5611,44 +5709,48 @@ script:
     then:
         # this ensures the ble_client changes MAC at runtime
         - lambda: !lambda |-
-            uint64_t addr = 0;
-            uint64_t b1, b2, b3, b4, b5, b6;
-            if (sscanf(id(settings_g32_mac_address_persistent).c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
-              addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
-            }
-            id(ow_g32).set_address(addr);
-            ESP_LOGI("settings", "set G32 MAC address to %s", id(settings_g32_mac_address_persistent).c_str());
+            xTaskCreatePinnedToCore([](void *) {
+              uint64_t addr = 0;
+              uint64_t b1, b2, b3, b4, b5, b6;
+              if (sscanf(id(settings_g32_mac_address_persistent).c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+                addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+              }
+              id(ow_g32).set_address(addr);
+              ESP_LOGI("settings", "set G32 MAC address to %s", id(settings_g32_mac_address_persistent).c_str());
+              vTaskDelete(NULL);
+            }, "apply_mac_task", 4096, NULL, 1, NULL, 0);
 
   - id: apply_wifi
     then:
-      - globals.set:
-          id: apply_wifi_started_by_user
-          value: 'true'
-      - wifi.disable:
-      - delay: 1s
-      - wifi.configure:
-          ssid: !lambda |-
-            return id(settings_wifi_ssid_persistent);
-          password: !lambda |-
-            return id(settings_wifi_password_persistent);
-      - wifi.enable:
+        - lambda: !lambda |-
+            xTaskCreatePinnedToCore([](void *) {
+              id(apply_wifi_started_by_user) = true;
+              id(my_wifi).disable();
+              vTaskDelay(1000 / portTICK_PERIOD_MS);
+              id(my_wifi).save_wifi_sta(id(settings_wifi_ssid_persistent), id(settings_wifi_password_persistent));
+              id(my_wifi).enable();
+              vTaskDelete(NULL);
+            }, "apply_wifi_task", 4096, NULL, 1, NULL, 0);
 
   - id: apply_meater_mac_addresses
     then:
         # this ensures the ble_client changes MAC at runtime
         - lambda: !lambda |-
-            std::array<esphome::ble_client::BLEClient *, 4> meaters = {id(meater0), id(meater1), id(meater2), id(meater3)};
-            std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
-            for (int i = 0; i < 4; i++) {
-              std::string mac = t_meater_mac_addresses.substr(i * 18, 17);
-              uint64_t addr = 0;
-              uint64_t b1, b2, b3, b4, b5, b6;
-              if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
-                addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+            xTaskCreatePinnedToCore([](void *) {
+              std::array<esphome::ble_client::BLEClient *, 4> meaters = {id(meater0), id(meater1), id(meater2), id(meater3)};
+              std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
+              for (int i = 0; i < 4; i++) {
+                std::string mac = t_meater_mac_addresses.substr(i * 18, 17);
+                uint64_t addr = 0;
+                uint64_t b1, b2, b3, b4, b5, b6;
+                if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+                  addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+                }
+                meaters[i]->set_address(addr);
+                ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
               }
-              meaters[i]->set_address(addr);
-              ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
-            }
+              vTaskDelete(NULL);
+            }, "apply_meater_task", 4096, NULL, 1, NULL, 0);
   - id: apply_ota_password
     then:
        - lambda: !lambda |-
@@ -5780,6 +5882,7 @@ script:
             then:
             - logger.log: "Failed to perform HTTP request for version check."
   - id: apply_color_scheme
+    mode: restart
     then:
       - lambda: |-
           int target_idx = id(settings_color_scheme_idx);   // current selected index (0,1,2,3)
@@ -5834,6 +5937,8 @@ script:
           }
       - lambda: |-
           lv_obj_set_style_arc_color(boot_spinner, lv_color_hex(id(color_100)), LV_PART_INDICATOR);
+
+      # Chunk 1: Status bar widgets
       - lvgl.widget.refresh:
           - cs_title
           - battery_symbol
@@ -5850,6 +5955,10 @@ script:
           - display_time
           - timer_value_bg
           - timer_value
+      - delay: 1ms
+
+      # Chunk 2: Gas widgets
+      - lvgl.widget.refresh:
           - gas_icon
           - gas_percent_bar
           - gas_percent_label_shadow
@@ -5865,6 +5974,10 @@ script:
           - latest_version_label2
           - current_version_label1
           - current_version_label2
+      - delay: 1ms
+
+      # Chunk 3: Zone 1 & 2 widgets
+      - lvgl.widget.refresh:
           - zones_bar
           - zones_title
           - zone1_obj
@@ -5889,6 +6002,10 @@ script:
           - zone2_limit_label
           - zone2_arc
           - zone2_limit_arc
+      - delay: 1ms
+
+      # Chunk 4: Zone 3 & 4 widgets
+      - lvgl.widget.refresh:
           - zone3_obj
           - zone3_obj_unit
           - zone3_label_shadow
@@ -5911,8 +6028,10 @@ script:
           - zone4_limit_label
           - zone4_arc
           - zone4_limit_arc
-          - probes_bar
-          - probes_title
+      - delay: 1ms
+
+      # Chunk 5: Sensor 1 & 2 widgets
+      - lvgl.widget.refresh:
           - probes_bar
           - probes_title
           - sensor1_obj
@@ -5939,6 +6058,10 @@ script:
           - sensor2_limit_label
           - sensor2_arc
           - sensor2_limit_arc
+      - delay: 1ms
+
+      # Chunk 6: Sensor 3 & 4 widgets
+      - lvgl.widget.refresh:
           - sensor3_obj
           - sensor3_obj_unit
           - sensor3_label_shadow
@@ -5963,6 +6086,10 @@ script:
           - sensor4_limit_label
           - sensor4_arc
           - sensor4_limit_arc
+      - delay: 1ms
+
+      # Chunk 7: Timer widgets
+      - lvgl.widget.refresh:
           - timer_bar
           - timer_title
           - timer_unit_h
@@ -5977,6 +6104,10 @@ script:
           - timer_button_clear_label
           - timer_button_set
           - timer_button_set_label
+      - delay: 1ms
+
+      # Chunk 8: Sensor limit widgets
+      - lvgl.widget.refresh:
           - sensor_limit_headline_bar
           - sensor_limit_headline_label
           - sensor_limits_min_value
@@ -5990,6 +6121,10 @@ script:
           - sensor_limits_button_clear_label
           - sensor_limits_button_okay
           - sensor_limits_button_okay_label
+      - delay: 1ms
+
+      # Chunk 9: Settings BLE & WiFi widgets
+      - lvgl.widget.refresh:
           - settings_ble_mac_title
           - settings_mac_address_label
           - settings_mac_address_updated
@@ -6002,6 +6137,10 @@ script:
           - settings_wifi_password_textarea
           - settings_ota_title
           - settings_ota_password_textarea
+      - delay: 1ms
+
+      # Chunk 10: Settings switches and rollers
+      - lvgl.widget.refresh:
           - settings_hide_soc_switch_label
           - settings_hide_soc_switch
           - settings_show_time_switch_label
@@ -6025,6 +6164,10 @@ script:
           - settings_display_timeout_roller
           - settings_color_scheme_title
           - settings_color_scheme_roller
+      - delay: 1ms
+
+      # Chunk 11: Settings Meater and buttons
+      - lvgl.widget.refresh:
           - settings_meater_title
           - settings_meater_hint
           - settings_meater0_label
@@ -6046,7 +6189,6 @@ script:
           - settings_persist_hint_title
           - settings_persist_hint_button
           - settings_persist_hint_button_label
-
 
       - lambda: |-
           // Update nested parts

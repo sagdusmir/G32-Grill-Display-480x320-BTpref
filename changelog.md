@@ -1,5 +1,7 @@
 # Changelog
 
+* [2026-01-28] BTpref-retro 2.4.2
+   - minor UI tweaks and possibly performance inprovements
 * [2026-01-21] BTpref-retro 2.4.1
    - configuration to make use of the speaker header and the external DAC for nicer and slightly louder audio
 * [2026-01-11] BTpref-retro 2.4.0
