@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.2"
+  version: "BTpref-retro 2.4.3"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -844,6 +844,13 @@ globals:
   - id: settings_hide_soc
     type: bool
     initial_value: 'false'
+  - id: settings_hide_gas_level_persistent
+    type: bool
+    initial_value: 'false'
+    restore_value: true
+  - id: settings_hide_gas_level
+    type: bool
+    initial_value: 'false'
   - id: settings_enable_temperature_limits_persistent
     type: bool
     initial_value: 'true'
@@ -1520,6 +1527,7 @@ lvgl:
           widgets:
             # gas object with gas values in % and g
             - obj:
+                id: gas_level_obj
                 x: 0
                 y: 0
                 width: 480
@@ -1528,6 +1536,8 @@ lvgl:
                 bg_color: 0
                 border_width: 0
                 radius: 0
+                hidden: !lambda |-
+                  return id(settings_hide_gas_level_persistent);
                 widgets:
                   - label:
                       id: gas_icon
@@ -4116,6 +4126,7 @@ lvgl:
               id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
 
               id(settings_hide_soc) = id(settings_hide_soc_persistent);
+              id(settings_hide_gas_level) = id(settings_hide_gas_level_persistent);
               id(settings_show_time) = id(settings_show_time_persistent);
               id(settings_hide_timer) = id(settings_hide_timer_persistent);
               id(settings_enable_temperature_limits) = id(settings_enable_temperature_limits_persistent);
@@ -4229,6 +4240,11 @@ lvgl:
               state:
                 checked: !lambda |-
                   return id(settings_hide_soc) == 0;
+          - lvgl.widget.update:
+              id: settings_hide_gas_level_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_hide_gas_level) == 0;
           - lvgl.widget.update:
               id: settings_show_time_switch
               state:
@@ -4489,7 +4505,7 @@ lvgl:
                               - label:
                                   id: settings_hide_soc_switch_label
                                   x: 110
-                                  y: 31
+                                  y: 26
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4498,7 +4514,7 @@ lvgl:
                               - switch:
                                   id: settings_hide_soc_switch
                                   x: 40
-                                  y: 25
+                                  y: 20
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -4508,9 +4524,30 @@ lvgl:
                                         id(settings_hide_soc) = (x == 0);
 
                               - label:
+                                  id: settings_hide_gas_level_switch_label
+                                  x: 110
+                                  y: 65
+                                  width: 220
+                                  text_font: MONTSERRAT_14
+                                  text_color: !lambda return lv_color_hex(id(color_100));
+                                  text_align: LEFT
+                                  text: "show gas bottle level"
+                              - switch:
+                                  id: settings_hide_gas_level_switch
+                                  x: 40
+                                  y: 59
+                                  bg_color: !lambda return lv_color_hex(id(color_25));
+                                  state:
+                                    checked: !lambda |-
+                                      return id(settings_hide_gas_level) == 0;
+                                  on_value:
+                                    - lambda: |-
+                                        id(settings_hide_gas_level) = (x == 0);
+
+                              - label:
                                   id: settings_show_time_switch_label
                                   x: 110
-                                  y: 76
+                                  y: 104
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4519,7 +4556,7 @@ lvgl:
                               - switch:
                                   id: settings_show_time_switch
                                   x: 40
-                                  y: 70
+                                  y: 98
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -4531,16 +4568,16 @@ lvgl:
                               - label:
                                   id: settings_hide_timer_switch_label
                                   x: 110
-                                  y: 121
+                                  y: 143
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
                                   text_align: LEFT
-                                  text: "show countdown timer"
+                                  text: "countdown timer"
                               - switch:
                                   id: settings_hide_timer_switch
                                   x: 40
-                                  y: 115
+                                  y: 137
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -4552,7 +4589,7 @@ lvgl:
                               - label:
                                   id: settings_enable_temperature_limits_switch_label
                                   x: 110
-                                  y: 166
+                                  y: 182
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4561,7 +4598,7 @@ lvgl:
                               - switch:
                                   id: settings_enable_temperature_limits_switch
                                   x: 40
-                                  y: 160
+                                  y: 176
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -4573,7 +4610,7 @@ lvgl:
                               - label:
                                   id: settings_enable_auto_hiding_temperature_limits_switch_label
                                   x: 110
-                                  y: 203
+                                  y: 213
                                   width: 240
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4582,7 +4619,7 @@ lvgl:
                               - switch:
                                   id: settings_enable_auto_hiding_temperature_limits_switch
                                   x: 40
-                                  y: 205
+                                  y: 215
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -4594,7 +4631,7 @@ lvgl:
                               - label:
                                   id: settings_hide_inactive_sensors_switch_label
                                   x: 110
-                                  y: 256
+                                  y: 260
                                   width: 220
                                   text_font: MONTSERRAT_14
                                   text_color: !lambda return lv_color_hex(id(color_100));
@@ -4603,7 +4640,7 @@ lvgl:
                               - switch:
                                   id: settings_hide_inactive_sensors_switch
                                   x: 40
-                                  y: 250
+                                  y: 254
                                   bg_color: !lambda return lv_color_hex(id(color_25));
                                   state:
                                     checked: !lambda |-
@@ -5059,6 +5096,7 @@ lvgl:
                               id(settings_color_scheme_idx_persistent) = id(settings_color_scheme_idx);
 
                               id(settings_hide_soc_persistent) = id(settings_hide_soc);
+                              id(settings_hide_gas_level_persistent) = id(settings_hide_gas_level);
                               id(settings_show_time_persistent) = id(settings_show_time);
                               id(settings_hide_timer_persistent) = id(settings_hide_timer);
                               id(settings_enable_temperature_limits_persistent) = id(settings_enable_temperature_limits);
@@ -5959,6 +5997,7 @@ script:
 
       # Chunk 2: Gas widgets
       - lvgl.widget.refresh:
+          - gas_level_obj
           - gas_icon
           - gas_percent_bar
           - gas_percent_label_shadow
@@ -6143,6 +6182,8 @@ script:
       - lvgl.widget.refresh:
           - settings_hide_soc_switch_label
           - settings_hide_soc_switch
+          - settings_hide_gas_level_switch_label
+          - settings_hide_gas_level_switch
           - settings_show_time_switch_label
           - settings_show_time_switch
           - settings_hide_timer_switch_label
@@ -6259,6 +6300,8 @@ script:
               static_cast<lv_style_selector_t>(LV_STATE_CHECKED);
           lv_obj_set_style_bg_color(settings_hide_soc_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
           lv_obj_set_style_bg_color(settings_hide_soc_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
+          lv_obj_set_style_bg_color(settings_hide_gas_level_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
+          lv_obj_set_style_bg_color(settings_hide_gas_level_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
           lv_obj_set_style_bg_color(settings_show_time_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);
           lv_obj_set_style_bg_color(settings_show_time_switch, lv_color_hex(id(color_75)), INDICATOR_CHECKED);
           lv_obj_set_style_bg_color(settings_hide_timer_switch, lv_color_hex(id(color_100)), LV_PART_KNOB);

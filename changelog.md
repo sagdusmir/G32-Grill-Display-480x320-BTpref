@@ -1,5 +1,7 @@
 # Changelog
 
+* [2026-01-28] BTpref-retro 2.4.3
+   - option to hide gas buddy readings
 * [2026-01-28] BTpref-retro 2.4.2
    - minor UI tweaks and possibly performance inprovements
 * [2026-01-21] BTpref-retro 2.4.1
