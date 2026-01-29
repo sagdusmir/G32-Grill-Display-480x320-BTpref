@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.3"
+  version: "BTpref-retro 2.4.4"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -218,6 +218,12 @@ esp32_ble_tracker:
             if (id(ble_meaters_found) < 15) {
               if (!x.get_manufacturer_datas().empty() && !x.get_manufacturer_datas()[0].data.empty()) {  // assert data is available
                 int probe_id = x.get_manufacturer_datas()[0].data[0];  // first data byte
+
+                // for solo meaters without probe ID (issue reported by @JBecker32)
+                if (probe_id == 0) {
+                  probe_id = 1;
+                }
+
                 if (probe_id > 0 && probe_id < 5) {
                   int idx = probe_id-1;
                   if ((id(ble_meaters_found) & (1 << idx)) == 0) {

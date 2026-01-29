@@ -1,5 +1,7 @@
 # Changelog
 
+* [2026-01-29] BTpref-retro 2.4.4
+   - bugfix: solo Meater reports 0 instead of the probe ID
 * [2026-01-28] BTpref-retro 2.4.3
    - option to hide gas buddy readings
 * [2026-01-28] BTpref-retro 2.4.2
