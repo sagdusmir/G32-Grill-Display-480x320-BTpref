@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.4"
+  version: "BTpref-retro 2.4.5"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -1117,9 +1117,9 @@ time:
 
   platform: sntp
   servers:
-    - ntp0.ntp-servers.net
-    - ntp1.ntp-servers.net
-    - ntp2.ntp-servers.net
+    - 0.pool.ntp.org
+    - 1.pool.ntp.org
+    - 2.pool.ntp.org
 
   # alternatively
   # platform: homeassistant  # no advantage over sntp

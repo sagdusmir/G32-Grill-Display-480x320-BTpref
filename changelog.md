@@ -1,5 +1,7 @@
 # Changelog
 
+* [2026-02-01] BTpref-retro 2.4.5
+   - hotfix: switch sntp servers for getting the accurate daytime
 * [2026-01-29] BTpref-retro 2.4.4
    - bugfix: solo Meater reports 0 instead of the probe ID
 * [2026-01-28] BTpref-retro 2.4.3
