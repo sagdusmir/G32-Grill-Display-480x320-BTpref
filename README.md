@@ -16,7 +16,7 @@ The hardware used, software installation, and all other details for this project
 * **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left "G32 Connected" text)
 * **Color Schemes:** some predefined color schemes are available in the settings and even new ones can be easily added by editing the source code
 * **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
-* **MEATER® (optional):** the tip temperatures and battery SOC of connected sensors (1–4) are displayed instead of the G32 values, if available
+* **MEATER® (optional):** the tip temperatures and battery SOC of connected sensors (1–4) are displayed instead of the G32 values, if available. Starting with BTpref-retro2.4.6 an alert is shown if temperature specs are exceeded.
 * **Home Assistant (optinoal):** most measurements are exposed to Home Assistant
 
 ## What’s still missing?
