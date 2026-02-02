@@ -6,7 +6,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.5"
+  version: "BTpref-retro 2.4.6"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -54,10 +54,14 @@ substitutions:
 
   # max temperature for zones and sensors
   Zone_Max: "500"
-  Sensor_Max: "130"
+  Sensor_Max: "100"
 
   # interval for alarm sound
   Beeper_interval: "5s"
+
+  # Meater protetion alerts
+  meater_tip_alert: '100'  # Specs: 100°C (original Meater: 100°C, 105°C (Meater PRO)
+  meater_ambient_alert: '270'  # Specs: 275°C (original Meater), 550°C (Meater PRO)
 
   # sounds (in RTTTL syntax):
   G32_Connect_Sound: "pling2:d=16,o=6,b=140:e6,32p,d6"
@@ -150,8 +154,8 @@ psram:
   speed: 80MHz # 120mhz is not supported and falls back to 40mhz
 
 logger:
-  # baud_rate: 921600  # enable logging
-  baud_rate: 0  # no logging -> saves power
+  baud_rate: 921600  # enable logging
+  # baud_rate: 0  # no logging -> saves power
 
 api: # enable Home Assistant API
   encryption:
@@ -369,56 +373,76 @@ ble_client:
       then:
         - lambda: |-
             id(active_meaters) |= 0x01;
+            id(meater_alarms_tip) |= 0x01;
+            id(meater_alarms_ambient) |= 0x01;
         - rtttl.play: ${MT_Connect_Sound}
     on_disconnect:
       then:
         - lambda: |-
             id(active_meaters) &= ~0x01;
+            id(meater_alarms_tip) &= ~0x01;
+            id(meater_alarms_ambient) &= ~0x01;
         - lambda: |-
             id(g32_probe1).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
+        - script.execute: refresh_all_meater_alerts
   - mac_address: ${meater_mac_address}
     id: meater1
     on_connect:
       then:
         - lambda: |-
             id(active_meaters) |= 0x02;
+            id(meater_alarms_tip) |= 0x02;
+            id(meater_alarms_ambient) |= 0x02;
         - rtttl.play: ${MT_Connect_Sound}
     on_disconnect:
       then:
         - lambda: |-
             id(active_meaters) &= ~0x02;
+            id(meater_alarms_tip) &= ~0x02;
+            id(meater_alarms_ambient) &= ~0x02;
         - lambda: |-
             id(g32_probe2).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
+        - script.execute: refresh_all_meater_alerts
   - mac_address: ${meater_mac_address}
     id: meater2
     on_connect:
       then:
         - lambda: |-
             id(active_meaters) |= 0x04;
+            id(meater_alarms_tip) |= 0x04;
+            id(meater_alarms_ambient) |= 0x04;
         - rtttl.play: ${MT_Connect_Sound}
     on_disconnect:
       then:
         - lambda: |-
             id(active_meaters) &= ~0x04;
+            id(meater_alarms_tip) &= ~0x04;
+            id(meater_alarms_ambient) &= ~0x04;
         - lambda: |-
             id(g32_probe3).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
+        - script.execute: refresh_all_meater_alerts
   - mac_address: ${meater_mac_address}
     id: meater3
     on_connect:
       then:
         - lambda: |-
             id(active_meaters) |= 0x08;
+            id(meater_alarms_tip) |= 0x08;
+            id(meater_alarms_ambient) |= 0x08;
         - rtttl.play: ${MT_Connect_Sound}
     on_disconnect:
       then:
         - lambda: |-
             id(active_meaters) &= ~0x08;
+            id(meater_alarms_tip) &= ~0x08;
+            id(meater_alarms_ambient) &= ~0x08;
         - lambda: |-
             id(g32_probe4).publish_state(${Invalid_Sensor_Value});
         - rtttl.play: ${MT_Disconnect_Sound}
+        - script.execute: refresh_all_meater_alerts
 
 #-------------------------------------------
 # Display qspi
@@ -566,7 +590,8 @@ interval:
           if( ((id(zone1_limit_value) > 0) && (id(zone1_value) >= id(zone1_limit_value)))
            || ((id(zone2_limit_value) > 0) && (id(zone2_value) >= id(zone2_limit_value)))
            || ((id(zone3_limit_value) > 0) && (id(zone3_value) >= id(zone3_limit_value)))
-           || ((id(zone4_limit_value) > 0) && (id(zone4_value) >= id(zone4_limit_value))) ) {
+           || ((id(zone4_limit_value) > 0) && (id(zone4_value) >= id(zone4_limit_value)))
+           || id(meater_alarms_ambient) > 0 || id(meater_alarms_tip) > 0 ) {
             id(my_rtttl).play("${Zone_Limit_Alarm_Sound}");
           }
           else if ( ((id(sensor1_limit_value) > 0) && (id(sensor1_value) >= id(sensor1_limit_value)))
@@ -765,9 +790,26 @@ globals:
   - id: meater_values_tip
     type: std::array<float, 4>
     initial_value: '{0.0,0.0,0.0,0.0}'
+  - id: meater_values_ambient
+    type: std::array<float, 4>
+    initial_value: '{0.0,0.0,0.0,0.0}'
   - id: meater_values_battery
     type: std::array<int, 4>
     initial_value: '{100,100,100,100}'
+
+
+  - id: meater_tip_alert
+    type: float
+    initial_value: '${meater_tip_alert}'
+  - id: meater_ambient_alert
+    type: float
+    initial_value: '${meater_ambient_alert}'
+  - id: meater_alarms_tip  # bits set/reset
+    type: int
+    initial_value: '0'
+  - id: meater_alarms_ambient  # bits set/reset
+    type: int
+    initial_value: '0'
 
   - id: battery_soc_value
     type: int
@@ -936,6 +978,12 @@ font:
       - "\U000F050F" # mdi-thermometer
       - "\U000F1A4E" # mdi-lightbulb-on-20
       - "\U000F0D3F" # mdi-weight-grams
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    # file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    id: ICON_FONT_18
+    size: 18
+    glyphs:
+      - "\U000F15D7" # mdi mdi-fire-alert
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
     # file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
     id: ICON_FONT_12
@@ -1437,7 +1485,12 @@ lvgl:
                 y: 1
                 text_font: MONTSERRAT_18
                 text_color: !lambda |-
-                  if( id(g32_connected) && (id(warning_on) || ( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) || ( id(gas_percent) <= id(settings_min_gas_value_persistent)) )) {
+                  if((id(meater_alarms_tip) > 0)
+                    || (id(meater_alarms_ambient) > 0)
+                    || (id(battery_soc_value) <= id(settings_min_soc_value_persistent))
+                    || id(warning_on)
+                    || (id(g32_connected) && (id(gas_percent) <= id(settings_min_gas_value_persistent)))
+                  ) {
                     return lv_color_hex(id(color_bad));
                   }
                   return lv_color_hex(id(color_00));
@@ -1977,7 +2030,7 @@ lvgl:
                         id: zone1_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -2148,7 +2201,7 @@ lvgl:
                         id: zone2_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -2319,7 +2372,7 @@ lvgl:
                         id: zone3_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -2490,7 +2543,7 @@ lvgl:
                         id: zone4_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -2703,7 +2756,7 @@ lvgl:
                         id: sensor1_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -2747,6 +2800,14 @@ lvgl:
                             return "\uF243";
                           }
                           return "\uF244";
+                    - label:
+                        id: sensor1_meater_alert
+                        x: 0
+                        y: 96
+                        text_font: ICON_FONT_18
+                        text: "\U000F15D7"  # mdi mdi-fire-alert
+                        text_color: !lambda return lv_color_hex(id(color_bad));
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 0));
                     - label:
                         id: sensor1_label
                         x: 17
@@ -2873,6 +2934,19 @@ lvgl:
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
+                    - label:
+                        id: sensor1_alert
+                        x: 8
+                        y: 15
+                        width: 104
+                        height: 104
+                        radius: 52
+                        border_width: 0
+                        bg_opa: 30%
+                        bg_color: !lambda |-
+                          return lv_color_hex(id(color_bad));
+                        text: " "
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 0));
               - obj: # sensor 2
                   id: sensor2_obj
                   x: 120
@@ -2910,7 +2984,7 @@ lvgl:
                         id: sensor2_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -2954,6 +3028,14 @@ lvgl:
                             return "\uF243";
                           }
                           return "\uF244";
+                    - label:
+                        id: sensor2_meater_alert
+                        x: 0
+                        y: 96
+                        text_font: ICON_FONT_18
+                        text: "\U000F15D7"  # mdi mdi-fire-alert
+                        text_color: !lambda return lv_color_hex(id(color_bad));
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 1));
                     - label:
                         id: sensor2_label
                         x: 17
@@ -3080,6 +3162,19 @@ lvgl:
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
+                    - label:
+                        id: sensor2_alert
+                        x: 8
+                        y: 15
+                        width: 104
+                        height: 104
+                        radius: 52
+                        border_width: 0
+                        bg_opa: 30%
+                        bg_color: !lambda |-
+                          return lv_color_hex(id(color_bad));
+                        text: " "
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 1));
               - obj: # sensor 3
                   id: sensor3_obj
                   x: 240
@@ -3117,7 +3212,7 @@ lvgl:
                         id: sensor3_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -3161,6 +3256,14 @@ lvgl:
                             return "\uF243";
                           }
                           return "\uF244";
+                    - label:
+                        id: sensor3_meater_alert
+                        x: 0
+                        y: 96
+                        text_font: ICON_FONT_18
+                        text: "\U000F15D7"  # mdi mdi-fire-alert
+                        text_color: !lambda return lv_color_hex(id(color_bad));
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 2));
                     - label:
                         id: sensor3_label
                         x: 17
@@ -3287,6 +3390,19 @@ lvgl:
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
+                    - label:
+                        id: sensor3_alert
+                        x: 8
+                        y: 15
+                        width: 104
+                        height: 104
+                        radius: 52
+                        border_width: 0
+                        bg_opa: 30%
+                        bg_color: !lambda |-
+                          return lv_color_hex(id(color_bad));
+                        text: " "
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 2));
               - obj: # sensor 4
                   id: sensor4_obj
                   x: 360
@@ -3324,7 +3440,7 @@ lvgl:
                         id: sensor4_obj_unit
                         x: 0
                         y: 96
-                        text_font: MONTSERRAT_12
+                        text_font: MONTSERRAT_14
                         text: '°C'
                         text_color: !lambda return lv_color_hex(id(color_75));
                     - label:  # background
@@ -3368,6 +3484,14 @@ lvgl:
                             return "\uF243";
                           }
                           return "\uF244";
+                    - label:
+                        id: sensor4_meater_alert
+                        x: 0
+                        y: 96
+                        text_font: ICON_FONT_18
+                        text: "\U000F15D7"  # mdi mdi-fire-alert
+                        text_color: !lambda return lv_color_hex(id(color_bad));
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 3));
                     - label:
                         id: sensor4_label
                         x: 17
@@ -3494,6 +3618,19 @@ lvgl:
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
+                    - label:
+                        id: sensor4_alert
+                        x: 8
+                        y: 15
+                        width: 104
+                        height: 104
+                        radius: 52
+                        border_width: 0
+                        bg_opa: 30%
+                        bg_color: !lambda |-
+                          return lv_color_hex(id(color_bad));
+                        text: " "
+                        hidden: !lambda return !((id(meater_alarms_tip) | id(meater_alarms_ambient)) & (1 << 3));
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: timer_page
@@ -5353,7 +5490,7 @@ sensor:
     id: g32_probe1
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     on_value:
       - lambda: id(sensor1_value) = x;
       - lvgl.widget.refresh: [sensor1_label, sensor1_label_large, sensor1_arc, sensor1_obj]
@@ -5364,7 +5501,7 @@ sensor:
     id: g32_probe2
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     on_value:
       - lambda: id(sensor2_value) = x;
       - lvgl.widget.refresh: [sensor2_label, sensor2_label_large, sensor2_arc, sensor2_obj]
@@ -5375,7 +5512,7 @@ sensor:
     id: g32_probe3
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     on_value:
       - lambda: id(sensor3_value) = x;
       - lvgl.widget.refresh: [sensor3_label, sensor3_label_large, sensor3_arc, sensor3_obj]
@@ -5386,7 +5523,7 @@ sensor:
     id: g32_probe4
     device_class: "temperature"
     unit_of_measurement: "°C"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     on_value:
       - lambda: id(sensor4_value) = x;
       - lvgl.widget.refresh: [sensor4_label, sensor4_label_large, sensor4_arc, sensor4_obj]
@@ -5429,63 +5566,200 @@ sensor:
   - platform: ble_client
     ble_client_id: meater0
     type: characteristic
-    name: "Meater 1"
+    name: "Meater 1 Tip"
     service_uuid: ${meater_service_uuid}
     characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
       uint16_t tip = x[0] + (x[1] << 8);
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[0] = t_tip;
-      id(g32_probe1).publish_state(int(t_tip));
+      id(g32_probe1).publish_state(int(t_tip+0.5));
       ESP_LOGI("meater", "0 tip %.2f", t_tip);
+      if (t_tip > id(meater_tip_alert)) {
+        id(meater_alarms_tip) |= 0x01;
+      } else {
+        id(meater_alarms_tip) &= ~0x01;
+      }
       return t_tip;
   - platform: ble_client
     ble_client_id: meater1
     type: characteristic
-    name: "Meater 2"
+    name: "Meater 2 Tip"
     service_uuid: ${meater_service_uuid}
     characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
       uint16_t tip = x[0] + (x[1] << 8);
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[1] = t_tip;
-      id(g32_probe2).publish_state(int(t_tip));
+      id(g32_probe2).publish_state(int(t_tip+0.5));
       ESP_LOGI("meater", "1 tip %.2f", t_tip);
+      if (t_tip > id(meater_tip_alert)) {
+        id(meater_alarms_tip) |= 0x02;
+      } else {
+        id(meater_alarms_tip) &= ~0x02;
+      }
       return t_tip;
   - platform: ble_client
     ble_client_id: meater2
     type: characteristic
-    name: "Meater 3"
+    name: "Meater 3 Tip"
     service_uuid: ${meater_service_uuid}
     characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
       uint16_t tip = x[0] + (x[1] << 8);
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[2] = t_tip;
-      id(g32_probe3).publish_state(int(t_tip));
+      id(g32_probe3).publish_state(int(t_tip+0.5));
       ESP_LOGI("meater", "2 tip %.2f", t_tip);
+      if (t_tip > id(meater_tip_alert)) {
+        id(meater_alarms_tip) |= 0x04;
+      } else {
+        id(meater_alarms_tip) &= ~0x04;
+      }
       return t_tip;
   - platform: ble_client
     ble_client_id: meater3
     type: characteristic
-    name: "Meater 4"
+    name: "Meater 4 Tip"
     service_uuid: ${meater_service_uuid}
     characteristic_uuid: ${meater_characteristic_uuid_temp}
     update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
       uint16_t tip = x[0] + (x[1] << 8);
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[3] = t_tip;
-      id(g32_probe4).publish_state(int(t_tip));
+      id(g32_probe4).publish_state(int(t_tip+0.5));
       ESP_LOGI("meater", "3 tip %.2f", t_tip);
+      if (t_tip > id(meater_tip_alert)) {
+        id(meater_alarms_tip) |= 0x08;
+      } else {
+        id(meater_alarms_tip) &= ~0x08;
+      }
       return t_tip;
+
+  - platform: ble_client
+    ble_client_id: meater0
+    type: characteristic
+
+    name: "Meater 1 Ambient"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
+    update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    lambda: |-
+      uint16_t tip = x[0] + (x[1] << 8);
+      uint16_t ra = x[2] + (x[3] << 8);
+      uint16_t oa = x[4] + (x[5] << 8);
+      uint16_t min_val = 48;
+      float t_ambient = (tip + std::max(0, (((ra - std::min(min_val, oa)) * 16 * 589) / 1487)) + 8.0) / 16;
+      id(meater_values_ambient)[0] = t_ambient;
+      ESP_LOGI("meater", "0 ambient %.2f", t_ambient);
+      if (t_ambient > id(meater_ambient_alert)) {
+        id(meater_alarms_ambient) |= 0x01;
+      } else {
+        id(meater_alarms_ambient) &= ~0x01;
+      }
+      return t_ambient;
+    on_value:
+      - script.execute: refresh_all_meater_alerts
+
+  - platform: ble_client
+    ble_client_id: meater1
+    type: characteristic
+    name: "Meater 2 Ambient"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
+    update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    lambda: |-
+      uint16_t tip = x[0] + (x[1] << 8);
+      uint16_t ra = x[2] + (x[3] << 8);
+      uint16_t oa = x[4] + (x[5] << 8);
+      uint16_t min_val = 48;
+      float t_ambient = (tip + std::max(0, (((ra - std::min(min_val, oa)) * 16 * 589) / 1487)) + 8.0) / 16;
+      id(meater_values_ambient)[1] = t_ambient;
+      ESP_LOGI("meater", "1 ambient %.2f", t_ambient);
+      if (t_ambient > id(meater_ambient_alert)) {
+        id(meater_alarms_ambient) |= 0x02;
+      } else {
+        id(meater_alarms_ambient) &= ~0x02;
+      }
+      return t_ambient;
+    on_value:
+      - script.execute: refresh_all_meater_alerts
+
+  - platform: ble_client
+    ble_client_id: meater2
+    type: characteristic
+    name: "Meater 3 Ambient"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
+    update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    lambda: |-
+      uint16_t tip = x[0] + (x[1] << 8);
+      uint16_t ra = x[2] + (x[3] << 8);
+      uint16_t oa = x[4] + (x[5] << 8);
+      uint16_t min_val = 48;
+      float t_ambient = (tip + std::max(0, (((ra - std::min(min_val, oa)) * 16 * 589) / 1487)) + 8.0) / 16;
+      id(meater_values_ambient)[2] = t_ambient;
+      ESP_LOGI("meater", "2 ambient %.2f", t_ambient);
+      if (t_ambient > id(meater_ambient_alert)) {
+        id(meater_alarms_ambient) |= 0x04;
+      } else {
+        id(meater_alarms_ambient) &= ~0x04;
+      }
+      return t_ambient;
+    on_value:
+      - script.execute: refresh_all_meater_alerts
+
+  - platform: ble_client
+    ble_client_id: meater3
+    type: characteristic
+    name: "Meater 4 Ambient"
+    service_uuid: ${meater_service_uuid}
+    characteristic_uuid: ${meater_characteristic_uuid_temp}
+    update_interval: 10s
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    lambda: |-
+      uint16_t tip = x[0] + (x[1] << 8);
+      uint16_t ra = x[2] + (x[3] << 8);
+      uint16_t oa = x[4] + (x[5] << 8);
+      uint16_t min_val = 48;
+      float t_ambient = (tip + std::max(0, (((ra - std::min(min_val, oa)) * 16 * 589) / 1487)) + 8.0) / 16;
+      id(meater_values_ambient)[3] = t_ambient;
+      ESP_LOGI("meater", "3 ambient %.2f", t_ambient);
+      if (t_ambient > id(meater_ambient_alert)) {
+        id(meater_alarms_ambient) |= 0x08;
+      } else {
+        id(meater_alarms_ambient) &= ~0x08;
+      }
+      return t_ambient;
+    on_value:
+      - script.execute: refresh_all_meater_alerts
 
   - platform: ble_client
     ble_client_id: meater0
@@ -5677,6 +5951,18 @@ script:
           - sensor4_battery
       - lvgl.widget.redraw:
 
+  - id: refresh_all_meater_alerts
+    then:
+      - lvgl.widget.refresh:
+          - sensor1_alert
+          - sensor1_meater_alert
+          - sensor2_alert
+          - sensor2_meater_alert
+          - sensor3_alert
+          - sensor3_meater_alert
+          - sensor4_alert
+          - sensor4_meater_alert
+
   - id: time_update
     then:
       - if:
@@ -5811,6 +6097,10 @@ script:
           condition:
             lambda: 'return !id(boot_screen_hidden);'
           then:
+            - lambda: |-
+                id(active_meaters) = 0;
+                id(meater_alarms_tip) = 0;
+                id(meater_alarms_ambient) = 0;
             - script.execute: apply_mac_address
             - script.execute: apply_wifi
             - script.execute: apply_ota_password
@@ -6103,6 +6393,8 @@ script:
           - sensor1_limit_label
           - sensor1_arc
           - sensor1_limit_arc
+          - sensor1_alert
+          - sensor1_meater_alert
           - sensor2_obj
           - sensor2_obj_unit
           - sensor2_label_shadow
@@ -6115,6 +6407,8 @@ script:
           - sensor2_limit_label
           - sensor2_arc
           - sensor2_limit_arc
+          - sensor2_alert
+          - sensor2_meater_alert
       - delay: 1ms
 
       # Chunk 6: Sensor 3 & 4 widgets
@@ -6131,6 +6425,8 @@ script:
           - sensor3_limit_label
           - sensor3_arc
           - sensor3_limit_arc
+          - sensor3_alert
+          - sensor3_meater_alert
           - sensor4_obj
           - sensor4_obj_unit
           - sensor4_label_shadow
@@ -6143,6 +6439,8 @@ script:
           - sensor4_limit_label
           - sensor4_arc
           - sensor4_limit_arc
+          - sensor4_alert
+          - sensor4_meater_alert
       - delay: 1ms
 
       # Chunk 7: Timer widgets

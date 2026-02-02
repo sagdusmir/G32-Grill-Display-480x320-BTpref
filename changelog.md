@@ -1,5 +1,8 @@
 # Changelog
 
+* [2026-02-02] BTpref-retro 2.4.6
+   - new alerts if Meater reading exceeds specification (tip: 100°C, ambient: 275°C)
+   - all shadows of symbols and text can be forced to black by using a new substitution FORCE_SHADOW_COLOR_TO_BLACK
 * [2026-02-01] BTpref-retro 2.4.5
    - hotfix: switch sntp servers for getting the accurate daytime
 * [2026-01-29] BTpref-retro 2.4.4
