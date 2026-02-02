@@ -49,14 +49,8 @@ substitutions:
       {"yellow",     {7, 0xffda00, 0xbea300, 0x806d00, 0x262000, 0x64dc00, 0xff5900, 0xffff00}}
     }
 
-  # shades of white (initial start values since substitutions work best)
-  COLOR_100:   "0xffffff"  # 100% brightness
-  COLOR_75:    "0xbfbfbf"  #  75%
-  COLOR_50:    "0x808080"  #  50%
-  COLOR_25:    "0x404040"  #  25%
-  COLOR_GOOD:  "0x8bff85"
-  COLOR_BAD:   "0xff5757"
-  COLOR_LIGHT: "0xffff00"
+  FORCE_SHADOW_COLOR_TO_BLACK: 'false'  # standard: use COLOR_25 for shadows
+  # FORCE_SHADOW_COLOR_TO_BLACK: 'true'  # alternative: symbol and text shadows should not be visible
 
   # max temperature for zones and sensors
   Zone_Max: "500"
@@ -96,6 +90,15 @@ substitutions:
   meater_characteristic_uuid_battery: '2adb4877-68d8-4884-bd3c-d83853bf27b8'
 
   Invalid_Sensor_Value: '1500'  # 1500 (and above) means "invalid"
+
+  # shades of white (initial start values since substitutions work best)
+  COLOR_100:   "0xffffff"  # 100% brightness
+  COLOR_75:    "0xbfbfbf"  #  75%
+  COLOR_50:    "0x808080"  #  50%
+  COLOR_25:    "0x404040"  #  25%
+  COLOR_GOOD:  "0x8bff85"
+  COLOR_BAD:   "0xff5757"
+  COLOR_LIGHT: "0xffff00"
 
 esphome:
   name: ${name}
@@ -671,6 +674,9 @@ globals:
     type: int
     initial_value: '${COLOR_50}'
   - id: color_25
+    type: int
+    initial_value: '${COLOR_25}'
+  - id: color_00
     type: int
     initial_value: '${COLOR_25}'
   - id: color_good
@@ -1343,7 +1349,7 @@ lvgl:
                       text_font: SEGMENT_FONT_8
                       text_align: RIGHT
                       width: 22
-                      text_color: !lambda return lv_color_hex(id(color_25));
+                      text_color: !lambda return lv_color_hex(id(color_00));
                       text: "188"
                   - label:
                       id: battery_soc_label
@@ -1384,7 +1390,7 @@ lvgl:
                   if( id(g32_connected) ) {
                     return lv_color_hex(id(color_good));
                   }
-                  return lv_color_hex(id(color_25));
+                  return lv_color_hex(id(color_00));
                 text: "\U000F00AF"
             - label: # symbol for successfull WIFI connection
                 id: wifi_connect_label
@@ -1397,7 +1403,7 @@ lvgl:
                   if( id(wifi_connected) ) {
                     return lv_color_hex(id(color_good));
                   }
-                  return lv_color_hex(id(color_25));
+                  return lv_color_hex(id(color_00));
                 text: "\uF1EB" # WIFI symbol
             - label: # symbol for 'firebox open'
                 id: firebox_open_label
@@ -1410,7 +1416,7 @@ lvgl:
                   if( id(firebox_open) ) {
                     return lv_color_hex(id(color_good));
                   }
-                  return lv_color_hex(id(color_25));
+                  return lv_color_hex(id(color_00));
                 text: "\uF093" # arrow up
             - label: # symbol for 'light on'
                 id: light_on_label
@@ -1423,7 +1429,7 @@ lvgl:
                   if( id(light_on) ) {
                     return lv_color_hex(id(color_light));
                   }
-                  return lv_color_hex(id(color_25));
+                  return lv_color_hex(id(color_00));
                 text: "\U000F1A4E"
             - label:
                 id: warning_on_label
@@ -1434,7 +1440,7 @@ lvgl:
                   if( id(g32_connected) && (id(warning_on) || ( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) || ( id(gas_percent) <= id(settings_min_gas_value_persistent)) )) {
                     return lv_color_hex(id(color_bad));
                   }
-                  return lv_color_hex(id(color_25));
+                  return lv_color_hex(id(color_00));
                 text_align: CENTER
                 width: 24
                 text: "\uF071"
@@ -1443,7 +1449,7 @@ lvgl:
                 x: 188
                 y: 0
                 text_font: SEGMENT_FONT_20
-                text_color: !lambda return lv_color_hex(id(color_25));
+                text_color: !lambda return lv_color_hex(id(color_00));
                 text_align: CENTER
                 bg_color: 0
                 width: 104
@@ -1494,7 +1500,7 @@ lvgl:
                 width: 104
                 bg_opa: COVER
                 text_font: SEGMENT_FONT_20
-                text_color: !lambda return lv_color_hex(id(color_25));
+                text_color: !lambda return lv_color_hex(id(color_00));
                 text_align: CENTER
                 text: "88:88:88"
                 hidden: true
@@ -1688,7 +1694,7 @@ lvgl:
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
                       width: 35
-                      text_color: !lambda return lv_color_hex(id(color_25));
+                      text_color: !lambda return lv_color_hex(id(color_00));
                       text: "188"
                   - label:
                       id: gas_percent_label
@@ -1737,7 +1743,7 @@ lvgl:
                       width: 55
                       text_font: SEGMENT_FONT_14
                       text_align: RIGHT
-                      text_color: !lambda return lv_color_hex(id(color_25));
+                      text_color: !lambda return lv_color_hex(id(color_00));
                       text: "18888"
                   - label:
                       id: gas_weight_label
@@ -1981,7 +1987,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -2014,7 +2020,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -2052,7 +2058,7 @@ lvgl:
                           if ( id(zone1_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
@@ -2064,7 +2070,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone1_limit_value));
@@ -2152,7 +2158,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -2185,7 +2191,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -2223,7 +2229,7 @@ lvgl:
                           if ( id(zone2_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
@@ -2235,7 +2241,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone2_limit_value));
@@ -2323,7 +2329,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -2356,7 +2362,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -2394,7 +2400,7 @@ lvgl:
                           if ( id(zone3_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
@@ -2406,7 +2412,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone3_limit_value));
@@ -2494,7 +2500,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -2527,7 +2533,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -2566,7 +2572,7 @@ lvgl:
                           if ( id(zone4_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
@@ -2578,7 +2584,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(zone4_limit_value));
@@ -2707,7 +2713,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -2769,7 +2775,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -2807,7 +2813,7 @@ lvgl:
                           if ( id(sensor1_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
@@ -2819,7 +2825,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor1_limit_value));
@@ -2914,7 +2920,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -2976,7 +2982,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -3014,7 +3020,7 @@ lvgl:
                           if ( id(sensor2_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
@@ -3026,7 +3032,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor2_limit_value));
@@ -3121,7 +3127,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -3183,7 +3189,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -3221,7 +3227,7 @@ lvgl:
                           if ( id(sensor3_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
@@ -3233,7 +3239,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor3_limit_value));
@@ -3328,7 +3334,7 @@ lvgl:
                         width: 70
                         text_font: SEGMENT_FONT_22
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
@@ -3390,7 +3396,7 @@ lvgl:
                         width: 90
                         text_font: SEGMENT_FONT_35
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         text_align: RIGHT
                         hidden: !lambda |-
                           return !(!id(settings_enable_temperature_limits_persistent) ||
@@ -3428,7 +3434,7 @@ lvgl:
                           if ( id(sensor4_limit_value) != 0) {
                             return lv_color_hex(id(color_100));
                           }
-                          return lv_color_hex(id(color_25));
+                          return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
@@ -3440,7 +3446,7 @@ lvgl:
                         text_font: SEGMENT_FONT_22
                         text_align: RIGHT
                         text: "888"
-                        text_color: !lambda return lv_color_hex(id(color_25));
+                        text_color: !lambda return lv_color_hex(id(color_00));
                         hidden: !lambda |-
                           return !id(settings_enable_temperature_limits_persistent) ||
                             (id(settings_enable_auto_hiding_temperature_limits_persistent) && !id(sensor4_limit_value));
@@ -5970,6 +5976,12 @@ script:
             id(color_good)  = (*selected_vec)[5];
             id(color_bad)   = (*selected_vec)[6];
             id(color_light) = (*selected_vec)[7];
+
+            if (${FORCE_SHADOW_COLOR_TO_BLACK}) {
+              id(color_00) = 0x000000;
+            } else {
+              id(color_00) = id(color_25);
+            }
 
             // THIS SCHOULD BE THE MAGIC LINE: tells every LVGL object that styles changed
             // BUT: DOES NOT WORK at the moment
