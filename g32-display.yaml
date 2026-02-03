@@ -1175,14 +1175,10 @@ font:
 time:
   id: my_time
 
+  # use public ntp servers so we can get along without Home Assistant
   platform: sntp
-  servers:
-    - 0.pool.ntp.org
-    - 1.pool.ntp.org
-    - 2.pool.ntp.org
-
   # alternatively
-  # platform: homeassistant  # no advantage over sntp
+  # platform: homeassistant
 
   # timezone: "Europe/Berlin"  # should be detected automatically during build process
   on_time_sync:
