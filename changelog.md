@@ -1,5 +1,8 @@
 # Changelog
 
+* [main:HEAD] BTpref-retro 2.x.x
+   - removed ntp servers alltogether (thanks @JBecker32, and @fschwarz86 for pointing that out)
+   - tbd
 * [2026-02-02] BTpref-retro 2.4.6
    - new alerts if Meater reading exceeds specification (tip: 100°C, ambient: 275°C)
    - color themes now have a dedicated color for shadows of symbols and text
