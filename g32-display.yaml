@@ -112,7 +112,7 @@ substitutions:
 
 esphome:
   name: ${name}
-  build_path: /tmp/esphome_build
+  build_path: /tmp/esphome_build/${name}
   platformio_options:
     upload_speed: 921600
     board_build.flash_mode: dio
