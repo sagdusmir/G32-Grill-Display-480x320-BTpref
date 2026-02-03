@@ -1,7 +1,9 @@
 # G32 Connected Grill Monitor and Display
 
+![GitHub Tag](https://img.shields.io/github/v/tag/sagdusmir/G32-Grill-Display-480x320-BTpref)
+![GitHub Release Date](https://img.shields.io/github/release-date/sagdusmir/G32-Grill-Display-480x320-BTpref)
+![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/sagdusmir/G32-Grill-Display-480x320-BTpref/main)
 ![GitHub License](https://img.shields.io/github/license/sagdusmir/G32-Grill-Display-480x320-BTpref)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/t/sagdusmir/G32-Grill-Display-480x320-BTpref)
 
 This is a fork of https://github.com/JBecker32/G32-Display-480x320-BT.
 
