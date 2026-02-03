@@ -5,7 +5,7 @@
 ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/sagdusmir/G32-Grill-Display-480x320-BTpref/main)
 ![GitHub License](https://img.shields.io/github/license/sagdusmir/G32-Grill-Display-480x320-BTpref)
 
-This is a fork of https://github.com/JBecker32/G32-Display-480x320-BT.
+This repository started as a fork of https://github.com/JBecker32/G32-Display-480x320-BT, but has since undergone several improvements.
 
 The main focus is its use as a mobile grill monitor and thus also as a replacement for the Otto Wilde app / Otto Wilde Grill Buddy. The connection is made via Bluetooth Low Energy (BLE) and therefore requires no login or any OW servers at all. Tested with firmware v.1.4.5 (old firmware "v13" is known to be NOT compatible!).
 
