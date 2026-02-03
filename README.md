@@ -25,7 +25,7 @@ The hardware used, software installation, and all other details for this project
 * **Home Assistant (optinoal):** most measurements are exposed to Home Assistant
 
 ## What’s still missing?
-* **Meater temperature alarm:** temperature should not exceed 100°C for the tip, and 275°C for the ambient sensor
+* **Meater 2 plus (aka PRO) support:** at the moment Meater 2 plus are not supported, yet
 * **Gas Buddy:** calibration of a new gas bottle
 * **G32 light:** setting the brightness level for turning on the light in the lid
 
