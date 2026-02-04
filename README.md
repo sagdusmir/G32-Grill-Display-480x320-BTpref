@@ -85,23 +85,23 @@ The total cost should be around 35€ if you have a friend with a 3d printer. So
 
 
 ## Impressions
-<img alt="device_assembly" src="https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469" width="435">
-<img alt="BTpref-retro2 0 0-main_view_cyan" src="https://github.com/user-attachments/assets/eca960b4-9641-4546-98c3-ed16e00ab826" width="435">
+<img alt="device_assembly" src="https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469" width="400">
+<img alt="BTpref-retro2 0 0-main_view_cyan" src="https://github.com/user-attachments/assets/eca960b4-9641-4546-98c3-ed16e00ab826" width="400">
 
-<img alt="BTpref-retro2 0 1-main_view_red_light" src="https://github.com/user-attachments/assets/b4afa697-324f-45b4-bcb8-1dc0c5bc71a7" width="290">
-<img alt="BTpref-retro2 0 1-main_view_white" src="https://github.com/user-attachments/assets/27741973-4c46-4147-9b32-293e49b56a55" width="290">
-<img alt="BTpref-retro2 0 0-main_view_amber" src="https://github.com/user-attachments/assets/6b80e574-6c00-42c9-ad54-8ba93f749827" width="290">
-<img alt="BTpref-retro2 0 0-temp_alarm" src="https://github.com/user-attachments/assets/73363a1c-2063-4b14-b969-901baaf50088" width="290">
-<img alt="BTpref-retro2 0 0-timer" src="https://github.com/user-attachments/assets/fe0e1212-1340-475d-b816-25a6abb685c0" width="290">
-<img alt="BTpref-retro2 0 0-mac_address" src="https://github.com/user-attachments/assets/bd0b3435-790f-4acd-af92-3104471958ae" width="290">
-<img alt="BTpref-retro2 3 0-wifi" src="https://github.com/user-attachments/assets/35becd29-fdcb-43d7-98a9-295b38a00ef4" width="290">
-<img alt="BTpref-retro2 4 3-options" src="https://github.com/user-attachments/assets/981a29ef-3c3d-4a92-9003-8a9c90a8ab68" width="290">
-<img alt="BTpref-retro2 3 1-warnings" src="https://github.com/user-attachments/assets/6b73301e-6cd6-405d-8f65-c555cd4398c3" width="290">
-<img alt="BTpref-retro2 2 0-display" src="https://github.com/user-attachments/assets/8848e7dd-ddc9-4c12-a840-eedf1176ef42" width="290">
-<img alt="BTpref-retro2 0 0-meater" src="https://github.com/user-attachments/assets/344972be-d253-450e-8157-0753d1509755" width="290">
-<img alt="BTpref-retro2 4 3-version" src="https://github.com/user-attachments/assets/4b1173f1-c7a9-4835-a2b9-284c4aa8aa36" width="290">
-<img alt="BTpref-retro2 4 0-reduced-temp-alarm-info" src="https://github.com/user-attachments/assets/94bd44cf-5bbd-4d45-9673-ba5b1ec7d3ea" width="290">
-<img alt="BTpref-retro2 4 1-battery-3000mAh" src="https://github.com/user-attachments/assets/7e3d7d21-d101-47aa-9158-14b8208d6a8e" width="290">
+<img alt="BTpref-retro2 0 1-main_view_red_light" src="https://github.com/user-attachments/assets/b4afa697-324f-45b4-bcb8-1dc0c5bc71a7" width="265">
+<img alt="BTpref-retro2 0 1-main_view_white" src="https://github.com/user-attachments/assets/27741973-4c46-4147-9b32-293e49b56a55" width="265">
+<img alt="BTpref-retro2 0 0-main_view_amber" src="https://github.com/user-attachments/assets/6b80e574-6c00-42c9-ad54-8ba93f749827" width="265">
+<img alt="BTpref-retro2 0 0-temp_alarm" src="https://github.com/user-attachments/assets/73363a1c-2063-4b14-b969-901baaf50088" width="265">
+<img alt="BTpref-retro2 0 0-timer" src="https://github.com/user-attachments/assets/fe0e1212-1340-475d-b816-25a6abb685c0" width="265">
+<img alt="BTpref-retro2 0 0-mac_address" src="https://github.com/user-attachments/assets/bd0b3435-790f-4acd-af92-3104471958ae" width="265">
+<img alt="BTpref-retro2 3 0-wifi" src="https://github.com/user-attachments/assets/35becd29-fdcb-43d7-98a9-295b38a00ef4" width="265">
+<img alt="BTpref-retro2 4 3-options" src="https://github.com/user-attachments/assets/981a29ef-3c3d-4a92-9003-8a9c90a8ab68" width="265">
+<img alt="BTpref-retro2 3 1-warnings" src="https://github.com/user-attachments/assets/6b73301e-6cd6-405d-8f65-c555cd4398c3" width="265">
+<img alt="BTpref-retro2 2 0-display" src="https://github.com/user-attachments/assets/8848e7dd-ddc9-4c12-a840-eedf1176ef42" width="265">
+<img alt="BTpref-retro2 0 0-meater" src="https://github.com/user-attachments/assets/344972be-d253-450e-8157-0753d1509755" width="265">
+<img alt="BTpref-retro2 4 3-version" src="https://github.com/user-attachments/assets/4b1173f1-c7a9-4835-a2b9-284c4aa8aa36" width="265">
+<img alt="BTpref-retro2 4 0-reduced-temp-alarm-info" src="https://github.com/user-attachments/assets/94bd44cf-5bbd-4d45-9673-ba5b1ec7d3ea" width="265">
+<img alt="BTpref-retro2 4 1-battery-3000mAh" src="https://github.com/user-attachments/assets/7e3d7d21-d101-47aa-9158-14b8208d6a8e" width="265">
 
 
 ## Acknowledgments
