@@ -7,29 +7,48 @@
 
 This repository started as a fork of https://github.com/JBecker32/G32-Display-480x320-BT, but has since undergone several improvements and changes can no longer be synced without effort.
 
-The main focus is its use as a mobile grill monitor and thus also as a replacement for the Otto Wilde app / Otto Wilde Grill Buddy. The connection is made via Bluetooth Low Energy (BLE) and therefore requires no login or any OW servers at all. Tested with firmware v.1.4.5 (old firmware "v13" is known to be NOT compatible!).
+Focus: **mobile, cloud independent replacement** for the official Otto Wilde app / Grill Buddy — no cloud login, no Otto Wilde servers, Home Assistant totally optional. Direct BLE connection to the grill (tested with firmware **v1.4.5**; older "v13" not compatible).
 
-The hardware used, software installation, and all other details for this project are identical to the original and are very well documented there, including pictures. The base is an ESP32 with the touchscreen display "JC3248W535C".
+# Table of Contents
+
+1. [Features](#features)
+
+   - [Implemented functionality](#implemented-functionality)  
+   - [What is missing?](#what-is-missing)
+3. [Hardware BOM](#hardware-bom)
+4. [Uploading the software to the ESP](#uploading-the-software-to-the-esp)
+5. [Troubleshooting](#troubleshooting)
+6. [Impressions](#impressions)
+7. [Acknowledgments](#acknowledgments)
+8. [Disclaimer](#disclaimer)
 
 ## Features
 
-* **Temperatures:** displays temperatures for up to 4 grill zones and 4 external temperature probes
-* **Gas level monitoring:** reads the weight determined by the "Gas Buddy"
-* **Alarms:** temperature alarms can be set for zones and temperature sensors, which can also be signaled acoustically via an integrated optional beeper / speaker (touch on the vizualisation of a zone or tempterature probe)
-* **Timer:** set a countdown timer after which an acoustic alarm sounds (touch the top center)
-* **Status:** visualize connection status (WLAN/BLE) and information from the grill itself
-* **Configuration:** various settings can be changed directly on the grill monitor via the touchscreen (touch the top left "G32 Connected" text)
-* **Color Schemes:** some predefined color schemes are available in the settings and even new ones can be easily added by editing the source code
-* **Battery (optional):** the state of charge (SOC) of an installed internal battery can be displayed
-* **MEATER® (optional):** the tip temperatures and battery SOC of connected sensors (1–4) are displayed instead of the G32 values, if available. Starting with BTpref-retro2.4.6 an alert is shown if temperature specs are exceeded.
-* **Home Assistant (optinoal):** most measurements are exposed to Home Assistant
+### Implemented functionality
 
-## What’s still missing?
+- Real-time temperatures for up to **4 grill zones** + **4 external probes**
+- **Gas level** monitoring (if GasBuddy is installed)
+- **Alarms** — visual + optional acoustic (buzzer/speaker) for temperature limits and timer
+- **Countdown timer** with alert
+- Touchscreen configuration
+  - tap top-left "G32 Connected" for entering the settings screen
+  - tap top-middle clock / timer to setup a countdown timer
+  - tap gauges to configure a temperature alarm
+- Multiple **color schemes** (predefined + easy to add your own)
+- **Connection & status icons** (BLE, WiFi, lid open, light on, battery SOC)
+- **Optional battery monitoring** the state of charge (SOC) of an installed internal battery can be displayed
+- **Optional MEATER® integration** shows tip temperatures & battery SOC instead of G32 probes when connected. Starting with BTpref-retro2.4.6 there is an alert if temperature specs are exceeded.
+- **Optional Home Assistant (optional)** connectivity to exposed most of the measurements
+
+See [changelog.md](changelog.md).
+
+### What is missing?
 * **Meater 2 plus (aka PRO) support:** at the moment Meater 2 plus are not supported, yet
 * **Gas Buddy:** calibration of a new gas bottle
 * **G32 light:** setting the brightness level for turning on the light in the lid
 
-## BOM (bill of materials)
+
+## Hardware BOM
  * __JC3248W535C__ (ESP32-S3 Development Board with WiFi, Bluetooth, and a 480x320 Pixel 3,5" touchscreen)
  * optional: a buzzer or a speaker
    * buzzer (default)
@@ -45,54 +64,47 @@ The hardware used, software installation, and all other details for this project
 
 The total cost should be around 35€ if you have a friend with a 3d printer. Some items might not be available individually, but only in packs of several.
 
-## History
-See [changelog.md](changelog.md).
 
+## Uploading the software to the ESP
 
-## Uploading the software to the ESP ##
-Option A) (more reliable, recommended)
+1. Install ESPHome CLI
+   ```bash
+   pip install esphome
+   ```
+2. Clone this repository and change directory into that folder
+3. Connect the JC3248W535C via USB
+4. ```bash
+   esphome run g32-display.yaml
+   ```
 
-- Install the 'esphome' command line tool
-- download this repository
-- connect the JC3248W535C
-- 'esphome run g32-display.yaml'
+## Troubleshooting
 
-Option B) (might end up in a boot loop)
+1. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 
-- use the ESPHome Device Builder Add-on for Home Assistant to upload the g32-display.yaml config file
-
-
-## Troubleshooting ##
-
-There are currently two known issues related to using an older version of esphome.
-Both of them are very easy to fix in the YAML file:
-
-1. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation.
-
-2. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:".
+2. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
 
 
 ## Impressions
-![device_assembly](https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469)
-![BTpref-retro2 0 0-main_view_cyan](https://github.com/user-attachments/assets/eca960b4-9641-4546-98c3-ed16e00ab826)
-![BTpref-retro2 0 1-main_view_red_light](https://github.com/user-attachments/assets/b4afa697-324f-45b4-bcb8-1dc0c5bc71a7)
-![BTpref-retro2 0 1-main_view_white](https://github.com/user-attachments/assets/27741973-4c46-4147-9b32-293e49b56a55)
-![BTpref-retro2 0 0-main_view_amber](https://github.com/user-attachments/assets/6b80e574-6c00-42c9-ad54-8ba93f749827)
-![BTpref-retro2 0 0-temp_alarm](https://github.com/user-attachments/assets/73363a1c-2063-4b14-b969-901baaf50088)
-![BTpref-retro2 0 0-timer](https://github.com/user-attachments/assets/fe0e1212-1340-475d-b816-25a6abb685c0)
-![BTpref-retro2 0 0-mac_address](https://github.com/user-attachments/assets/bd0b3435-790f-4acd-af92-3104471958ae)
-![BTpref-retro2 3 0-wifi](https://github.com/user-attachments/assets/35becd29-fdcb-43d7-98a9-295b38a00ef4)
-![BTpref-retro2 4 3-options](https://github.com/user-attachments/assets/981a29ef-3c3d-4a92-9003-8a9c90a8ab68)
-![BTpref-retro2 3 1-warnings](https://github.com/user-attachments/assets/6b73301e-6cd6-405d-8f65-c555cd4398c3)
-![BTpref-retro2 2 0-display](https://github.com/user-attachments/assets/8848e7dd-ddc9-4c12-a840-eedf1176ef42)
-![BTpref-retro2 0 0-meater](https://github.com/user-attachments/assets/344972be-d253-450e-8157-0753d1509755)
-![BTpref-retro2 4 3-version](https://github.com/user-attachments/assets/4b1173f1-c7a9-4835-a2b9-284c4aa8aa36)
-![BTpref-retro2 4 0-reduced-temp-alarm-info](https://github.com/user-attachments/assets/94bd44cf-5bbd-4d45-9673-ba5b1ec7d3ea)
-![BTpref-retro2 4 1-battery-3000mAh](https://github.com/user-attachments/assets/9570a0e2-d5f2-4427-ba55-1a06e2587391)
+<img alt="device_assembly" src="https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469" width="435">
+<img alt="BTpref-retro2 0 0-main_view_cyan" src="https://github.com/user-attachments/assets/eca960b4-9641-4546-98c3-ed16e00ab826" width="435">
+
+<img alt="BTpref-retro2 0 1-main_view_red_light" src="https://github.com/user-attachments/assets/b4afa697-324f-45b4-bcb8-1dc0c5bc71a7" width="290">
+<img alt="BTpref-retro2 0 1-main_view_white" src="https://github.com/user-attachments/assets/27741973-4c46-4147-9b32-293e49b56a55" width="290">
+<img alt="BTpref-retro2 0 0-main_view_amber" src="https://github.com/user-attachments/assets/6b80e574-6c00-42c9-ad54-8ba93f749827" width="290">
+<img alt="BTpref-retro2 0 0-temp_alarm" src="https://github.com/user-attachments/assets/73363a1c-2063-4b14-b969-901baaf50088" width="290">
+<img alt="BTpref-retro2 0 0-timer" src="https://github.com/user-attachments/assets/fe0e1212-1340-475d-b816-25a6abb685c0" width="290">
+<img alt="BTpref-retro2 0 0-mac_address" src="https://github.com/user-attachments/assets/bd0b3435-790f-4acd-af92-3104471958ae" width="290">
+<img alt="BTpref-retro2 3 0-wifi" src="https://github.com/user-attachments/assets/35becd29-fdcb-43d7-98a9-295b38a00ef4" width="290">
+<img alt="BTpref-retro2 4 3-options" src="https://github.com/user-attachments/assets/981a29ef-3c3d-4a92-9003-8a9c90a8ab68" width="290">
+<img alt="BTpref-retro2 3 1-warnings" src="https://github.com/user-attachments/assets/6b73301e-6cd6-405d-8f65-c555cd4398c3" width="290">
+<img alt="BTpref-retro2 2 0-display" src="https://github.com/user-attachments/assets/8848e7dd-ddc9-4c12-a840-eedf1176ef42" width="290">
+<img alt="BTpref-retro2 0 0-meater" src="https://github.com/user-attachments/assets/344972be-d253-450e-8157-0753d1509755" width="290">
+<img alt="BTpref-retro2 4 3-version" src="https://github.com/user-attachments/assets/4b1173f1-c7a9-4835-a2b9-284c4aa8aa36" width="290">
+<img alt="BTpref-retro2 4 0-reduced-temp-alarm-info" src="https://github.com/user-attachments/assets/94bd44cf-5bbd-4d45-9673-ba5b1ec7d3ea" width="290">
+<img alt="BTpref-retro2 4 1-battery-3000mAh" src="https://github.com/user-attachments/assets/7e3d7d21-d101-47aa-9158-14b8208d6a8e" width="290">
 
 
-
-# Acknowledgments
+## Acknowledgments
 This project would not have been possible without the work of the community. Special thanks go to:
 
 [JBecker32/G32-Display-480x320-HACS](https://github.com/JBecker32/G32-Display-480x320-HACS)
@@ -110,5 +122,5 @@ This project would not have been possible without the work of the community. Spe
 [so99hero/Standalone Case JC3248W535C](https://www.thingiverse.com/thing:7127557)
 
 
-# Disclaimer
+## Disclaimer
 This is third-party software developed by the community and is not officially developed or supported by Otto Wilde GmbH. Use at your own risk.
