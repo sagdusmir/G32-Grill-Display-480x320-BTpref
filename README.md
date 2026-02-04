@@ -56,7 +56,7 @@ See [changelog.md](changelog.md).
      * a JST 1.25 2pin connector cable
    * speaker (needs minor adjustments in the yaml)
      * a small 8Ohm / 1W speaker with a JST 1.25 2pin connector
- * optional: battery (1 cell LiPo/Li-Ion with protection circuit and JST 1.25 2pin connecter __with correct polarity__). 2000mAh to 3000mAh recommended.
+ * optional: battery (1 cell LiPo/Li-Ion with protection circuit and JST 1.25 2pin connector __with correct polarity__). 2000mAh to 3000mAh recommended.
  * optional: one of these 3d printed cases and 4 machine screws (M2x4mm, or M2x6mm)
    * [Case by so99hero](https://www.thingiverse.com/thing:7127557)
    * [Case (remixed by me)](https://www.thingiverse.com/thing:7182655)
