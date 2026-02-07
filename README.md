@@ -120,6 +120,8 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 2. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
 
+3. If you get A LOT of strange syntax errors, try to clean up the configured build folder (/tmp/esphome_build/).
+
 
 ## Impressions
 <small>These images show different versions of the software - so some details might be inconsistent.</small>
