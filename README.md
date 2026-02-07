@@ -147,11 +147,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 ## Acknowledgments
 This project would not have been possible without the work of the community. Special thanks go to:
 
-[JBecker32/G32-Display-480x320-HACS](https://github.com/JBecker32/G32-Display-480x320-HACS)
-
 [JBecker32/G32-Display-480x320-BT](https://github.com/JBecker32/G32-Display-480x320-BT)
-
-[JBecker32/G32-Display480x480](https://github.com/JBecker32/G32-Display480x480)
 
 [fschwarz86/g32](https://github.com/fschwarz86/g32)
 
