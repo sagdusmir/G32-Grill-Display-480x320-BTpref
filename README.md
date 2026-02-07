@@ -92,7 +92,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 * __Buzzer / Speaker__<br>
   You can choose to connect either a buzzer or a speaker:
-  * A passive piezo buzzer.<br>These do not seem to be available with a JST1.25 2pin connector. So you might need to solder a JST 1.25 2pin connector cable obtained separately to the buzzer leads. Additional work, and probably additional costs. This connects to the GPIO (P2) connector to pins IO9 and IO14. If you have a DIY JST1.25 assortment (and/or OCD), you can do a custom 8 pin connector that nicely fits P2. But a 2pin connector will do fine.
+  * A passive piezo buzzer.<br>These do not seem to be available with a JST1.25 2pin connector. So you might need to solder a JST 1.25 2pin connector cable obtained separately to the buzzer leads. Additional work, and probably additional costs. This connects to the GPIO (P2) connector to pins IO9 and IO14. If you have a DIY JST1.25 assortment (and/or OCD), you can do a custom 8pin connector that nicely fits P2. But a 2pin connector will do fine.
   * A small 8Ohm / 1W speaker with a JST1.25 2pin connector.<br>This usually results in a slightly higher volume and a more pleasant sound. Getting one with the proper connector saves you some work. This connects directly to the "SPEAK" (P6) connector.
 
   
