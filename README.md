@@ -76,7 +76,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   You need a "__JC3248W535C__". It is equipped with an ESP32-S3, WiFi, Bluetooth, a 480x320 Pixel 3,5" touchscreen and everything you need. No additional memory card required.
 
 * __Case__<br>
- For a 3D model of a case for the JC3248W535C you can take a look at on of these:
+ For a 3D model of a case for the JC3248W535C you can take a look at one of these:
    * [Case by so99hero](https://www.thingiverse.com/thing:7127557)
    * [Case by so99hero (remixed by sagdusmir)](https://www.thingiverse.com/thing:7182655)<br>
      This one features minor adjustments to support the USB-C port and reduce clearance for the power button.<br>
