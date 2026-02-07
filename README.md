@@ -122,6 +122,9 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 
 ## Impressions
+<small>These images show different versions of the software - so some details might be inconsistent.</small>
+
+
 <img alt="device_assembly" src="https://github.com/user-attachments/assets/8faf2f34-4d98-47f2-9512-1f92ef224469" width="400">
 <img alt="BTpref-retro2 0 0-main_view_cyan" src="https://github.com/user-attachments/assets/eca960b4-9641-4546-98c3-ed16e00ab826" width="400">
 
