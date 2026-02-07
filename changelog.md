@@ -1,8 +1,10 @@
 # Changelog
 
-* [main:HEAD] BTpref-retro 2.x.x
-   - removed ntp servers alltogether (thanks @JBecker32, and @fschwarz86 for pointing that out)
-   - tbd
+
+* [2026-02-07] BTpref-retro 2.4.7
+   - removed ntp servers altogether (thanks @JBecker32, and @fschwarz86 for pointing that out)
+   - bugfix: color schemes with dedicated color for icon and text shadows
+   - new color scheme "white (clean)" that demonstrates setting the icon and text shadows to black
 * [2026-02-02] BTpref-retro 2.4.6
    - new alerts if Meater reading exceeds specification (tip: 100°C, ambient: 275°C)
    - color themes now have a dedicated color for shadows of symbols and text
