@@ -101,6 +101,8 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 * __Cable__<br>
   Any USB-C to USB-C / USB-A with data lines will do for charging and flashing the ESP32.
 
+* __Double-Sided mirror tape__<br>
+  Use this to hold the battery and buzzer / speaker in place.
 
 ## Uploading the software to the ESP
 
