@@ -167,3 +167,15 @@ This project would not have been possible without the work of the community. Spe
 
 ## Disclaimer
 This is third-party software developed by the community and is not officially developed or supported by Otto Wilde GmbH. Use at your own risk.
+
+__This project is provided for educational and experimental purposes only.__
+
+
+All hardware designs, schematics, code, instructions, and documentation are offered AS IS without any warranty of any kind, express or implied.
+YOU BUILD AND USE THIS AT YOUR OWN RISK.
+The author(s) and any contributors are not responsible for any injury, death, property damage, fire, electrical shock, data loss, voided warranties, legal violations, or any other consequences — direct, indirect, incidental, or consequential — that may result from building, modifying, or using this project or any derivative work.
+Always follow local electrical/safety/building codes.
+
+
+If you're not experienced with mains voltage, high current, lithium batteries, lasers, moving parts, etc., consult a qualified professional before proceeding.
+Proceed only if you accept full personal responsibility.
