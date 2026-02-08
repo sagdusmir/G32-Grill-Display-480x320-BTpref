@@ -62,7 +62,7 @@ See [changelog.md](changelog.md).
 |--------------------------------------|-----|------------------------------------------|--------------|
 | ESP32 Dev Board                      | 1   | Amazon, AliExpress                       |   ~17€ - 27€ |
 | Case                                 | 1   | friend with a 3D Printer                 |    A beer    |
-| Screws                               | 4   | hardware store, ebay, Amazon, AliExpress |       ~1€    |
+| Screws                               | 4   | hardware store, eBay, Amazon, AliExpress |       ~1€    |
 | Battery (optional)                   | 1   | Amazon, AliExpress                       |       ~9€    |   
 | Buzzer / Speaker (optional)          | 1   | AliExpress, Amazon, eBay                 |       ~2€    |
 | Double-Sided mirror tape (optional)  | ?   | Amazon, eBay                             |       ~0€    |
