@@ -45,7 +45,7 @@ Assembled device with the case for attaching it to OW Module handles.
 - **Connection & status icons** (BLE, WiFi, lid open, light on, battery SOC)
 - **Optional battery monitoring** the state of charge (SOC) of an installed internal battery can be displayed
 - **Optional MEATER® integration** shows tip temperatures & battery SOC instead of G32 probes when connected. Starting with BTpref-retro2.4.6 there is an alert if temperature specs are exceeded.
-- **Optional Home Assistant (optional)** most of the measurements are exposed to Home Assistant
+- **Optional Home Assistant** connectivity that exposes most of the measurements
 
 See [changelog.md](changelog.md).
 
