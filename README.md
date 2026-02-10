@@ -1,8 +1,8 @@
 # G32 Connected Grill Monitor and Display
 
 [![GitHub release](https://img.shields.io/github/v/release/sagdusmir/G32-Grill-Display-480x320-BTpref?style=flat-square&logo=github&color=blue)](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest)
-![GitHub Release Date](https://img.shields.io/github/release-date/sagdusmir/G32-Grill-Display-480x320-BTpref?style=flat-square&logo=github&color=blue)
-![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/sagdusmir/G32-Grill-Display-480x320-BTpref/main?style=flat-square&logo=github&color=blue)
+[![GitHub Release Date](https://img.shields.io/github/release-date/sagdusmir/G32-Grill-Display-480x320-BTpref?style=flat-square&logo=github&color=blue)](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest)
+[![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/sagdusmir/G32-Grill-Display-480x320-BTpref/main?style=flat-square&logo=github&color=blue)](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/commits/main/)
 ![GitHub license](https://img.shields.io/github/license/sagdusmir/G32-Grill-Display-480x320-BTpref?style=flat-square&logo=gnu&color=green)
 ![Grill make](https://img.shields.io/badge/grill-OW_G32_Connected-critical)
 ![HA support](https://img.shields.io/badge/Home_Assistant-supported-informational?style=flat-square&logo=home-assistant&logoColor=white&color=orange)
