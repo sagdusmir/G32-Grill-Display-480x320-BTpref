@@ -79,10 +79,11 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
  For a 3D model of a case for the JC3248W535C you can take a look at one of these:
    * [Case by so99hero](https://www.thingiverse.com/thing:7127557)
    * [Case by so99hero (remixed by sagdusmir)](https://www.thingiverse.com/thing:7182655)<br>
-     This one features minor adjustments to physically support the USB-C port and reduce clearance for the power button.<br>
-     There is also a variant to hang the case directly to any front facing handles of the OW Modules which is shown in some of the images.
+     This one features minor adjustments to physically support the USB-C port and reduced clearance for the power button.<br>
+     There is also a case variant that attaches directly to any front facing handles of the OW Modules which is shown in some of the images.
+     If you like to have both: there is also a model that allows to hang a normal case to a OW Module handle.
 
-  Note: Mounting the display requires you to remove the plastic cover at the back of the display.
+  Note: Mounting the display to the case requires you to remove the plastic cover at the back of the display.
 
 * __Screws__<br>
   Either M2x6mm or M2x4mm should work fine. 
