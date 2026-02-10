@@ -4,7 +4,7 @@
 [![GitHub Release Date](https://img.shields.io/github/release-date/sagdusmir/G32-Grill-Display-480x320-BTpref?style=flat-square&logo=github&color=blue)](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases)
 [![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/sagdusmir/G32-Grill-Display-480x320-BTpref/main?style=flat-square&logo=github&color=blue)](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/commits/main/)
 ![GitHub license](https://img.shields.io/github/license/sagdusmir/G32-Grill-Display-480x320-BTpref?style=flat-square&logo=gnu&color=green)
-[![Grill make](https://img.shields.io/badge/grill-OW_G32_Connected-critical)]()
+[![Grill make](https://img.shields.io/badge/grill-OW_G32_Connected-critical)](https://www.grillsportverein.de/forum/threads/otto-wilde-g32-smarthome.369079/page-999)
 [![HA support](https://img.shields.io/badge/Home_Assistant-supported-informational?style=flat-square&logo=home-assistant&logoColor=white&color=orange)](https://home-assistant.io)
 
 
