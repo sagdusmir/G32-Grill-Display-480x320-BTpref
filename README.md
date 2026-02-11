@@ -119,10 +119,15 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
    pip install esphome
    ```
 2. Clone this repository and change directory into that folder
+   ```bash
+   git clone https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref.git && cd G32-Grill-Display-480x320-BTpref
+   ```
 3. Connect the JC3248W535C via USB
-4. ```bash
+4. Compile and flash the software
+   ```bash
    esphome run g32-display.yaml
    ```
+   You may be asked how the connection should be established.
 
 ## Troubleshooting
 
