@@ -59,7 +59,7 @@ See [changelog.md](changelog.md).
 * Everything that was mentioned above under [What is missing?](#what-is-missing)
 * The UI might be a bit laggy at times - so touch input will take a second to have any effect. Suggestions on how to improve this further are welcome.
 * Volume level of the optional buzzer / speaker is a bit low. This is the reason there is no volume control in the settings.
-* Meater probes can only connect to a single device at a time. The Meater Block is an exception.
+* Meater probes can only connect to a single device at a time. This does not prevent using a Meater Block.
 
 
 ## Hardware
