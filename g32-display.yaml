@@ -72,8 +72,8 @@ substitutions:
   Beeper_interval: "5s"
 
   # Meater protetion alerts
-  meater_tip_alert: '100'  # Specs: 100°C (original Meater: 100°C, 105°C (Meater PRO)
-  meater_ambient_alert: '270'  # Specs: 275°C (original Meater), 550°C (Meater PRO)
+  meater_tip_alert: '100'  # Specs: 100°C (original Meater: 100°C, 105°C (Meater PRO - not supported yet)
+  meater_ambient_alert: '270'  # Specs: 275°C (original Meater), 550°C (Meater PRO - not supported yet)
 
   # sounds (in RTTTL syntax):
   G32_Connect_Sound: "pling2:d=16,o=6,b=140:e6,32p,d6"
