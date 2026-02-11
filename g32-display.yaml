@@ -3,6 +3,12 @@ substitutions:
   # You will propably need to do changes only to the following lines (if at all): #
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+  # Genral information for customizing attached hardware:
+  # Speaker / Buzzer:
+  # By default the buzzer is pre-configured. See two config blocks "RTTTL buzzer (GPIO pin)".
+  # Configuration for a speaker is disabled. See two config blocks "RTTTL speaker (speaker header, external DAC)"
+  # Just (un-)/comment the config blocks for changing that.
+
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
@@ -532,7 +538,6 @@ touchscreen:
 #   # external DAC: NS4168
 #   i2s_lrclk_pin: GPIO02
 #   i2s_bclk_pin: GPIO42
-
 # speaker:
 #   - platform: i2s_audio
 #     id: my_speaker
