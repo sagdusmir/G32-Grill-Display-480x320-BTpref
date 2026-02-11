@@ -20,6 +20,7 @@ Assembled device with the case for attaching it to OW Module handles.
 1. [Features](#features)
    - [Implemented functionality](#implemented-functionality)  
    - [What is missing?](#what-is-missing)
+   - [Limitations](#limitations)
 3. [Hardware](#hardware)
    - [BOM](#bom)
    - [Component Details](#component-details)
@@ -44,7 +45,7 @@ Assembled device with the case for attaching it to OW Module handles.
 - Multiple **color schemes** (predefined + easy to add your own)
 - **Connection & status icons** (BLE, WiFi, lid open, light on, battery SOC)
 - **Optional battery monitoring** the state of charge (SOC) of an installed internal battery can be displayed
-- **Optional MEATER® integration** shows tip temperatures & battery SOC instead of G32 probes when connected. Starting with BTpref-retro2.4.6 there is an alert if temperature specs are exceeded. Note: Meater can only connect to a single device at a time.
+- **Optional MEATER® integration** shows tip temperatures & battery SOC instead of G32 probes when connected. Starting with BTpref-retro2.4.6 there is an alert if temperature specs are exceeded.
 - **Optional Home Assistant** connectivity that exposes most of the measurements
 
 See [changelog.md](changelog.md).
@@ -53,6 +54,12 @@ See [changelog.md](changelog.md).
 * **Meater 2 plus (aka PRO) support:** __Meater 2 Plus__ units are not supported yet
 * **Gas Buddy:** calibration of a new gas bottle
 * **G32 light:** setting the brightness level for turning on the light in the lid
+
+### Limitations
+* Everything that was mentioned above under [What is missing?](#what-is-missing)
+* The UI might be a bit laggy at times - so touch input might take a second to have any effect. Suggestions on how to improve this further are welcome.
+* Volume level of the optional buzzer / speaker is a bit low. This is the reason there is no volume control in the settings.
+* Meater probes can only connect to a single device at a time. The Meater Block is an exception.
 
 
 ## Hardware
