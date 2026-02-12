@@ -94,10 +94,10 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   Note: Mounting the display to the case requires you to remove the plastic cover at the back of the display.
 
 * __Screws__<br>
-  Either M2x6mm or M2x4mm should work fine. 
+  Either M2x6mm, M2x5mm, or M2x4mm should work fine. 
 
 * __Battery__<br>
-  You can add a 3.7V LiPo/Li-Ion Battery (1 cell) with a JST 1.25 2pin connector (__watch out for correct polarity__) – see images. A capacity of 2000mAh to 3000mAh is recommended and of course it should have protection circuitry built in. This connects directly to the "BAT" (P5) connector.
+  You can add a 3.7V LiPo/Li-Ion Battery (1 cell) with a JST 1.25 2pin connector (__watch out for correct polarity__ – see images). A capacity of 2000mAh to 3000mAh is recommended and of course it should have protection circuitry built in. This connects directly to the "BAT" (P5) connector.
 
 * __Buzzer / Speaker__<br>
   You can choose to connect either a buzzer or a speaker:
