@@ -85,7 +85,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 * __Case__<br>
  For a 3D model of a case for the JC3248W535C you can take a look at one of these:
    * [Case by so99hero](https://www.thingiverse.com/thing:7127557)<br>
-     This nicely designed case offers enough space to fit all mentioned componentes and has a print-in-place mechanism to operate the power button (SW1) on the pcb.
+     This nicely designed case offers enough space to fit all mentioned components and has a print-in-place mechanism to operate the power button (SW1) on the pcb.
    * [Case by so99hero (remixed by sagdusmir)](https://www.thingiverse.com/thing:7182655)<br>
      This one features minor adjustments to physically support the USB-C port and reduced clearance for the power button.<br>
      There is also a case variant that attaches directly to any front facing handles of the OW Modules which is shown in some of the images.
