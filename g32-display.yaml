@@ -3,11 +3,11 @@ substitutions:
   # You will propably need to do changes only to the following lines (if at all): #
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-  # Genral information for customizing attached hardware:
+  # General information for customizing optional hardware:
   # Speaker / Buzzer:
   # By default the buzzer is pre-configured. See two config blocks "RTTTL buzzer (GPIO pin)".
   # Configuration for a speaker is disabled. See two config blocks "RTTTL speaker (speaker header, external DAC)"
-  # Just (un-)/comment the config blocks for changing that.
+  # Just (un-)/comment the config blocks for the hardware you would like to use.
 
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
