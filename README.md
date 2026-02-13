@@ -51,7 +51,7 @@ Assembled device with the case for attaching it to OW Module handles.
 See [changelog.md](changelog.md).
 
 ### What is missing?
-* **Meater 2 plus (aka PRO) support:** __Meater 2 Plus__ units are not supported yet
+* **Meater 2 plus (aka PRO) support:** Meater 2 plus units are not supported yet
 * **Gas Buddy:** calibration of a new gas bottle
 * **G32 light:** setting the brightness level for turning on the light in the lid
 
