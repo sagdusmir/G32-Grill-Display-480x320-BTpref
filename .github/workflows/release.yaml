@@ -1,0 +1,136 @@
+name: Auto-Tag and Release on Version Bump
+
+on:
+  push:
+    branches:
+      - main  # Change if your default branch is different (e.g., master)
+    paths:
+      - 'g32-display.yaml'
+
+jobs:
+  tag-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for tagging, pushing, and creating releases
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}  # Ensures we are on the branch (not detached HEAD)
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Full history for safety
+
+      - name: Install yq
+        run: |
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O yq
+          chmod +x yq
+          sudo mv yq /usr/local/bin/yq
+
+      - name: Extract and clean version from YAML
+        id: extract_version
+        run: |
+          RAW=$(yq e '.substitutions.version' g32-display.yaml)
+          echo "Raw yq output: '$RAW'"
+
+          # Remove surrounding quotes if present
+          STRIPPED="${RAW%\"}"
+          STRIPPED="${STRIPPED#\"}"
+
+          # Trim leading/trailing whitespace only
+          TRIMMED=$(echo "$STRIPPED" | xargs echo -n)
+          echo "Trimmed display version (spaces preserved): '$TRIMMED'"
+
+          # Remove ALL spaces completely for safe tag/asset names
+          CLEAN_TAG=$(echo "$TRIMMED" | tr -d ' ')
+          echo "Clean tag name (spaces removed): '$CLEAN_TAG'"
+
+          echo "VERSION=$TRIMMED" >> $GITHUB_ENV
+          echo "TAG_NAME=$CLEAN_TAG" >> $GITHUB_ENV
+
+      - name: Get last commit message
+        id: commit_message
+        run: |
+          MESSAGE=$(git log -1 --pretty=%B | tail -n +3)
+          echo "MESSAGE<<EOF" >> $GITHUB_ENV
+          echo "$MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Check if tag already exists on remote
+        id: check_tag
+        run: |
+          if git ls-remote --tags origin "${{ env.TAG_NAME }}" | grep -q "refs/tags/${{ env.TAG_NAME }}$"; then
+            echo "Tag ${{ env.TAG_NAME }} already exists. Skipping tag creation and release."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag ${{ env.TAG_NAME }} does not exist. Will create it."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Changelog (BEFORE tagging)
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          MESSAGE="${{ env.MESSAGE }}"
+          VERSION="${{ env.VERSION }}"
+
+          # Format changes: take each non-empty line, strip optional leading '- ' or dashes/spaces, then prefix with '   - '
+          INDENTED=$(echo "$MESSAGE" | grep -v '^$' | sed -E 's/^\s*-?\s*(.*)$/   - \1/')
+
+          # Rebuild changelog: headline → new entry header → bullets (if any) → old content (skipping any leading blank lines)
+          {
+            echo "# Changelog"
+            echo "* [$DATE] $VERSION"
+            echo "$INDENTED"
+            tail -n +2 changelog.md | sed -n '/[^[:space:]]/,$p'
+          } > temp_changelog.md
+
+          mv temp_changelog.md changelog.md
+
+          # Commit and push the updated changelog
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add changelog.md
+          git commit -m "update changelog for $VERSION [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Create annotated tag and push (AFTER changelog commit is pushed)
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git tag -a "${{ env.TAG_NAME }}" -m "${{ env.MESSAGE }}"
+          git push origin "${{ env.TAG_NAME }}"
+
+      - name: Prepare release YAML with replacements
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          cp g32-display.yaml g32-display-variant.yaml
+          
+          # === ADD YOUR CUSTOM REPLACEMENTS HERE ===
+          # Examples:
+          # yq -i '.some.key = "new-value"' g32-display-variant.yaml
+          # yq -i '.wifi.password = "!secret wifi_password"' g32-display-variant.yaml
+          # sed -i '1i # Released configuration for version ${{ env.VERSION }}\n# Customize secrets.yaml before use' g32-display-variant.yaml
+          # yq -i 'del(.some.sensitive_section)' g32-display-variant.yaml
+
+          # 1. Uncomment speaker lines
+          sed -i '/variant[[:space:]]*\[speaker\]/ s/^\([[:space:]]*\)# \(.*\)$/\1\2/' "g32-display-variant.yaml"
+          # 2. Comment buzzer lines
+          sed -i '/variant[[:space:]]*\[buzzer\]/ s/^\([[:space:]]*\)\([^[:space:]#]\)/\1# \2/' "g32-display-variant.yaml"
+          mv g32-display-variant.yaml g32-display-with-speaker.yaml
+
+          cp g32-display.yaml g32-display-variant.yaml
+          # nothing to do
+          mv g32-display-variant.yaml g32-display-with-buzzer.yaml
+
+      - name: Create/Release GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ env.TAG_NAME }}
+          name: ${{ env.VERSION }}
+          body: ${{ env.MESSAGE }}
+          artifacts: g32-display-with-buzzer.yaml,g32-display-with-speaker.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: false
+          draft: false
+          prerelease: false
