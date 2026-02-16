@@ -1,4 +1,7 @@
 # Changelog
+* [2026-02-16] BTpref-retro 2.4.8
+   - release should now contain yaml artifacts for buzzer / speaker
+   - fix: silence warning sign in the first seconds after boot
 * [2026-02-07] BTpref-retro 2.4.7
    - removed ntp servers altogether (thanks @JBecker32, and @fschwarz86 for pointing that out)
    - bugfix: color schemes with dedicated color for icon and text shadows
