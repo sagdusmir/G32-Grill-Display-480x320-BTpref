@@ -1495,6 +1495,10 @@ lvgl:
                 y: 1
                 text_font: MONTSERRAT_18
                 text_color: !lambda |-
+                  if (millis() - id(boot_start_time) < 15000) {
+                    // first 15 seconds after boot: no warning
+                    return lv_color_hex(id(color_00));
+                  }
                   if((id(meater_alarms_tip) > 0)
                     || (id(meater_alarms_ambient) > 0)
                     || (id(battery_soc_value) <= id(settings_min_soc_value_persistent))
