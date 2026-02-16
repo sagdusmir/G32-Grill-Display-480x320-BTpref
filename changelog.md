@@ -1,6 +1,4 @@
 # Changelog
-
-
 * [2026-02-07] BTpref-retro 2.4.7
    - removed ntp servers altogether (thanks @JBecker32, and @fschwarz86 for pointing that out)
    - bugfix: color schemes with dedicated color for icon and text shadows
