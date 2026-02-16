@@ -134,3 +134,4 @@ jobs:
           allowUpdates: false
           draft: false
           prerelease: false
+          makeLatest: true
