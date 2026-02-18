@@ -88,8 +88,8 @@ jobs:
           mv temp_changelog.md changelog.md
 
           # Commit and push the updated changelog
-          git config user.name "sagdusmir"
-          git config user.email "info@sagdusmir.net"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
           git add changelog.md
           git commit -m "update changelog for $VERSION [skip ci]"
           git push origin HEAD:${{ github.ref_name }}
