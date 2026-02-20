@@ -1,4 +1,6 @@
 # Changelog
+* [2026-02-20] BTpref-retro 2.4.9
+   - updated compatibility to esphome 2026.2.0
 * [2026-02-16] BTpref-retro 2.4.8
    - release should now contain yaml artifacts for buzzer / speaker
    - fix: silence warning sign in the first seconds after boot
