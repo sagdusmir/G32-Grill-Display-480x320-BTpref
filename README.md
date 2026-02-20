@@ -10,7 +10,7 @@
 
 This repository started as a fork of https://github.com/JBecker32/G32-Display-480x320-BT and has since been heavily reworked with several improvements and can no longer be synced easily.
 
-Focus: **mobile, cloud-independent replacement** for the official Otto Wilde app / Grill Buddy — no cloud login, no Otto Wilde servers, Home Assistant totally optional. Direct BLE connection to the grill (tested with firmware **v1.4.5**; older "v13" not compatible).
+Focus: **mobile, cloud-independent replacement** for the official Otto Wilde app / Grill Buddy — no cloud login, no Otto Wilde servers, Home Assistant totally optional. Direct BLE connection to the grill (tested with firmware **v1.4.5**; older factory installed firmware e.g. "v13" is not compatible).
 
 <img alt="Teaser" src="https://github.com/user-attachments/assets/0f5f5065-4ec5-47f8-8567-3b7de9df23e4" width="200">
 Assembled device with the case for attaching it to OW Module handles.
