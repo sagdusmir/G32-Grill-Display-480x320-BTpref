@@ -1004,6 +1004,12 @@ font:
     size: 12
     glyphs:
       - "\U000F009A" # mdi-bell
+  - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    # file: 'fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
+    id: ICON_FONT_14
+    size: 14
+    glyphs:
+      - "\U000F051B" # mdi-timer-outline
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     # file: 'fonts/DESG07/DSEG7ClassicMini-Bold.ttf'
     id: SEGMENT_FONT_35
@@ -1574,6 +1580,18 @@ lvgl:
                 text: "88:88:88"
                 hidden: true
             - label:
+                id: timer_icon_bg
+                x: 294
+                y: -1
+                width: 11
+                bg_opa: COVER
+                text_font: ICON_FONT_14
+                text_color: !lambda return lv_color_hex(id(color_00));
+                text_align: LEFT
+                text: "\U000F051B"
+                hidden: !lambda |-
+                  return id(settings_hide_timer_persistent);
+            - label:
                 id: timer_value
                 x: 188
                 y: 0
@@ -1592,7 +1610,17 @@ lvgl:
                           - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
                       then:
                         - lvgl.page.show: timer_page                
-
+            - label:
+                id: timer_icon
+                x: 294
+                y: -1
+                width: 11
+                bg_opa: COVER
+                text_font: ICON_FONT_14
+                text_color: !lambda return lv_color_hex(id(color_100));
+                text_align: LEFT
+                text: "\U000F051B"
+                hidden: true
       - obj:
           id: status_bar_bottom
           x: 0
@@ -3797,7 +3825,7 @@ lvgl:
                     id(timer_alarm) = false;
                     id(timer_active) = false;
                 - lvgl.label.update:
-                    id: [timer_value, timer_value_bg]
+                    id: [timer_value, timer_value_bg, timer_icon]
                     hidden: !lambda |-
                       return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
         - button:
@@ -3827,7 +3855,7 @@ lvgl:
                   }
               - script.execute: show_temperatures_page
               - lvgl.label.update:
-                  id: [timer_value, timer_value_bg]
+                  id: [timer_value, timer_value_bg, timer_icon]
                   hidden: !lambda |-
                     return (id(settings_hide_timer_persistent) || (!id(timer_active) && !id(timer_alarm)));
 
@@ -6049,7 +6077,7 @@ script:
               return ("");
             }
       - lvgl.label.update:
-          id: timer_value
+          id: [timer_value, timer_icon]
           text_color: !lambda |-
             if( id(timer_alarm) == true ) {
               return lv_color_hex(id(color_bad));
@@ -6315,7 +6343,9 @@ script:
           - display_time_shadow
           - display_time
           - timer_value_bg
+          - timer_icon_bg
           - timer_value
+          - timer_icon
       - delay: 1ms
 
       # Chunk 2: Gas widgets
