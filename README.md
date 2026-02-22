@@ -169,6 +169,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 <img alt="BTpref-retro2 4 1-battery-3000mAh" src="https://github.com/user-attachments/assets/7e3d7d21-d101-47aa-9158-14b8208d6a8e" width="265">
 <img alt="In action 1" src="https://github.com/user-attachments/assets/2cc83a7c-75c3-4c01-b1db-8f422a5380da" width="265">
 <img alt="In Action 2" src="https://github.com/user-attachments/assets/6baaa8af-9068-4675-aac9-c1b00c2df483" width="265">
+<img alt="Speaker Assortment" src="https://github.com/user-attachments/assets/663a8ca1-ac09-47ca-91fa-e3bb28f565e4" width="265">
 
 
 
