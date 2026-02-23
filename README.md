@@ -166,12 +166,11 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 <img alt="BTpref-retro2 0 0-meater" src="https://github.com/user-attachments/assets/344972be-d253-450e-8157-0753d1509755" width="265">
 <img alt="BTpref-retro2 4 3-version" src="https://github.com/user-attachments/assets/4b1173f1-c7a9-4835-a2b9-284c4aa8aa36" width="265">
 <img alt="BTpref-retro2 4 0-reduced-temp-alarm-info" src="https://github.com/user-attachments/assets/94bd44cf-5bbd-4d45-9673-ba5b1ec7d3ea" width="265">
-<img alt="BTpref-retro2 4 1-battery-3000mAh" src="https://github.com/user-attachments/assets/7e3d7d21-d101-47aa-9158-14b8208d6a8e" width="265">
 <img alt="Speaker Assortment" src="https://github.com/user-attachments/assets/76bc422a-c58c-4592-9975-69dc3336af8e" width="265">
+<img alt="BTpref-retro2 4 1-battery-3000mAh" src="https://github.com/user-attachments/assets/7e3d7d21-d101-47aa-9158-14b8208d6a8e" width="265">
+<img alt="device_assembly_4ohms" src="https://github.com/user-attachments/assets/ae5de246-1468-45cc-963b-f92718e22223" width="265">
 <img alt="In action 1" src="https://github.com/user-attachments/assets/2cc83a7c-75c3-4c01-b1db-8f422a5380da" width="265">
 <img alt="In Action 2" src="https://github.com/user-attachments/assets/6baaa8af-9068-4675-aac9-c1b00c2df483" width="265">
-<img alt="device_assembly_4ohms" src="https://github.com/user-attachments/assets/385c19a4-c3de-43b9-8304-0c338c3554af" width="265">
-
 
 
 ## Acknowledgments
