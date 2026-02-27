@@ -101,7 +101,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   Either M2x6mm, M2x5mm, or M2x4mm should work fine. 
 
 * __Battery__<br>
-  You can add a 3.7V LiPo/Li-Ion Battery (1 cell) with a JST 1.25 2pin connector (__watch out for correct polarity__ – see images). A capacity of 2000mAh to 3000mAh is recommended and of course it should have protection circuitry built in. This connects directly to the "BAT" (P5) connector. Maximum dimensions should not exceed 10mm x 65mm x 35mm.
+  You can add a 3.7V LiPo/Li-Ion Battery (1 cell) with a JST 1.25 2pin connector (__watch out for correct polarity__ – see images). A capacity of 2000mAh to 3000mAh is recommended and of course it should have protection circuitry built in. This connects directly to the "BAT" (P5) connector. Maximum dimensions should not exceed 10mm x 65mm x 35mm (E.g. "103350", "103450", … "103565").
 
 * __Buzzer / Speaker__<br>
   You can choose to connect either a buzzer or a speaker:
