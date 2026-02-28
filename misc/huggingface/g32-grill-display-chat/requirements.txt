@@ -1,0 +1,8 @@
+streamlit
+gitingest
+langchain>=0.3.7
+langchain-community>=0.3.7
+langchain-huggingface
+langchain-groq
+sentence-transformers
+chromadb
