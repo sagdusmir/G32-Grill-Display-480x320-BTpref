@@ -109,7 +109,8 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   * A small 8Ohm / 1W speaker with a JST1.25 2pin connector.<br>This usually results in a slightly higher volume and a more pleasant sound. Getting one with the proper connector saves you some work. This connects directly to the "SPEAK" (P6) connector.
 
   
-  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires manually enabling / disabling some settings in the YAML.
+  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires manually enabling / disabling some settings in the YAML. Have a look at the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases) because there might be a pre-configuraed file available.
+
 
 * __Cable__<br>
   Any USB-C to USB-C / USB-A with data lines will do for charging and flashing the ESP32.
