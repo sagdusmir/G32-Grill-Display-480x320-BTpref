@@ -15,7 +15,7 @@ Focus: **mobile, cloud-independent replacement** for the official Otto Wilde app
 <img alt="Teaser" src="https://github.com/user-attachments/assets/0f5f5065-4ec5-47f8-8567-3b7de9df23e4" width="200">
 Assembled device with the case variant for attaching it to OW Module handles.
 
-Feeling lonely? Try the Chatbot.. [german](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=de) [english](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=en) [bavarian](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=bavarian) [low german](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=plattdeutsch) [klingon](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=klingon)
+Feeling lonely? Try the (very) experimental Chatbot.. [german](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=de) [english](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=en) [bavarian](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=bavarian) [low german](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=plattdeutsch) [klingon](https://huggingface.co/spaces/sagdusmir/g32-grill-display-chat?lang=klingon)
 # Table of Contents
 
 1. [Features](#features)
