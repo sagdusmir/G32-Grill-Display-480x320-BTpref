@@ -12,7 +12,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.9"
+  version: "BTpref-retro 2.4.10"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -6089,48 +6089,39 @@ script:
     then:
         # this ensures the ble_client changes MAC at runtime
         - lambda: !lambda |-
-            xTaskCreatePinnedToCore([](void *) {
-              uint64_t addr = 0;
-              uint64_t b1, b2, b3, b4, b5, b6;
-              if (sscanf(id(settings_g32_mac_address_persistent).c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
-                addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
-              }
-              id(ow_g32).set_address(addr);
-              ESP_LOGI("settings", "set G32 MAC address to %s", id(settings_g32_mac_address_persistent).c_str());
-              vTaskDelete(NULL);
-            }, "apply_mac_task", 4096, NULL, 1, NULL, 0);
+            uint64_t addr = 0;
+            uint64_t b1, b2, b3, b4, b5, b6;
+            if (sscanf(id(settings_g32_mac_address_persistent).c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+              addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+            }
+            id(ow_g32).set_address(addr);
+            ESP_LOGI("settings", "set G32 MAC address to %s", id(settings_g32_mac_address_persistent).c_str());
 
   - id: apply_wifi
     then:
         - lambda: !lambda |-
-            xTaskCreatePinnedToCore([](void *) {
-              id(apply_wifi_started_by_user) = true;
-              id(my_wifi).disable();
-              vTaskDelay(1000 / portTICK_PERIOD_MS);
-              id(my_wifi).save_wifi_sta(id(settings_wifi_ssid_persistent), id(settings_wifi_password_persistent));
-              id(my_wifi).enable();
-              vTaskDelete(NULL);
-            }, "apply_wifi_task", 4096, NULL, 1, NULL, 0);
+            id(apply_wifi_started_by_user) = true;
+            id(my_wifi).disable();
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            id(my_wifi).save_wifi_sta(id(settings_wifi_ssid_persistent), id(settings_wifi_password_persistent));
+            id(my_wifi).enable();
 
   - id: apply_meater_mac_addresses
     then:
         # this ensures the ble_client changes MAC at runtime
         - lambda: !lambda |-
-            xTaskCreatePinnedToCore([](void *) {
-              std::array<esphome::ble_client::BLEClient *, 4> meaters = {id(meater0), id(meater1), id(meater2), id(meater3)};
-              std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
-              for (int i = 0; i < 4; i++) {
-                std::string mac = t_meater_mac_addresses.substr(i * 18, 17);
-                uint64_t addr = 0;
-                uint64_t b1, b2, b3, b4, b5, b6;
-                if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
-                  addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
-                }
-                meaters[i]->set_address(addr);
-                ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
+            std::array<esphome::ble_client::BLEClient *, 4> meaters = {id(meater0), id(meater1), id(meater2), id(meater3)};
+            std::string t_meater_mac_addresses = id(settings_meater_mac_addresses_persistent);
+            for (int i = 0; i < 4; i++) {
+              std::string mac = t_meater_mac_addresses.substr(i * 18, 17);
+              uint64_t addr = 0;
+              uint64_t b1, b2, b3, b4, b5, b6;
+              if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+                addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
               }
-              vTaskDelete(NULL);
-            }, "apply_meater_task", 4096, NULL, 1, NULL, 0);
+              meaters[i]->set_address(addr);
+              ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
+            }
   - id: apply_ota_password
     then:
        - lambda: !lambda |-
