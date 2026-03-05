@@ -51,8 +51,7 @@ jobs:
       - name: Get last commit message
         id: commit_message
         run: |
-          MESSAGE=$(git log -1 --pretty=%B | tail -n +3)
-          echo "MESSAGE<<EOF" >> $GITHUB_ENV
+          MESSAGE=$(git log -1 --pretty=%B | tail -n +3)          echo "MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
@@ -68,7 +67,9 @@ jobs:
           fi
 
       - name: Update Changelog (BEFORE tagging)
-        if: steps.check_tag.outputs.exists == 'false'
+        if: >-
+          steps.check_tag.outputs.exists == 'false'
+          && !contains(github.event.head_commit.message, '[skip ci]')
         run: |
           DATE=$(date +%Y-%m-%d)
           MESSAGE="${{ env.MESSAGE }}"
@@ -91,8 +92,8 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
           git add changelog.md
-          git commit -m "update changelog for $VERSION [skip ci]"
-          git push origin HEAD:${{ github.ref_name }}
+          git commit -m "update changelog for $VERSION [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:${{ github.ref_name }} || echo "Push may have failed (already pushed?)"
 
       - name: Create annotated tag and push (AFTER changelog commit is pushed)
         if: steps.check_tag.outputs.exists == 'false'
