@@ -1,6 +1,6 @@
 # Changelog
 * [2026-03-05] BTpref-retro 2.4.10
-
+   - rollback of some core pinning that introduced weird behavior
 * [2026-02-20] BTpref-retro 2.4.9
    - updated compatibility to esphome 2026.2.0
    - add small icon if countdown timer is enabled or active
