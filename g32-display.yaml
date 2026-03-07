@@ -147,8 +147,8 @@ esp32:
   framework:
     type: esp-idf
     sdkconfig_options:
-      # CONFIG_ESP_TASK_WDT_EN: n  # Disables Task Watchdog Timer (TWDT)
-      # CONFIG_ESP_INT_WDT: n      # Disables Interrupt Watchdog Timer (IWDT)
+      # CONFIG_ESP_TASK_WDT_EN: "n" # Disables Task Watchdog Timer (TWDT)
+      CONFIG_ESP_INT_WDT: "n"      # Disables Interrupt Watchdog Timer (IWDT)
       # COMPILER_OPTIMIZATION_SIZE: "y"  # optimize for size
       CONFIG_COMPILER_OPTIMIZATION_PERF: "y"
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
