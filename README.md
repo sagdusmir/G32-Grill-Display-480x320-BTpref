@@ -81,7 +81,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 ### Component Details
 
 * __ESP32 Dev Board__<br>
-  You need a "__JC3248W535C__". It is equipped with an ESP32-S3, WiFi, Bluetooth, a 480x320 Pixel 3,5" touchscreen, and everything you need. No additional memory card required.
+  You need a "__JC3248W535C__". It is equipped with an ESP32-S3, WiFi, Bluetooth, a 480x320 Pixel 3.5" touchscreen, and everything you need. No additional memory card required.
 
 * __Case__<br>
  For a 3D model of a case for the JC3248W535C you can take a look at one of these:
