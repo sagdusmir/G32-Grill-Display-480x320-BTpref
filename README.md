@@ -152,8 +152,9 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
    ```
 
 ### Battery SOC
-   - device powers on when USB power supply is removed: that is expected behavior of the used DB-Board
-   - battery SOC is incorrect of the device is powered via USB: the onboard charge conttoller has no I²C interface to get any information about supplied power and progress of charging
+   - the device powers on when USB power supply is removed: that is expected behavior of the used Dev-Board
+   - battery SOC is incorrect of the device is powered via USB: the onboard charge contoller has no I²C interface to get any information about the supplied power and progress of charging.
+   - battery can not be powered off during charging: hardware limitation of the used Dev-Board
 
 ## Impressions
 <small>These images show different versions of the software - so some details might be inconsistent.</small>
