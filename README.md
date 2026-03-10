@@ -26,7 +26,9 @@ Feeling lonely? Try the (very) experimental Chatbot.. [german](https://huggingfa
    - [BOM](#bom)
    - [Component Details](#component-details)
 4. [Uploading the software to the ESP](#uploading-the-software-to-the-esp)
-5. [Troubleshooting](#troubleshooting)
+5. [FAQ](#faq)
+   - [Troubleshooting](#troubleshooting)
+   - [Battery SOC](#battery-soc)
 6. [Impressions](#impressions)
 7. [Acknowledgments](#acknowledgments)
 8. [Disclaimer](#disclaimer)
@@ -76,7 +78,7 @@ See [changelog.md](changelog.md).
 | Double-Sided mirror tape (optional)  | ?   | Amazon, eBay                             |       ~0€    |
 | Connection Cable                     | 1   | your existing collection of cables       |       ~0€    |
 
-The total cost should be around 35-40€ if you have a friend with a 3d printer. Some items might not be available individually, but only in packs of several.
+The total cost should be around 35-40€ if you have a friend with a 3d printer. Some items might not be available individually, but only in packs of several.f
 
 ### Component Details
 
@@ -136,7 +138,9 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
    ```
    You may be asked how the connection should be established.
 
-## Troubleshooting
+## FAQ
+
+### Troubleshooting
 
 1. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 
@@ -147,6 +151,9 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
    esphome clean g32-display.yaml
    ```
 
+### Battery SOC
+   - device powers on when USB power supply is removed: that is expected behavior of the used DB-Board
+   - battery SOC is incorrect of the device is powered via USB: the onboard charge conttoller has no I²C interface to get any information about supplied power and progress of charging
 
 ## Impressions
 <small>These images show different versions of the software - so some details might be inconsistent.</small>
