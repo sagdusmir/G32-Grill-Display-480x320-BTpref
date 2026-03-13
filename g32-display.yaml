@@ -6229,7 +6229,7 @@ script:
           request_headers:
             Accept: application/vnd.github.v3+json
             User-Agent: ESPHome
-          max_response_buffer_size: 4096
+          max_response_buffer_size: 8192
           capture_response: true
           on_response:
             then:
