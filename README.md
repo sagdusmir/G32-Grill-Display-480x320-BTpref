@@ -27,8 +27,8 @@ Feeling lonely? Try the (very) experimental Chatbot.. [german](https://huggingfa
    - [Component Details](#component-details)
 4. [Uploading the software to the ESP](#uploading-the-software-to-the-esp)
 5. [FAQ](#faq)
-   - [Troubleshooting](#troubleshooting)
-   - [Battery SOC](#battery-soc)
+   - [Flashing](#flashing)
+   - [Usage](#usage)
 6. [Impressions](#impressions)
 7. [Acknowledgments](#acknowledgments)
 8. [Disclaimer](#disclaimer)
@@ -140,7 +140,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 ## FAQ
 
-### Troubleshooting
+### Flashing
 
 1. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 
@@ -151,10 +151,11 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
    esphome clean g32-display.yaml
    ```
 
-### Battery SOC
-   - the device powers on when USB power supply is removed: that is expected behavior of the used Dev-Board
-   - battery SOC is incorrect of the device is powered via USB: the onboard charge contoller has no I²C interface to get any information about the supplied power and progress of charging.
-   - battery can not be powered off during charging: hardware limitation of the used Dev-Board
+### Usage
+   - Why does the device power on if the USB power supply is removed? That is expected behavior of the used Dev-Board and happenes due to switching from USB power supply to battery power supply.
+   - Why is the battery SOC is incorrect if the device is powered via USB? The onboard charge contoller has no I²C interface to get any information about the supplied power and progress of charging. The shown SOC during charging is not accurate.
+   - Why can the device not be powered off during charging? This is a hardware limitation of the used Dev-Board due to how charging is handled.
+   - How do I know the current IP address if the device is connected to WiFi? Open "Settings" and touch the tiny version text in the title bar. Next to the QR code there should be the current IP address displayed.
 
 ## Impressions
 <small>These images show different versions of the software - so some details might be inconsistent.</small>

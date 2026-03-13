@@ -12,7 +12,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.10"
+  version: "BTpref-retro 2.4.11"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -196,6 +196,8 @@ wifi:
   on_connect:
     then:
       - rtttl.play: ${Wifi_Connect_Sound}
+      - lambda: |-
+          id(current_ip_address) = id(wifi_ip_sensor).state.c_str();
       - globals.set:
           id: wifi_connected
           value: 'true'
@@ -203,6 +205,7 @@ wifi:
           id: apply_wifi_started_by_user
           value: 'false'
       - lvgl.widget.refresh: wifi_connect_label
+      - lvgl.widget.refresh: current_wifi_ip_label
       - script.execute: check_for_updates
 
   on_disconnect:
@@ -216,7 +219,11 @@ wifi:
       - globals.set:
           id: wifi_connected
           value: 'false'
+      - globals.set:
+          id: current_ip_address
+          value: '" "'  # not connected
       - lvgl.widget.refresh: wifi_connect_label
+      - lvgl.widget.refresh: current_wifi_ip_label
 esp32_ble:
   # 1xG32, 4xMeater probes -> maximum 5 connections needed
   max_connections: 5  # new option since 2025.10.15, used to be under the esp32_ble_tracker component
@@ -968,6 +975,15 @@ globals:
   - id: settings_color_scheme_idx
     type: int
     initial_value: '0'
+
+  - id: current_ip_address
+    type: std::string
+    initial_value: '" "'  # not connected
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: wifi_ip_sensor
 
 font:
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
@@ -1983,6 +1999,16 @@ lvgl:
                 text_color: !lambda return lv_color_hex(id(color_75));
                 text_font: MONTSERRAT_14
                 text: ${version}
+            - label:
+                id: current_wifi_ip_label
+                x: 10
+                y: 24
+                width: 220
+                text_align: LEFT
+                text_color: !lambda return lv_color_hex(id(color_75));
+                text_font: MONTSERRAT_14
+                text: !lambda |-
+                  return id(current_ip_address).c_str();
             - qrcode:
                 x: 230
                 y: 24
@@ -4467,9 +4493,7 @@ lvgl:
           - lvgl.widget.hide: settings_mac_address_updated
           - lvgl.widget.refresh: [settings_meater0_label, settings_meater1_label, settings_meater2_label, settings_meater3_label]
           - lvgl.widget.hide: [settings_meater0_updated, settings_meater1_updated, settings_meater2_updated, settings_meater3_updated]
-          # - lambda: |-
-          #     lv_obj_t* tabview = settings_tabview;
-          #     lv_tabview_set_act(tabview, 0, LV_ANIM_OFF);
+          - lvgl.widget.refresh: current_wifi_ip_label
 
       widgets:
         - obj:
@@ -6357,6 +6381,7 @@ script:
           - latest_version_label2
           - current_version_label1
           - current_version_label2
+          - current_wifi_ip_label
       - delay: 1ms
 
       # Chunk 3: Zone 1 & 2 widgets
