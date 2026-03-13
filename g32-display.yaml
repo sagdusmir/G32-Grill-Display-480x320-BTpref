@@ -12,7 +12,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.11"
+  version: "BTpref-retro 2.4.12"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -506,7 +506,7 @@ i2c:
 
 touchscreen:
   - platform: axs15231
-    id: my_touch
+    id: my_touchscreen
     display: my_display
     i2c_id: touchscreen_bus
     calibration:
@@ -516,28 +516,22 @@ touchscreen:
       y_max: 320
     transform:
       swap_xy: true
-# for 90° normal display orientation
       mirror_x: false
       mirror_y: true
-# for 270° inverted display orientation
-#      mirror_x: true
-#      mirror_y: false
-# for test purposes, touch coordinates can be logged
-#    on_touch:
-#      - lambda: |-
-#          ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-#            touch.x,
-#            touch.y,
-#            touch.x_raw,
-#            touch.y_raw
-#          );
+    # for test purposes, touch coordinates can be logged
+    # on_touch:
+    #   - lambda: |-
+    #       ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #         touch.x,
+    #         touch.y,
+    #         touch.x_raw,
+    #         touch.y_raw
+    #       );
     on_release:
       - if:
           condition: lvgl.is_paused
           then:
             - logger.log: "Display is resuming"
-            # commented: stay where you are
-            # - script.execute: show_temperatures_page
             - lvgl.resume:
             - lvgl.widget.redraw:
             - light.turn_on: backlight
@@ -560,8 +554,8 @@ touchscreen:
 # Internal outputs
 #-------------------------------------------
 output:
-  - id: gpio_backlight_pwm
-    platform: ledc
+  - platform: ledc
+    id: gpio_backlight_pwm
     pin: 1
 
 
@@ -681,6 +675,12 @@ globals:
   - id: apply_wifi_started_by_user  # for supressing sounds
     type: bool
     initial_value: 'false'
+  - id: flag_wifi_updated  # helper to know if wifi needs to be applied
+    type: bool
+    initial_value: 'true'
+  - id: flag_ota_updated  # helper to know if ota needs to be applied
+    type: bool
+    initial_value: 'true'
 
   - id: settings_wifi_ssid_persistent
     type: std::string
@@ -712,28 +712,28 @@ globals:
     initial_value: '${COLOR_SCHEMES}'
   - id: color_100
     type: int
-    initial_value: '${COLOR_100}'
+    initial_value: '0x000000'
   - id: color_75
     type: int
-    initial_value: '${COLOR_75}'
+    initial_value: '0x000000'
   - id: color_50
     type: int
-    initial_value: '${COLOR_50}'
+    initial_value: '0x000000'
   - id: color_25
     type: int
-    initial_value: '${COLOR_25}'
+    initial_value: '0x000000'
   - id: color_00
     type: int
-    initial_value: '${COLOR_00}'
+    initial_value: '0x000000'
   - id: color_good
     type: int
-    initial_value: '${COLOR_GOOD}'
+    initial_value: '0x000000'
   - id: color_bad
     type: int
-    initial_value: '${COLOR_BAD}'
+    initial_value: '0x000000'
   - id: color_light
     type: int
-    initial_value: '${COLOR_LIGHT}'
+    initial_value: '0x000000'
 
   - id: boot_start_time
     type: uint32_t
@@ -1227,7 +1227,7 @@ lvgl:
   draw_rounding: 8 # necessary for the axs15231 display controller
   buffer_size: 50%
   displays: my_display
-  touchscreens: my_touch
+  touchscreens: my_touchscreen
   bg_color: 0
   border_width: 0
   outline_width: 0
@@ -2028,9 +2028,7 @@ lvgl:
           hidden: true
           on_ready:
             - lvgl.widget.hide: my_keyboard
-  # pages
   pages:
-    # main page with arcs
     - id: arcs_page
       bg_color: 0
       bg_opa: COVER
@@ -2768,6 +2766,7 @@ lvgl:
               - TOP
             radius: 10
             pad_all: 0
+            bg_color: 0
         - label:
             id: probes_title
             y: 161
@@ -5298,12 +5297,18 @@ lvgl:
                               id(settings_wifi_ssid) = std::string(lv_textarea_get_text(settings_wifi_ssid_textarea));
                               id(settings_wifi_password) = std::string(lv_textarea_get_text(settings_wifi_password_textarea));
                               id(settings_ota_password) = std::string(lv_textarea_get_text(settings_ota_password_textarea));
+                              if (id(settings_wifi_ssid) != id(settings_wifi_ssid_persistent)) {
+                                id(settings_wifi_password_persistent) = id(settings_wifi_password);
+                                id(flag_wifi_updated) = true;
+                              }
                               id(settings_wifi_ssid_persistent) = id(settings_wifi_ssid);
                               if (!id(settings_wifi_password).empty()) {
                                 id(settings_wifi_password_persistent) = id(settings_wifi_password);
+                                id(flag_wifi_updated) = true;
                               }
                               if (!id(settings_ota_password).empty()) {
                                 id(settings_ota_password_persistent) = id(settings_ota_password);
+                                id(flag_ota_updated) = true;
                               }
 
                               id(settings_min_gas_value_persistent) = id(settings_min_gas_value);
@@ -5507,7 +5512,11 @@ sensor:
       id(g32_gas_weight).publish_state(t);
       t = (x[24]);
       id(g32_firebox_open).publish_state(t);
-      t = (x[25]);
+      if (id(g32_firebox_open)){
+        t = (x[25]);
+      } else {
+        t = 0; // no light if firebox is closed
+      }
       id(g32_light_on).publish_state(t);
       t = (x[31]);
       id(g32_gas_percent).publish_state(t);
@@ -5598,7 +5607,7 @@ sensor:
       - lvgl.widget.refresh: [sensor4_battery]
 
   - platform: template
-    name: "G32 Gasbuddy Füllstand in g"
+    name: "G32 Gasbuddy level in g"
     id: g32_gas_weight
     device_class: weight
     state_class: measurement
@@ -5616,7 +5625,7 @@ sensor:
       - lvgl.widget.refresh: gas_weight_label
 
   - platform: template
-    name: "G32 Gasbuddy Füllstand in %"
+    name: "G32 Gasbuddy level in %"
     id: g32_gas_percent
     state_class: measurement
     unit_of_measurement: "%"
@@ -6118,18 +6127,21 @@ script:
             if (sscanf(id(settings_g32_mac_address_persistent).c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
               addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
             }
+            if (addr == id(ow_g32).get_address()) {
+              return;
+            }
             id(ow_g32).set_address(addr);
             ESP_LOGI("settings", "set G32 MAC address to %s", id(settings_g32_mac_address_persistent).c_str());
-
   - id: apply_wifi
     then:
         - lambda: !lambda |-
-            id(apply_wifi_started_by_user) = true;
-            id(my_wifi).disable();
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            id(my_wifi).save_wifi_sta(id(settings_wifi_ssid_persistent), id(settings_wifi_password_persistent));
-            id(my_wifi).enable();
-
+            if (id(flag_wifi_updated)) {
+              id(flag_wifi_updated) = false;
+              id(apply_wifi_started_by_user) = true;
+              id(my_wifi).disable();
+              id(my_wifi).save_wifi_sta(id(settings_wifi_ssid_persistent), id(settings_wifi_password_persistent));
+              id(my_wifi).enable();
+            }
   - id: apply_meater_mac_addresses
     then:
         # this ensures the ble_client changes MAC at runtime
@@ -6142,14 +6154,19 @@ script:
               uint64_t b1, b2, b3, b4, b5, b6;
               if (sscanf(mac.c_str(), "%llx:%llx:%llx:%llx:%llx:%llx", &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
                 addr = (b1 << 40) | (b2 << 32) | (b3 << 24) | (b4 << 16) | (b5 << 8) | b6;
+                if (addr != meaters[i]->get_address()) {
+                  meaters[i]->set_address(addr);
+                  ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
+                }
               }
-              meaters[i]->set_address(addr);
-              ESP_LOGI("settings", "set meater%d MAC address to %s", i, mac.c_str());
             }
   - id: apply_ota_password
     then:
        - lambda: !lambda |-
-           id(my_ota).set_auth_password(id(settings_ota_password_persistent));
+           if (id(flag_ota_updated)) {
+             id(flag_ota_updated) = false;
+             id(my_ota).set_auth_password(id(settings_ota_password_persistent));
+           }
   - id: hide_boot_screen
     then:
       - if:
