@@ -1,4 +1,7 @@
 # Changelog
+* [2026-03-13] BTpref-retro 2.4.11
+   - fix: latest version check (buffer to small)
+   - show wifi IP address
 * [2026-03-05] BTpref-retro 2.4.10
    - rollback of some core pinning that introduced weird behavior
 * [2026-02-20] BTpref-retro 2.4.9
