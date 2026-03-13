@@ -153,7 +153,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 ### Usage
    - Why does the device power on if the USB power supply is removed? That is expected behavior of the used Dev-Board and happenes due to switching from USB power supply to battery power supply.
-   - Why is the battery SOC is incorrect if the device is powered via USB? The onboard charge contoller has no I²C interface to get any information about the supplied power and progress of charging. The shown SOC during charging is not accurate.
+   - Why is the battery SOC incorrect if the device is powered via USB? The onboard charge contoller has no I²C interface to get any information about the supplied power and progress of charging. The shown SOC during charging is not accurate.
    - Why can the device not be powered off during charging? This is a hardware limitation of the used Dev-Board due to how charging is handled.
    - How do I know the current IP address if the device is connected to WiFi? Open "Settings" and touch the tiny version text in the title bar. Next to the QR code there should be the current IP address displayed.
 
