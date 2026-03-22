@@ -5896,7 +5896,7 @@ binary_sensor:
     name: "Status ESP G32"
 
   - platform: template
-    name: "G32 Licht"
+    name: "G32 Light"
     id: g32_light_on
     icon: "mdi:light-flood-down"
     on_state:
@@ -5906,7 +5906,7 @@ binary_sensor:
       - lvgl.widget.refresh: light_on_label
 
   - platform: template
-    name: "G32 Haube"
+    name: "G32 Firsbox Open"
     id: g32_firebox_open
     device_class: "door"
     icon: "mdi:door"
