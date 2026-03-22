@@ -1,7 +1,6 @@
 # Changelog
 * [2026-03-13] BTpref-retro 2.4.12
-   - minor tweaks
-   - testing stability improvements
+   - minor doumentation tweaks
 * [2026-03-13] BTpref-retro 2.4.11
    - fix: latest version check (buffer to small)
    - show wifi IP address
