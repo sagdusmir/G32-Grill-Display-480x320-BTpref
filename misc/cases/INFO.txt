@@ -1,3 +1,6 @@
 This is a BACKUP of my case models on Thingiverse in case the platform goes the way of the Dodo.
 
 Please always give preference to the online versions and only see this as a fallback.
+
+
+Printing instructions: All 3D models in this repo can be printed whithout support. Orient the bottom (for the bezel model only: the top) on the build plate and you should be good to go.
