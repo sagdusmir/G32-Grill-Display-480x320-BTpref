@@ -157,6 +157,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
    - Why is the battery SOC incorrect if the device is powered via USB? The onboard charge contoller has no I²C interface to get any information about the supplied power and progress of charging. The shown SOC during charging is not accurate.
    - Why can the device not be powered off during charging? This is a hardware limitation of the used Dev-Board due to how charging is handled.
    - Why is my device losing battery charge when not in use? The Dev-Board seems to always draw a noticable amount of power - even if the device is shut down. There is no easy fix for that.
+   - Why does the device not power off, even if I press the power button for a few seconds? Try to press the button even longer. This can take up to 14 seconds and varies from device to device.
 
 
 ## Impressions
