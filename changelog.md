@@ -1,4 +1,11 @@
 # Changelog
+* [2026-03-29] BTpref-retro 2.5.0
+   - add to HA: Softare Version
+   - change for HA: BT Signalstärke -> BT Signal Level
+   - change for HA: WiFi Signal ESP G32 -> WiFi Signal ESP
+   - change for HA: Temperatur ESP G32 -> CPU Temperature ESP
+   - change for HA: G32 Gasbuddy level in % -> G32 Gasbuddy Level in %
+   - change HA Status ESP G32 -> Status ESP
 * [2026-03-13] BTpref-retro 2.4.12
    - minor tweaks
    - testing stability improvements
