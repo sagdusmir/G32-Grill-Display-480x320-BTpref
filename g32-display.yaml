@@ -12,7 +12,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.4.12"
+  version: "BTpref-retro 2.5.0"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -984,6 +984,11 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       id: wifi_ip_sensor
+
+  - platform: template
+    name: "Software Version"
+    lambda: |-
+      return std::string("${version}");
 
 font:
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/BTpref-retro/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
@@ -5463,12 +5468,12 @@ sensor:
 
   - platform: ble_rssi
     mac_address: ${g32_mac_address}
-    name: "BT Signalstärke"
+    name: "BT Signal Level"
   - platform: wifi_signal
-    name: "WiFi Signal ESP G32"
+    name: "WiFi Signal ESP"
     update_interval: 10s
   - platform: internal_temperature
-    name: "CPU Temperatur ESP G32"
+    name: "CPU Temperature ESP"
     update_interval: 10s
 
   - platform: ble_client
@@ -5625,7 +5630,7 @@ sensor:
       - lvgl.widget.refresh: gas_weight_label
 
   - platform: template
-    name: "G32 Gasbuddy level in %"
+    name: "G32 Gasbuddy Level in %"
     id: g32_gas_percent
     state_class: measurement
     unit_of_measurement: "%"
@@ -5893,7 +5898,7 @@ sensor:
 
 binary_sensor:
   - platform: status
-    name: "Status ESP G32"
+    name: "Status ESP"
 
   - platform: template
     name: "G32 Light"
