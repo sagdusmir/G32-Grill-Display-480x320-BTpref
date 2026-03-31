@@ -141,7 +141,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 ### Flashing
 
-1. Which values do I need to adjust in the yaml before flashing? Nothing – if you do not care about security too much. Everyone else: api_encryption_key, ota_password, and decide about speaker/buzzer. Have a look at the very top of the g32-display.yaml for details.
+1. Which values do I need to adjust in the yaml before flashing? Nothing – if you trust everyone that uses the same WiFi as your device does. Everyone else: api_encryption_key, ota_password. Have a look at the very top of the g32-display.yaml for details.
    
 3. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 
