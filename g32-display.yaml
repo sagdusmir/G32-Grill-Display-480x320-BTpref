@@ -6,7 +6,8 @@ substitutions:
   # Possible chages you might want to do to this yaml
   # -------------------------------------------------
   
-  # api_encryption_key :
+  # api_encryption_key:
+  # This can only changed by editing this file.
   # This value is required to connect your device to a Homa Assistant installation.
   # If you choose to change this value, you would need to do that every time you
   # upload a new software version. If you trust the other users of your WiFi, this
@@ -14,19 +15,21 @@ substitutions:
   # with a default password.
 
   # ota_password:
-  # This CAN be changed afterwards but any malicious attacker would need access to your WiFi.
+  # This CAN be changed afterwards (not recommended) but any malicious attacker would need
+  # to haveaccess to your WiFi.
   # If you changed that value on the device, you will need to also update the value in this file
-  # to get OTA updates working. The device uses this value as a default but remembers the value
-  # you last entered in the settings on the device. Same as above: only bother changing it if
-  # you feel the need to do so.
+  # to get OTA updates working. The device uses this value as a default but also remembers the
+  # last setting.
+  # Same as above: only bother changing it if you really feel the need to do so.
 
   # FORCE_SHADOW_COLOR_TO_BLACK:
-  # If the "shadow" of icons and numerical values annoys you, set this to 'true' to make it
+  # If the "shadow" of icons and numerical values annoy you, set this to 'true' to make it
   # disappear for all color schemes.
   # The color scheme "white (clean)" gives you an example how this would look like.
 
   # COLOR_SCHEMES
-  # Feel free to add your own color scheme. Do not forget to also update the "idx" value.
+  # You can add your own color scheme – or remove existing ones that you don't like.
+  # Columns are explained right above the COLOR_SCHEMES substitution.
   
   # General information for customizing optional hardware:
   # Speaker / Buzzer:
@@ -60,7 +63,7 @@ substitutions:
   # simply use the FORCE_SHADOW_COLOR_TO_BLACK substitution.
   # -> color_00
   #
-  # In addition to that there is a "good" and a "bad"
+  # In addition to that, there is a "good" and a "bad"
   # color. For a less colorful UI you could just use
   # the primary color for "good", too. But I suggest
   # having a popping color for the "bad" stuff.
