@@ -3,6 +3,31 @@ substitutions:
   # You will propably need to do changes only to the following lines (if at all): #
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+  # Possible chages you might want to do to this yaml
+  # -------------------------------------------------
+  
+  # api_encryption_key :
+  # This value is required to connect your device to a Homa Assistant installation.
+  # If you choose to change this value, you would need to do that every time you
+  # upload a new software version. If you trust the other users of your WiFi, this
+  # is probably unnecessary because this software does not create a fallback Access Point
+  # with a default password.
+
+  # ota_password:
+  # This CAN be changed afterwards but any malicious attacker would need access to your WiFi.
+  # If you changed that value on the device, you will need to also update the value in this file
+  # to get OTA updates working. The device uses this value as a default but remembers the value
+  # you last entered in the settings on the device. Same as above: only bother changing it if
+  # you feel the need to do so.
+
+  # FORCE_SHADOW_COLOR_TO_BLACK:
+  # If the "shadow" of icons and numerical values annoys you, set this to 'true' to make it
+  # disappear for all color schemes.
+  # The color scheme "white (clean)" gives you an example how this would look like.
+
+  # COLOR_SCHEMES
+  # Feel free to add your own color scheme. Do not forget to also update the "idx" value.
+  
   # General information for customizing optional hardware:
   # Speaker / Buzzer:
   # By default the buzzer is pre-configured. See two config blocks "RTTTL buzzer (GPIO pin)".
