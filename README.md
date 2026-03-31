@@ -141,11 +141,13 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 ### Flashing
 
-1. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
+1. Which values do I need to adjust in the yaml before flashing? Nothing – if you do not care about security too much. Everyone else: api_encryption_key, ota_password, and decide about speaker/buzzer. Have a look at the very top of the g32-display.yaml for details.
+   
+3. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 
-2. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
+4. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
 
-3. If you get A LOT of strange syntax errors, try to clean up the configured build folder via
+5. If you get A LOT of strange syntax errors, try to clean up the configured build folder via
    ```bash
    esphome clean g32-display.yaml
    ```
