@@ -186,7 +186,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 <img alt="device_assembly_4ohms" src="https://github.com/user-attachments/assets/ae5de246-1468-45cc-963b-f92718e22223" width="265">
 <img alt="In action 1" src="https://github.com/user-attachments/assets/2cc83a7c-75c3-4c01-b1db-8f422a5380da" width="265">
 <img alt="In Action 2" src="https://github.com/user-attachments/assets/6baaa8af-9068-4675-aac9-c1b00c2df483" width="265">
-
+<img alt="JW3248W535 board" src="https://github.com/user-attachments/assets/e826c234-deb3-4400-8956-84580c242e07" width="265">
 
 ## Acknowledgments
 This project would not have been possible without the work of the community. Special thanks go to:
