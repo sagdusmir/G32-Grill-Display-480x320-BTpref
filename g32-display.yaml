@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.5.0"
+  version: "BTpref-retro 2.5.1"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -148,7 +148,7 @@ substitutions:
 esphome:
   name: ${name}
   build_path: /tmp/esphome_build/${name}
-  # min_version: "2026.2.0"  # <- might be necessary at some point
+  min_version: "2026.4.0"
   platformio_options:
     upload_speed: 921600
     board_build.flash_mode: dio
@@ -172,6 +172,7 @@ esp32:
   board: esp32-s3-devkitc-1
   # variant: esp32S3  # use either board: or variant
   flash_size: 16MB
+  cpu_frequency: 160MHZ  # esphome 2026.4.0 uses by default 240MHZ
   framework:
     type: esp-idf
     sdkconfig_options:
@@ -519,7 +520,6 @@ display:
     cs_pin:
       number: 45
       ignore_strapping_warning: true
-    rotation: 90  # 90 for landscape, 270 for landscape inverted
     auto_clear_enabled: false  # has to be set to 'false' for lvgl
     update_interval: never  # LVGL handles rendering
 
@@ -537,15 +537,6 @@ touchscreen:
     id: my_touchscreen
     display: my_display
     i2c_id: touchscreen_bus
-    calibration:
-      x_min: 1
-      x_max: 480
-      y_min: 1
-      y_max: 320
-    transform:
-      swap_xy: true
-      mirror_x: false
-      mirror_y: true
     # for test purposes, touch coordinates can be logged
     # on_touch:
     #   - lambda: |-
@@ -1261,6 +1252,7 @@ lvgl:
   buffer_size: 50%
   displays: my_display
   touchscreens: my_touchscreen
+  rotation: 90
   bg_color: 0
   border_width: 0
   outline_width: 0
@@ -6695,17 +6687,22 @@ script:
           lv_obj_set_style_bg_color(id(sensor_limits_ones_roller)->obj, lv_color_hex(id(color_25)), LV_PART_SELECTED);
 
 
-          static constexpr lv_style_selector_t TABITEM_CHECKED =
-              static_cast<lv_style_selector_t>(LV_PART_ITEMS) |
-              static_cast<lv_style_selector_t>(LV_STATE_CHECKED);
-          lv_obj_t * tab_btns = lv_tabview_get_tab_btns(
-              reinterpret_cast<lv_obj_t*>(settings_tabview)
-          );
-          if (tab_btns) {              
-            lv_obj_set_style_text_color(tab_btns, lv_color_hex(id(color_50)), LV_PART_ITEMS);
-            lv_obj_set_style_text_color(tab_btns, lv_color_hex(id(color_100)), TABITEM_CHECKED);
-            lv_obj_set_style_bg_color(tab_btns, lv_color_hex(id(color_100)), TABITEM_CHECKED);
-            lv_obj_set_style_border_color(tab_btns, lv_color_hex(id(color_100)), TABITEM_CHECKED);
+          // Fixed for ESPHome 2026.4.0 / LVGL 9: style each tab button directly
+          lv_obj_t * tab_bar = lv_tabview_get_tab_bar(reinterpret_cast<lv_obj_t*>(settings_tabview));
+          if (tab_bar) {
+            lv_color_t color50 = lv_color_hex(id(color_50));
+            lv_color_t color100 = lv_color_hex(id(color_100));
+            uint32_t child_cnt = lv_obj_get_child_cnt(tab_bar);
+            for (uint32_t i = 0; i < child_cnt; i++) {
+              lv_obj_t * btn = lv_obj_get_child(tab_bar, i);
+              if (btn) {
+                lv_obj_set_style_text_color(btn, color50, 0);
+                lv_obj_set_style_text_color(btn, color100, LV_STATE_CHECKED);
+                lv_obj_set_style_bg_color(btn, color100, LV_STATE_CHECKED);
+                lv_obj_set_style_border_color(btn, color100, LV_STATE_CHECKED);
+              }
+            }
+            lv_obj_invalidate(tab_bar);
           }
 
           lv_obj_set_style_text_color(settings_wifi_ssid_textarea, lv_color_hex(id(color_50)), LV_PART_TEXTAREA_PLACEHOLDER);
