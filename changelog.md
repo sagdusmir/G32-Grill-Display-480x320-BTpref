@@ -1,9 +1,8 @@
 # Changelog
 * [2026-04-18] BTpref-retro 2.5.2
-   - fix timer page for lvgl 9.x
-* [2026-04-17] BTpref-retro 2.5.1
    - BREAKING!! updated for esphome 2026.4.0 compatibility
    - e.g. screen and touchscreen configuration (fix), cpu speed (keep old setting), tab bar color scheme update (broken due to lvgl 9.x update)
+   - fix timer page for lvgl 9.x
 * [2026-03-29] BTpref-retro 2.5.0
    - add to HA: Softare Version
    - change for HA: BT Signalstärke -> BT Signal Level
