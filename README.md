@@ -70,7 +70,7 @@ See [changelog.md](changelog.md).
 | Component                            | Qty | Source                                   | Costs        |
 |--------------------------------------|-----|------------------------------------------|--------------|
 | ESP32 Dev Board                      | 1   | Amazon, AliExpress                       |   ~17€ - 27€ |
-| Case                                 | 1   | friend with a 3D Printer                 |    A beer    |
+| Case                                 | 1   | friend with a 3D Printer                 |    a beer    |
 | Screws                               | 4   | hardware store, eBay, Amazon, AliExpress |       ~1€    |
 | Battery (optional)                   | 1   | Amazon, AliExpress                       |       ~9€    |   
 | Buzzer / Speaker (optional)          | 1   | AliExpress, Amazon, eBay                 |       ~2€    |
