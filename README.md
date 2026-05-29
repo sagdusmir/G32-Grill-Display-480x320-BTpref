@@ -77,7 +77,7 @@ See [changelog.md](changelog.md).
 | Double-Sided mirror tape (optional)  | ?   | Amazon, eBay                             |       ~0€    |
 | Connection Cable                     | 1   | your existing collection of cables       |       ~0€    |
 
-The total cost should be around 35-40€ if you have a friend with a 3d printer. Some items might not be available individually, but only in packs of several.f
+The total cost should be around 35-40€ if you have a friend with a 3d printer. Some items might not be available individually, but only in packs of several.
 
 ### Component Details
 
