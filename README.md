@@ -93,7 +93,8 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
      There is also a case variant that attaches directly to any front facing handles of the OW Modules which is shown in some of the images.
      If you like to have both: there is also a model that allows to hang a normal case to a OW Module handle.
    * [Case by so99hero (remixed by sagdusmir for displays prone to delamination)](https://www.thingiverse.com/thing:7295356)<br>
-     This one is based on my remixed case, but features a bezel to keep the display from delaminating. The optional hanger add-on for OW Modules is also available for this model.
+     This one is based on my remixed case, but features a bezel to keep the display from delaminating. The optional hanger add-on for OW Modules is also available for this model.<br>
+     There is a 2nd version labeld "color-accent" that has a tiny 0.02mm recess at the front that allows you to use a Color Painting tool in your slicer ("fill" mode) and apply another filament / color to that recess.
 
      
 
