@@ -1903,11 +1903,11 @@ lvgl:
                   - label:
                       id: gas_weight_symbol
                       x: 455
-                      y: -1
+                      y: 1
                       text_font: ICON_FONT_24
                       text_color: !lambda return lv_color_hex(id(color_100));
                       text_align: LEFT
-                      width: 20 # 24
+                      width: 20
                       height: 20
                       text: "\U000F0D3F"
 
