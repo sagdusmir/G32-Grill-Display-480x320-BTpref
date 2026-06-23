@@ -1,4 +1,9 @@
 # Changelog
+* [2026-06-23] BTpref-retro 2.5.3
+   - fix: HomeAssistant Meater unit label
+   - fix: move gas weight symbol in the bottom right to better match the orientation of the gas bottle symbol
+   - add 3d model with color accent on the front bezel
+   - seems compatible with latest esphome 2026.6.x
 * [2026-04-18] BTpref-retro 2.5.2
    - BREAKING!! updated for esphome 2026.4.0 compatibility
    - e.g. screen and touchscreen configuration (fix), cpu speed (keep old setting), tab bar color scheme update (broken due to lvgl 9.x update)
