@@ -8,7 +8,7 @@
 [![HA support](https://img.shields.io/badge/Home_Assistant-supported-informational?style=flat-square&logo=home-assistant&logoColor=white&color=orange)](https://home-assistant.io)
 
 
-This repository started as a fork of https://github.com/JBecker32/G32-Display-480x320-BT and has since been heavily reworked with several improvements and can no longer be synced easily.
+This repository started as a fork of https://github.com/JBecker32/G32-Display-480x320-BT and has since been heavily reworked with several improvements.
 
 Focus: **mobile, cloud-independent replacement** for the official Otto Wilde app / Grill Buddy — no cloud login, no Otto Wilde servers, Home Assistant totally optional. Direct BLE connection to the grill (tested with firmware **v1.4.5**; older factory installed firmware e.g. "v13" is not compatible).
 
