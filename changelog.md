@@ -1,4 +1,6 @@
 # Changelog
+* [2026-07-05] BTpref-retro 2.5.4
+   - typo: „Firebox“ in HA
 * [2026-06-23] BTpref-retro 2.5.3
    - fix: HomeAssistant Meater unit label
    - fix: move gas weight symbol in the bottom right to better match the orientation of the gas bottle symbol
