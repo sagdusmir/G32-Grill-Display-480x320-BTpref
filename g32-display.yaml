@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.5.3"
+  version: "BTpref-retro 2.5.4"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -5937,7 +5937,7 @@ binary_sensor:
       - lvgl.widget.refresh: light_on_label
 
   - platform: template
-    name: "G32 Firsbox Open"
+    name: "G32 Firebox Open"
     id: g32_firebox_open
     device_class: "door"
     icon: "mdi:door"
