@@ -1,4 +1,6 @@
 # Changelog
+* [2026-07-21] BTpref-retro 2.5.5
+   - minor fix: check for g32_firebox_open
 * [2026-07-05] BTpref-retro 2.5.4
    - typo: „Firebox“ in HA
 * [2026-06-23] BTpref-retro 2.5.3
