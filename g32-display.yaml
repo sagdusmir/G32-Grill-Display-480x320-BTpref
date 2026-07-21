@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.5.4"
+  version: "BTpref-retro 2.5.5"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -5539,7 +5539,7 @@ sensor:
       id(g32_gas_weight).publish_state(t);
       t = (x[24]);
       id(g32_firebox_open).publish_state(t);
-      if (id(g32_firebox_open)){
+      if (id(g32_firebox_open).state){
         t = (x[25]);
       } else {
         t = 0; // no light if firebox is closed
