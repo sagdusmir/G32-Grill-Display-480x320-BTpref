@@ -16,7 +16,7 @@ substitutions:
 
   # ota_password:
   # This CAN be changed afterwards (not recommended) but any malicious attacker would need
-  # to haveaccess to your WiFi.
+  # to have access to your WiFi.
   # If you changed that value on the device, you will need to also update the value in this file
   # to get OTA updates working. The device uses this value as a default but also remembers the
   # last setting.
@@ -99,7 +99,7 @@ substitutions:
   # interval for alarm sound
   Beeper_interval: "5s"
 
-  # Meater protetion alerts
+  # Meater protection alerts
   meater_tip_alert: '100'  # Specs: 100°C (original Meater: 100°C, 105°C (Meater PRO - not supported yet)
   meater_ambient_alert: '270'  # Specs: 275°C (original Meater), 550°C (Meater PRO - not supported yet)
 
