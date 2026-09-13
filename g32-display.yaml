@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.5.5"
+  version: "BTpref-retro 2.5.6"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -148,7 +148,7 @@ substitutions:
 esphome:
   name: ${name}
   build_path: /tmp/esphome_build/${name}
-  min_version: "2026.4.0"
+  min_version: "2026.8.2"
   platformio_options:
     upload_speed: 921600
     board_build.flash_mode: dio
@@ -263,11 +263,14 @@ esp32_ble_tracker:
   on_ble_advertise:
     then:
       - lambda: |-
-          if (x.get_name().rfind("OWG-G32C", 0) == 0 && id(ble_g32_scan_started_by_user)) {
-            id(settings_g32_mac_address) = x.address_str();
+          char mac_buf[MAC_ADDRESS_PRETTY_BUFFER_SIZE];
+
+          if (x.get_name().starts_with("OWG-G32C") && id(ble_g32_scan_started_by_user)) {
+            x.address_str_to(mac_buf);
+            id(settings_g32_mac_address) = mac_buf;
             lv_obj_clear_flag(id(settings_mac_address_updated), LV_OBJ_FLAG_HIDDEN);
             id(my_rtttl).play("${New_MAC_Sound}");
-            ESP_LOGI("ble_adv", "G32 MAC address: %s", x.address_str().c_str());
+            ESP_LOGI("ble_adv", "G32 MAC address: %s", mac_buf);
             id(ble_g32_scan_stop).execute();
           }
 
@@ -286,12 +289,13 @@ esp32_ble_tracker:
                   if ((id(ble_meaters_found) & (1 << idx)) == 0) {
                     id(ble_meaters_found) |= (1 << idx);
                     id(my_rtttl).play("${New_MAC_Sound}");
-                    ESP_LOGI("ble_adv", "Meater MAC address: %s", x.address_str().c_str());
-                    id(settings_meater_mac_addresses)[idx] = x.address_str();
+                    x.address_str_to(mac_buf);
+                    ESP_LOGI("ble_adv", "Meater MAC address: %s", mac_buf);
+                    id(settings_meater_mac_addresses)[idx] = mac_buf;
                     std::array<lv_obj_t *, 4> meater_labels = {id(settings_meater0_label), id(settings_meater1_label), id(settings_meater2_label), id(settings_meater3_label)};
                     std::array<lv_obj_t *, 4> meater_updated = {id(settings_meater0_updated), id(settings_meater1_updated), id(settings_meater2_updated), id(settings_meater3_updated)};
                     lv_obj_clear_flag(meater_updated[idx], LV_OBJ_FLAG_HIDDEN);
-                    lv_label_set_text(meater_labels[idx], x.address_str().c_str());
+                    lv_label_set_text(meater_labels[idx], mac_buf);
                   }
                 }
               }
@@ -302,31 +306,31 @@ esp32_ble_tracker:
           } 
 
           // some logging
-          // if (x.get_name().rfind("OWG-G32C", 0) == 0) {
+          // if (x.get_name().starts_with("OWG-G32C")) {
           //   ESP_LOGI("ble_adv", "G32 found");
           //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str_to(mac_buf));
           // }
-          // if (x.get_name().rfind("MEATER+", 0) == 0) {
+          // if (x.get_name().starts_with("MEATER+")) {
           //   ESP_LOGI("ble_adv", "Meater+ found");
           //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str_to(mac_buf));
           // }
           // if (x.get_name() == "MEATER") {
           //   ESP_LOGI("ble_adv", "Meater found");
           //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str_to(mac_buf));
           // }
           // if (x.get_name() == "MEATER BLOCK") {
           //   ESP_LOGI("ble_adv", "Meater Block found");
           //   ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          //   ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str_to(mac_buf));
           // }
 
           // log everything we get on advertise
           if (0) {
             ESP_LOGD("ble_adv", "New BLE device");
-            ESP_LOGD("ble_adv", "  address: %s", x.address_str().c_str());
+            ESP_LOGD("ble_adv", "  address: %s", x.address_str_to(mac_buf));
             ESP_LOGD("ble_adv", "  RSSI: %d", x.get_rssi());
             ESP_LOGD("ble_adv", "  name: %s", x.get_name().c_str());
             ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
