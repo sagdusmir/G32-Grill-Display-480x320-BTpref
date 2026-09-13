@@ -1,4 +1,6 @@
 # Changelog
+* [2026-09-13] BTpref-retro 2.5.7
+   - meater tip temperature reading now supports frozen steaks
 * [2026-09-13] BTpref-retro 2.5.6
    - updated for esphome 2026.8.x compatibility
 * [2026-07-21] BTpref-retro 2.5.5
