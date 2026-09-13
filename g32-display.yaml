@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.5.6"
+  version: "BTpref-retro 2.5.7"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -144,6 +144,12 @@ substitutions:
   COLOR_GOOD:  "0x8bff85"
   COLOR_BAD:   "0xff5757"
   COLOR_LIGHT: "0xffff00"
+
+  # MEATER tip raw is 12-bit two's complement, little-endian. °C = (raw + 8) / 16.
+  # Unsigned 0x0FE8 is 255°C; sign-extended it is -1°C. A 16-bit signed payload
+  # (0xFFE8) is already negative after the int16_t cast, so leave it alone.
+  meater_decode_tip: |-
+    uint16_t tip_u = uint16_t(x[0]) | (uint16_t(x[1]) << 8); int16_t tip = int16_t(tip_u); if (tip_u < 0x1000 && tip >= 2048) tip -= 4096;
 
 esphome:
   name: ${name}
@@ -3017,7 +3023,7 @@ lvgl:
                           arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
-                          if( id(sensor1_value) >= ${Invalid_Sensor_Value}) {
+                          if( id(sensor1_value) >= ${Invalid_Sensor_Value} || id(sensor1_value) < 1) {
                             return 0;
                           }
                           return id(sensor1_value);
@@ -3245,7 +3251,7 @@ lvgl:
                           arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
-                          if( id(sensor2_value) >= ${Invalid_Sensor_Value}) {
+                          if( id(sensor2_value) >= ${Invalid_Sensor_Value} || id(sensor2_value) < 1) {
                             return 0;
                           }
                           return id(sensor2_value);
@@ -3473,7 +3479,7 @@ lvgl:
                           arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
-                          if( id(sensor3_value) >= ${Invalid_Sensor_Value}) {
+                          if( id(sensor3_value) >= ${Invalid_Sensor_Value} || id(sensor3_value) < 1) {
                             return 0;
                           }
                           return id(sensor3_value);
@@ -3701,7 +3707,7 @@ lvgl:
                           arc_color: !lambda return lv_color_hex(id(color_100));
                           arc_width: 6
                         value: !lambda |-
-                          if( id(sensor4_value) >= ${Invalid_Sensor_Value}) {
+                          if( id(sensor4_value) >= ${Invalid_Sensor_Value} || id(sensor4_value) < 1) {
                             return 0;
                           }
                           return id(sensor4_value);
@@ -5682,11 +5688,11 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[0] = t_tip;
-      id(g32_probe1).publish_state(int(t_tip+0.5));
-      ESP_LOGI("meater", "0 tip %.2f", t_tip);
+      id(g32_probe1).publish_state(std::lround(t_tip));
+      ESP_LOGI("meater", "0 tip %.2f raw %d [%02X %02X]", t_tip, (int)tip, x[0], x[1]);
       if (t_tip > id(meater_tip_alert)) {
         id(meater_alarms_tip) |= 0x01;
       } else {
@@ -5704,11 +5710,11 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[1] = t_tip;
-      id(g32_probe2).publish_state(int(t_tip+0.5));
-      ESP_LOGI("meater", "1 tip %.2f", t_tip);
+      id(g32_probe2).publish_state(std::lround(t_tip));
+      ESP_LOGI("meater", "1 tip %.2f raw %d [%02X %02X]", t_tip, (int)tip, x[0], x[1]);
       if (t_tip > id(meater_tip_alert)) {
         id(meater_alarms_tip) |= 0x02;
       } else {
@@ -5726,11 +5732,11 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[2] = t_tip;
-      id(g32_probe3).publish_state(int(t_tip+0.5));
-      ESP_LOGI("meater", "2 tip %.2f", t_tip);
+      id(g32_probe3).publish_state(std::lround(t_tip));
+      ESP_LOGI("meater", "2 tip %.2f raw %d [%02X %02X]", t_tip, (int)tip, x[0], x[1]);
       if (t_tip > id(meater_tip_alert)) {
         id(meater_alarms_tip) |= 0x04;
       } else {
@@ -5748,11 +5754,11 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       float t_tip = (tip + 8.0) / 16.0;
       id(meater_values_tip)[3] = t_tip;
-      id(g32_probe4).publish_state(int(t_tip+0.5));
-      ESP_LOGI("meater", "3 tip %.2f", t_tip);
+      id(g32_probe4).publish_state(std::lround(t_tip));
+      ESP_LOGI("meater", "3 tip %.2f raw %d [%02X %02X]", t_tip, (int)tip, x[0], x[1]);
       if (t_tip > id(meater_tip_alert)) {
         id(meater_alarms_tip) |= 0x08;
       } else {
@@ -5772,7 +5778,7 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       uint16_t ra = x[2] + (x[3] << 8);
       uint16_t oa = x[4] + (x[5] << 8);
       uint16_t min_val = 48;
@@ -5799,7 +5805,7 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       uint16_t ra = x[2] + (x[3] << 8);
       uint16_t oa = x[4] + (x[5] << 8);
       uint16_t min_val = 48;
@@ -5826,7 +5832,7 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       uint16_t ra = x[2] + (x[3] << 8);
       uint16_t oa = x[4] + (x[5] << 8);
       uint16_t min_val = 48;
@@ -5853,7 +5859,7 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     lambda: |-
-      uint16_t tip = x[0] + (x[1] << 8);
+      ${meater_decode_tip}
       uint16_t ra = x[2] + (x[3] << 8);
       uint16_t oa = x[4] + (x[5] << 8);
       uint16_t min_val = 48;
