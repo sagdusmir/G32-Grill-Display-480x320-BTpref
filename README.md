@@ -25,6 +25,8 @@ Assembled device with the case variant for attaching it to OW Module handles.
    - [BOM](#bom)
    - [Component Details](#component-details)
 4. [Uploading the software to the ESP](#uploading-the-software-to-the-esp)
+   - [Prebuilt firmware](#prebuilt-firmware)
+   - [Compile from source](#compile-from-source)
 5. [FAQ](#faq)
    - [Flashing](#flashing)
    - [Usage](#usage)
@@ -112,7 +114,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   * EXPERIMENTAL: A small 8Ohm / 1W speaker (4Ohm / 3W for noisy environments) with a JST1.25 2pin connector. <br>This usually results in a slightly higher volume and a more pleasant sound. Getting one with the proper connector saves you some effort. This connects directly to the "SPEAK" (P6) connector. This is still considered "experimental" and needs some verification if the used external DAC is actually powered off if the ESP32 is powered down.
 
   
-  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires manually enabling / disabling some settings in the YAML. Have a look at the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases) because there might be a pre-configuraed file available.
+  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires enabling / disabling the marked config blocks, or use a pre-configured YAML / firmware from the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases).
 
 
 * __Cable__<br>
@@ -122,6 +124,43 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   Use this to hold the battery and buzzer / speaker in place.
 
 ## Uploading the software to the ESP
+
+### Prebuilt firmware
+
+Each [GitHub Release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest) includes compiled images with placeholder Wi-Fi, OTA, and Home Assistant values. The extra `.espbinpatch` suffix is the same firmware as a `.bin` — patch those secrets, then flash. Do not flash the download as-is.
+
+| File | When to use |
+|---|---|
+| `*-buzzer.factory.bin.espbinpatch` | Buzzer hardware, first flash on a new or empty board (erases everything) |
+| `*-buzzer.ota.bin.espbinpatch` | Buzzer hardware, later updates if the device already works (keeps saved settings) |
+| `*-speaker.factory.bin.espbinpatch` | Speaker hardware, first flash on a new or empty board (erases everything) |
+| `*-speaker.ota.bin.espbinpatch` | Speaker hardware, later updates if the device already works (keeps saved settings) |
+
+1. Download the matching file from the latest release.
+2. Open [ESP Bin Patch](https://sagdusmir.github.io/ESP-bin-patch/) in **Chrome or Edge**.
+3. Choose the downloaded file on that page (it accepts `.espbinpatch`). GitHub Release download links cannot be loaded in the browser (CORS).
+4. Fill in the replacements. The new value must be the same length or shorter (leftover bytes are padded with `0x00`):
+
+   | What | Old (already in the image) | Mode |
+   |---|---|---|
+   | Wi-Fi SSID | `ESPBINPATCH_WIFI_SSID___________` | utf-8 |
+   | Wi-Fi password | `ESPBINPATCH_WIFI_PASSWORD______________________________________` | utf-8 |
+   | OTA password | `ESPBINPATCH_OTA_PASSWORD________________________________________` | utf-8 |
+   | Home Assistant API key | `ESPBINPATCH_API_ENCRYPTION_KEY__` | auto |
+
+   For the API key, paste your Home Assistant / ESPHome `api.encryption.key` (the Base64 value) as **New**.
+5. Click **Patch firmware**, connect the board via USB, then **Install patched firmware**.
+   - Factory file: choose **Erase everything**.
+   - OTA file: choose **Keep saved settings**.
+6. You might need to reset the device after flashing (RST button).
+
+A form with the Old values already filled in (still pick the file in step 3):
+
+```
+https://sagdusmir.github.io/ESP-bin-patch/?chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto
+```
+
+### Compile from source
 
 1. Install ESPHome CLI
    ```bash
@@ -142,13 +181,13 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 
 ### Flashing
 
-1. Which values do I need to adjust in the yaml before flashing? Nothing – if you trust everyone that uses the same WiFi as your device does. Everyone else: api_encryption_key, ota_password. Have a look at the very top of the g32-display.yaml for details.
-   
-3. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
+1. Easiest path: download a prebuilt `.espbinpatch` from the latest [release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest) and patch Wi-Fi / OTA / Home Assistant values in [ESP Bin Patch](https://sagdusmir.github.io/ESP-bin-patch/) (see [Prebuilt firmware](#prebuilt-firmware)). If you compile from source: nothing to change in the YAML if you trust everyone on the same WiFi. Everyone else: `api_encryption_key`, `ota_password`. Have a look at the very top of `g32-display.yaml` for details.
 
-4. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
+2. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 
-5. If you get A LOT of strange syntax errors, try to clean up the configured build folder via
+3. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
+
+4. If you get A LOT of strange syntax errors, try to clean up the configured build folder via
    ```bash
    esphome clean g32-display.yaml
    ```
