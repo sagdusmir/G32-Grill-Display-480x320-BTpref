@@ -157,7 +157,7 @@ Each [GitHub Release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTp
 A form with the Old values already filled in (still pick the file in step 3):
 
 ```
-https://sagdusmir.github.io/ESP-bin-patch/?chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto
+https://sagdusmir.github.io/ESP-bin-patch/?lock=1&chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto
 ```
 
 ### Compile from source
