@@ -137,7 +137,7 @@ Each [GitHub Release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTp
 | `*-speaker.ota.bin.espbinpatch` | Speaker hardware, later updates if the device already works (keeps saved settings) |
 
 1. Download the matching file from the latest release.
-2. Open [ESP Bin Patch](https://sagdusmir.github.io/ESP-bin-patch/) in **Chrome or Edge**.
+2. Open [ESP Bin Patcher](https://sagdusmir.github.io/ESP-bin-patcher/) in **Chrome or Edge**.
 3. Choose the downloaded file on that page (it accepts `.espbinpatch`). GitHub Release download links cannot be loaded in the browser (CORS).
 4. Fill in the replacements. The new value must be the same length or shorter (leftover bytes are padded with `0x00`):
 
@@ -157,7 +157,11 @@ Each [GitHub Release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTp
 A form with the Old values already filled in (still pick the file in step 3):
 
 ```
+<<<<<<< Updated upstream
 https://sagdusmir.github.io/ESP-bin-patch/?lock=1&chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto
+=======
+https://sagdusmir.github.io/ESP-bin-patcher/?chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto
+>>>>>>> Stashed changes
 ```
 
 ### Compile from source
@@ -181,7 +185,7 @@ https://sagdusmir.github.io/ESP-bin-patch/?lock=1&chip=ESP32-S3&flash=erase&pad=
 
 ### Flashing
 
-1. Easiest path: download a prebuilt `.espbinpatch` from the latest [release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest) and patch Wi-Fi / OTA / Home Assistant values in [ESP Bin Patch](https://sagdusmir.github.io/ESP-bin-patch/) (see [Prebuilt firmware](#prebuilt-firmware)). If you compile from source: nothing to change in the YAML if you trust everyone on the same WiFi. Everyone else: `api_encryption_key`, `ota_password`. Have a look at the very top of `g32-display.yaml` for details.
+1. Easiest path: download a prebuilt `.espbinpatch` from the latest [release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest) and patch Wi-Fi / OTA / Home Assistant values in [ESP Bin Patcher](https://sagdusmir.github.io/ESP-bin-patcher/) (see [Prebuilt firmware](#prebuilt-firmware)). If you compile from source: nothing to change in the YAML if you trust everyone on the same WiFi. Everyone else: `api_encryption_key`, `ota_password`. Have a look at the very top of `g32-display.yaml` for details.
 
 2. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
 

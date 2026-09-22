@@ -71,7 +71,7 @@ jobs:
       - name: Prepare release YAML with replacements
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          # YAML artifacts are source configs (no espbinpatch placeholders).
+          # YAML artifacts are source configs (no espbinpatcher placeholders).
           # Create them from the committed file before CI rewrites substitutions.
           cp g32-display.yaml g32-display-variant.yaml
 
@@ -115,7 +115,7 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           # secrets.yaml is gitignored. Release binaries get unique padded
-          # needles so espbinpatch can replace them in-place later.
+          # needles so espbinpatcher can replace them in-place later.
           # api.encryption.key must be base64 of exactly 32 bytes; the raw
           # 32-byte needle in the .bin is ESPBINPATCH_API_ENCRYPTION_KEY__
           python3 << 'PY'
@@ -139,7 +139,7 @@ jobs:
           print(f"api_encryption_key (base64): {api_b64}")
           PY
 
-      - name: Inject espbinpatch placeholders into YAML (checkout only)
+      - name: Inject espbinpatcher placeholders into YAML (checkout only)
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           # Committed g32-display.yaml is not changed. This rewrite exists
@@ -354,7 +354,7 @@ jobs:
             ---
 
             These files are compiled firmware with placeholder Wi-Fi / OTA / Home Assistant values.
-            Do not flash them as-is. Patch them in [ESP Bin Patch](https://sagdusmir.github.io/ESP-bin-patch/?lock=1&chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto&hint=Configured+for+G32-Grill-Display-480x320-BTpref) (Chrome or Edge), then install over USB.
+            Do not flash them as-is. Patch them in [ESP Bin Patcher](https://sagdusmir.github.io/ESP-bin-patcher/?lock=1&chip=ESP32-S3&flash=erase&pad=00&patch=0&old=ESPBINPATCH_WIFI_SSID___________&new=YOUR_WIFI_SSID&enc=utf-8&old=ESPBINPATCH_WIFI_PASSWORD______________________________________&new=YOUR_WIFI_PASSWORD&enc=utf-8&old=ESPBINPATCH_OTA_PASSWORD________________________________________&new=YOUR_OTA_PASSWORD&enc=utf-8&old=ESPBINPATCH_API_ENCRYPTION_KEY__&new=YOUR_HA_API_KEY&enc=auto) (Chrome or Edge), then install over USB.
             Use the downloaded `.espbinpatch` file on that page.
 
             Hardware (pick one):
