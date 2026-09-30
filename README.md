@@ -62,7 +62,7 @@ See [changelog.md](changelog.md).
 ### Limitations
 * Everything that was mentioned above under [What is missing?](#what-is-missing)
 * The UI might be a bit laggy at times - so touch input will take a second to have any effect. Suggestions on how to improve this further are welcome.
-* Volume level of the optional buzzer / speaker is a bit low. This is the reason there is no volume control in the settings.
+* Volume level of the optional buzzer / speaker is a bit low. The settings screen has no volume slider. Speaker firmware exposes a Home Assistant number named "Speaker Volume". Buzzer firmware uses the volume written in the YAML (`gain: 80%`) and has no volume entity.
 * Meater probes can only connect to a single device at a time. However, this does not prevent using a Meater Block.
 
 
@@ -114,7 +114,7 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
   * EXPERIMENTAL: A small 8Ohm / 1W speaker (4Ohm / 3W for noisy environments) with a JST1.25 2pin connector. <br>This usually results in a slightly higher volume and a more pleasant sound. Getting one with the proper connector saves you some effort. This connects directly to the "SPEAK" (P6) connector. This is still considered "experimental" and needs some verification if the used external DAC is actually powered off if the ESP32 is powered down.
 
   
-  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires enabling / disabling the marked config blocks, or use a pre-configured YAML / firmware from the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases).
+  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires enabling / disabling the marked config blocks, including the Speaker Volume lines, or use a pre-configured YAML / firmware from the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases).
 
 
 * __Cable__<br>

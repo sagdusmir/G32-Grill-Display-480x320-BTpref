@@ -36,6 +36,9 @@ substitutions:
   # By default the buzzer is pre-configured. See two config blocks "RTTTL buzzer (GPIO pin)".
   # Configuration for a speaker is disabled. See two config blocks "RTTTL speaker (speaker header, external DAC)"
   # Just (un-)/comment the config blocks for the hardware you would like to use.
+  # Speaker builds also enable the Home Assistant number "Speaker Volume" (0% to 100%,
+  # remembered on the device). Those lines use the same speaker marker as the speaker
+  # hardware blocks. Buzzer volume stays at gain: 80%. A buzzer build has no volume entity.
 
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
@@ -166,13 +169,17 @@ esphome:
     version: ${version}
 
   on_boot:
-    priority: 1100 # stay above 1000 and below 1500!
-    then:
-      - lambda: id(boot_start_time) = millis();
-                // the following line prevents the wifi password
-                // from being shown - but makes it nearly impossible
-                // to enter a complex password at all.
-                // lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
+    - priority: 1100 # stay above 1000 and below 1500!
+      then:
+        - lambda: id(boot_start_time) = millis();
+                  // the following line prevents the wifi password
+                  // from being shown - but makes it nearly impossible
+                  // to enter a complex password at all.
+                  // lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
+    # Apply the saved speaker volume after the number entity restores it (setup priority 600).
+    # - priority: 500                      # variant [speaker]
+    #   then:                              # variant [speaker]
+    #     - lambda: "if (!std::isnan(id(speaker_volume).state)) { id(my_rtttl).set_gain(id(speaker_volume).state / 100.0f); id(my_speaker).set_volume(id(speaker_volume).state / 100.0f); }" # variant [speaker]
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -621,6 +628,24 @@ rtttl:
   #-------------------------------------------
   # speaker: my_speaker                    # variant [speaker] 
   # gain: 100%                             # variant [speaker] 
+
+# Home Assistant "Speaker Volume". Left commented out in buzzer builds.
+# number:                                 # variant [speaker]
+#   - platform: template                   # variant [speaker]
+#     id: speaker_volume                   # variant [speaker]
+#     name: "Speaker Volume"               # variant [speaker]
+#     icon: "mdi:volume-high"              # variant [speaker]
+#     entity_category: config              # variant [speaker]
+#     mode: slider                         # variant [speaker]
+#     unit_of_measurement: "%"             # variant [speaker]
+#     min_value: 0                         # variant [speaker]
+#     max_value: 100                       # variant [speaker]
+#     step: 1                              # variant [speaker]
+#     initial_value: 100                   # variant [speaker]
+#     restore_value: true                  # variant [speaker]
+#     optimistic: true                     # variant [speaker]
+#     set_action:                          # variant [speaker]
+#       - lambda: "id(my_rtttl).set_gain(x / 100.0f); id(my_speaker).set_volume(x / 100.0f);" # variant [speaker]
 interval:
   - interval: 1s
     then:
