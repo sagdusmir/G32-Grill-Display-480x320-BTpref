@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.6.0-beta"
+  version: "BTpref-retro 2.6.1-beta"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -88,6 +88,27 @@ substitutions:
       {"yellow",        {7, 0xffda00, 0xbea300, 0x806d00, 0x262000, 0x262000, 0x64dc00, 0xff5900, 0xffff00}},
       {"white (clean)", {8, 0xffffff, 0xbfbfbf, 0x808080, 0x404040, 0x000000, 0x8bff85, 0xff5757, 0xffff00}}
     }
+
+  COLOR_SCHEME_OPTIONS:  # required for Home Assistant
+    - "white"
+    - "amber"
+    - "cyan"
+    - "night red"
+    - "green"
+    - "night blue"
+    - "purple"
+    - "yellow"
+    - "white (clean)"
+
+  # Seconds before the backlight turns off. 0 leaves it on.
+  # Used by display_timeout_select and settings_display_timeout_roller.
+  DISPLAY_TIMEOUT_OPTIONS:
+    - "0"
+    - "600"
+    - "300"
+    - "240"
+    - "180"
+    - "60"
 
   FORCE_SHADOW_COLOR_TO_BLACK: 'false'  # standard: use COLOR_00 for shadows
   # FORCE_SHADOW_COLOR_TO_BLACK: 'true'  # alternative: symbol and text shadows should not be visible
@@ -1050,6 +1071,157 @@ text_sensor:
     name: "G32 Grill Mode"
     id: g32_grill_mode
     icon: "mdi:grill"
+
+select:
+  - platform: template
+    id: color_scheme_select
+    name: "Color Scheme"
+    optimistic: true
+    options: ${COLOR_SCHEME_OPTIONS}
+    on_value:
+      - lambda: |-
+          for (const auto& pair : id(color_schemes)) {
+            if (pair.first == x) {
+              id(settings_color_scheme_idx_persistent) = static_cast<int>(pair.second[0]);
+              id(settings_color_scheme_idx) = id(settings_color_scheme_idx_persistent);
+              id(apply_color_scheme).execute();
+              break;
+            }
+          }
+      - script.execute: sync_settings_page
+
+  - platform: template
+    id: display_timeout_select
+    name: "Disable Backlight After"
+    optimistic: true
+    options: ${DISPLAY_TIMEOUT_OPTIONS}
+    initial_option: "0"
+    on_value:
+      - lambda: |-
+          int v = atoi(std::string(x).c_str());
+          id(settings_display_timeout_value_persistent) = v;
+          id(settings_display_timeout_value) = id(settings_display_timeout_value_persistent);
+      - script.execute: sync_settings_page
+
+switch:
+  - platform: template
+    name: "Hide Battery SOC"
+    id: hide_soc_switch
+    optimistic: true
+    restore_mode: DISABLED
+    on_turn_on:
+      - lambda: |-
+          id(settings_hide_soc_persistent) = true;
+          id(settings_hide_soc) = id(settings_hide_soc_persistent);
+      - lvgl.widget.refresh: battery_symbol_obj
+      - script.execute: sync_settings_page
+    on_turn_off:
+      - lambda: |-
+          id(settings_hide_soc_persistent) = false;
+          id(settings_hide_soc) = id(settings_hide_soc_persistent);
+      - lvgl.widget.refresh: battery_symbol_obj
+      - script.execute: sync_settings_page
+
+  - platform: template
+    name: "Hide Gas Level"
+    id: hide_gas_level_switch
+    optimistic: true
+    restore_mode: DISABLED
+    on_turn_on:
+      - lambda: |-
+          id(settings_hide_gas_level_persistent) = true;
+          id(settings_hide_gas_level) = id(settings_hide_gas_level_persistent);
+      - lvgl.widget.refresh: gas_level_obj
+      - script.execute: sync_settings_page
+    on_turn_off:
+      - lambda: |-
+          id(settings_hide_gas_level_persistent) = false;
+          id(settings_hide_gas_level) = id(settings_hide_gas_level_persistent);
+      - lvgl.widget.refresh: gas_level_obj
+      - script.execute: sync_settings_page
+
+  - platform: template
+    name: "Disable Temperature Alarms"
+    id: enable_temperature_limits_switch
+    optimistic: true
+    restore_mode: DISABLED
+    on_turn_on:
+      - lambda: |-
+          id(settings_enable_temperature_limits_persistent) = false;
+          id(settings_enable_temperature_limits) = id(settings_enable_temperature_limits_persistent);
+          if (!id(settings_enable_temperature_limits_persistent)) {
+            id(zone1_limit_value) = 0;
+            id(zone2_limit_value) = 0;
+            id(zone3_limit_value) = 0;
+            id(zone4_limit_value) = 0;
+            id(sensor1_limit_value) = 0;
+            id(sensor2_limit_value) = 0;
+            id(sensor3_limit_value) = 0;
+            id(sensor4_limit_value) = 0;
+          }
+      - script.execute: refresh_all_temps
+      - script.execute: refresh_all_limits
+      - script.execute: sync_settings_page
+    on_turn_off:
+      - lambda: |-
+          id(settings_enable_temperature_limits_persistent) = true;
+          id(settings_enable_temperature_limits) = id(settings_enable_temperature_limits_persistent);
+      - script.execute: refresh_all_temps
+      - script.execute: refresh_all_limits
+      - script.execute: sync_settings_page
+
+  - platform: template
+    name: "Disable Auto-Hiding Temperature Alarm Visualization"
+    id: enable_auto_hiding_temperature_limits_switch
+    optimistic: true
+    restore_mode: DISABLED
+    on_turn_on:
+      - lambda: |-
+          id(settings_enable_auto_hiding_temperature_limits_persistent) = false;
+          id(settings_enable_auto_hiding_temperature_limits) = id(settings_enable_auto_hiding_temperature_limits_persistent);
+      - script.execute: refresh_all_temps
+      - script.execute: refresh_all_limits
+      - script.execute: sync_settings_page
+    on_turn_off:
+      - lambda: |-
+          id(settings_enable_auto_hiding_temperature_limits_persistent) = true;
+          id(settings_enable_auto_hiding_temperature_limits) = id(settings_enable_auto_hiding_temperature_limits_persistent);
+      - script.execute: refresh_all_temps
+      - script.execute: refresh_all_limits
+      - script.execute: sync_settings_page
+
+number:
+  - platform: template
+    name: "Min Gas Value"
+    id: min_gas_value_number
+    optimistic: true
+    min_value: 5
+    max_value: 60
+    step: 5
+    unit_of_measurement: "%"
+    initial_value: 20.0
+    on_value:
+      - lambda: |-
+          id(settings_min_gas_value_persistent) = int(x);
+          id(settings_min_gas_value) = id(settings_min_gas_value_persistent);
+      - lvgl.widget.refresh: [warning_on_label, gas_percent_bar, gas_percent_label, gas_percent_label_unit]
+      - script.execute: sync_settings_page
+
+  - platform: template
+    name: "Min Battery SOC Value"
+    id: min_soc_value_number
+    optimistic: true
+    min_value: 5
+    max_value: 50
+    step: 10
+    unit_of_measurement: "%"
+    initial_value: 40.0
+    on_value:
+      - lambda: |-
+          id(settings_min_soc_value_persistent) = int(x);
+          id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
+      - lvgl.widget.refresh: [warning_on_label, battery_symbol, battery_symbol_fix, battery_soc_label, battery_soc_label_unit]
+      - script.execute: sync_settings_page
 
 font:
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/main/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
@@ -5070,7 +5242,7 @@ lvgl:
                                   selected:
                                     text_color: !lambda return lv_color_hex(id(color_100));
                                     bg_color: !lambda return lv_color_hex(id(color_25));
-                                  options: ['0','600','300','240','180','60']
+                                  options: ${DISPLAY_TIMEOUT_OPTIONS}
                                   on_value:
                                     - lambda: |-
                                         int val = atoi(text.c_str());
@@ -5416,6 +5588,47 @@ lvgl:
                                 id(sensor4_limit_value) = 0;
                               }
                           - script.execute: apply_color_scheme
+                          - lambda: |-
+                              int idx = id(settings_color_scheme_idx_persistent);
+                              std::string name = "white";
+                              for (const auto& pair : id(color_schemes)) {
+                                if (static_cast<int>(pair.second[0]) == idx) {
+                                  name = pair.first;
+                                  break;
+                                }
+                              }
+                              id(color_scheme_select).publish_state(name);
+                          - if:
+                              condition:
+                                lambda: return id(settings_hide_soc_persistent);
+                              then:
+                                - switch.turn_on: hide_soc_switch
+                              else:
+                                - switch.turn_off: hide_soc_switch
+                          - if:
+                              condition:
+                                lambda: return id(settings_hide_gas_level_persistent);
+                              then:
+                                - switch.turn_on: hide_gas_level_switch
+                              else:
+                                - switch.turn_off: hide_gas_level_switch
+                          - if:
+                              condition:
+                                lambda: return id(settings_enable_temperature_limits_persistent);
+                              then:
+                                - switch.turn_off: enable_temperature_limits_switch
+                              else:
+                                - switch.turn_on: enable_temperature_limits_switch
+                          - if:
+                              condition:
+                                lambda: return id(settings_enable_auto_hiding_temperature_limits_persistent);
+                              then:
+                                - switch.turn_off: enable_auto_hiding_temperature_limits_switch
+                              else:
+                                - switch.turn_on: enable_auto_hiding_temperature_limits_switch
+                          - lambda: id(min_soc_value_number).publish_state(static_cast<float>(id(settings_min_soc_value_persistent)));
+                          - lambda: id(min_gas_value_number).publish_state(static_cast<float>(id(settings_min_gas_value_persistent)));
+                          - lambda: id(display_timeout_select).publish_state(to_string(id(settings_display_timeout_value_persistent)));
                           - script.execute: apply_wifi
                           - script.execute: apply_ota_password
                           - script.execute: apply_mac_address
@@ -6209,15 +6422,19 @@ script:
   - id: refresh_all_temps
     then:
       - lvgl.widget.refresh:
+          - zone1_obj
           - zone1_label
           - zone1_label_large
           - zone1_arc
+          - zone2_obj
           - zone2_label
           - zone2_label_large
           - zone2_arc
+          - zone3_obj
           - zone3_label
           - zone3_label_large
           - zone3_arc
+          - zone4_obj
           - zone4_label
           - zone4_label_large
           - zone4_arc
@@ -6455,6 +6672,78 @@ script:
              id(flag_ota_updated) = false;
              id(my_ota).set_auth_password(id(settings_ota_password_persistent));
            }
+  # Move the settings-page controls to the values just written by Home Assistant.
+  - id: sync_settings_page
+    then:
+      - lvgl.widget.update:
+          id: settings_hide_soc_switch
+          state:
+            checked: !lambda 'return id(settings_hide_soc) == 0;'
+      - lvgl.widget.update:
+          id: settings_hide_gas_level_switch
+          state:
+            checked: !lambda 'return id(settings_hide_gas_level) == 0;'
+      - lvgl.widget.update:
+          id: settings_enable_temperature_limits_switch
+          state:
+            checked: !lambda 'return id(settings_enable_temperature_limits);'
+      - lvgl.widget.update:
+          id: settings_enable_auto_hiding_temperature_limits_switch
+          state:
+            checked: !lambda 'return id(settings_enable_auto_hiding_temperature_limits);'
+      - lambda: |-
+          auto select_option = [](lv_obj_t *roller, const char *target) {
+            if (roller == nullptr || target == nullptr)
+              return;
+            const char *opts = lv_roller_get_options(roller);
+            if (opts == nullptr || opts[0] == '\0')
+              return;
+            const char *pos = opts;
+            int index = 0;
+            int found = -1;
+            while (*pos) {
+              char buf[24];
+              int len = 0;
+              while (*pos && *pos != '\n' && len < (int) sizeof(buf) - 1) {
+                buf[len++] = *pos++;
+              }
+              buf[len] = '\0';
+              if (*pos == '\n')
+                pos++;
+              else if (*pos)
+                break;
+              if (strcmp(buf, target) == 0) {
+                found = index;
+                break;
+              }
+              index++;
+            }
+            if (found >= 0 && lv_roller_get_selected(roller) != static_cast<uint32_t>(found))
+              lv_roller_set_selected(roller, static_cast<uint32_t>(found), LV_ANIM_OFF);
+          };
+
+          char gas_target[3];
+          snprintf(gas_target, sizeof(gas_target), "%02d", id(settings_min_gas_value));
+          select_option(id(settings_min_gas_roller)->obj, gas_target);
+
+          char soc_target[3];
+          snprintf(soc_target, sizeof(soc_target), "%02d", id(settings_min_soc_value));
+          select_option(id(settings_min_soc_roller)->obj, soc_target);
+
+          char timeout_target[8];
+          snprintf(timeout_target, sizeof(timeout_target), "%d", id(settings_display_timeout_value));
+          select_option(id(settings_display_timeout_roller)->obj, timeout_target);
+
+          std::string scheme_name;
+          for (const auto& pair : id(color_schemes)) {
+            if (!pair.second.empty() && static_cast<int>(pair.second[0]) == id(settings_color_scheme_idx)) {
+              scheme_name = pair.first;
+              break;
+            }
+          }
+          if (!scheme_name.empty())
+            select_option(id(settings_color_scheme_roller)->obj, scheme_name.c_str());
+
   - id: hide_boot_screen
     then:
       - if:
@@ -6474,6 +6763,16 @@ script:
                 id(apply_color_scheme).execute();
             - lvgl.widget.hide: boot_screen
             - lvgl.widget.show: [status_bar_top, status_bar_bottom]
+            - lambda: |-
+                int idx = id(settings_color_scheme_idx_persistent);
+                std::string name = "white";
+                for (const auto& pair : id(color_schemes)) {
+                  if (static_cast<int>(pair.second[0]) == idx) {
+                    name = pair.first;
+                    break;
+                  }
+                }
+                id(color_scheme_select).publish_state(name);
 
             # some things to refresh from persisted settings
             - lvgl.widget.refresh: [battery_symbol_obj, display_time]
@@ -6492,6 +6791,37 @@ script:
             - lvgl.widget.refresh: [sensor1_limit_label, sensor2_limit_label, sensor3_limit_label, sensor4_limit_label]
             - lvgl.widget.refresh: [sensor1_limit_label_bell, sensor2_limit_label_bell, sensor3_limit_label_bell, sensor4_limit_label_bell]
             - lvgl.widget.refresh: [sensor1_battery, sensor2_battery, sensor3_battery, sensor4_battery]
+            - if:
+                condition:
+                  lambda: return id(settings_hide_soc_persistent);
+                then:
+                  - switch.turn_on: hide_soc_switch
+                else:
+                  - switch.turn_off: hide_soc_switch
+            - if:
+                condition:
+                  lambda: return id(settings_hide_gas_level_persistent);
+                then:
+                  - switch.turn_on: hide_gas_level_switch
+                else:
+                  - switch.turn_off: hide_gas_level_switch
+            - if:
+                condition:
+                  lambda: return id(settings_enable_temperature_limits_persistent);
+                then:
+                  - switch.turn_off: enable_temperature_limits_switch
+                else:
+                  - switch.turn_on: enable_temperature_limits_switch
+            - if:
+                condition:
+                  lambda: return id(settings_enable_auto_hiding_temperature_limits_persistent);
+                then:
+                  - switch.turn_off: enable_auto_hiding_temperature_limits_switch
+                else:
+                  - switch.turn_on: enable_auto_hiding_temperature_limits_switch
+            - lambda: id(min_soc_value_number).publish_state(static_cast<float>(id(settings_min_soc_value_persistent)));
+            - lambda: id(min_gas_value_number).publish_state(static_cast<float>(id(settings_min_gas_value_persistent)));
+            - lambda: id(display_timeout_select).publish_state(to_string(id(settings_display_timeout_value_persistent)));
             - globals.set:
                 id: boot_screen_hidden
                 value: 'true'
