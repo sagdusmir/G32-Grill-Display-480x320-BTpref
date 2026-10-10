@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.5.7-1"
+  version: "BTpref-retro 2.6.0-beta"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -124,6 +124,20 @@ substitutions:
   g32_service_uuid: dc0f41ea-b6ae-46a8-a19e-1a3bf4342bcb
   g32_characteristic_uuid_tx: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
   # g32_characteristic_uuid_rx: 'dc0f41e1-b6ae-46a8-a19e-1a3bf4342bcb'  # from the original OW app
+
+  # Firmware 1.4.5 publishes these on their own characteristics. The datablock
+  # read is capped at 32 bytes, so the bytes past gas percent never arrive.
+  # Service UUIDs are the ones the app uses. A GATT scan often prints the first
+  # characteristic where the service UUID belongs (same mix-up as dc0f41e1 vs dc0f41ea).
+  g32_temp_service_uuid: '181a'
+  g32_temp_warn_active_uuid: '1f168db3-72ba-4806-84cc-e1c310898566'
+  g32_temp_warn_enabled_uuid: '1f168db4-72ba-4806-84cc-e1c310898566'
+  g32_binary_service_uuid: '183b'
+  g32_light_threshold_uuid: 'e1255ec2-6199-44ab-b78e-08ec262cea4b'
+  g32_gas_service_uuid: '181d'
+  g32_gasbuddy_connected_uuid: '64ebc8a9-e9a4-11ed-a05b-0242ac120003'
+  g32_mgmt_service_uuid: '830e02f4-843b-49c3-a4fa-613587247e6c'
+  g32_grill_mode_uuid: '830e02f7-843b-49c3-a4fa-613587247e6c'
 
   wifi_ssid: "wifi_ssid"
   wifi_password: "password"
@@ -1015,9 +1029,27 @@ text_sensor:
       id: wifi_ip_sensor
 
   - platform: template
-    name: "Software Version"
+    name: "ESP Software Version"
+    entity_category: diagnostic    
     lambda: |-
       return std::string("${version}");
+
+  - platform: template
+    name: "G32 Serial"
+    id: g32_serial
+    entity_category: diagnostic
+    icon: "mdi:identifier"
+
+  - platform: template
+    name: "G32 Firmware"
+    id: g32_firmware
+    entity_category: diagnostic    
+    icon: "mdi:chip"
+
+  - platform: template
+    name: "G32 Grill Mode"
+    id: g32_grill_mode
+    icon: "mdi:grill"
 
 font:
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/main/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
@@ -1543,7 +1575,7 @@ lvgl:
                 text_align: CENTER
                 width: 24
                 text_color: !lambda |-
-                  if( id(light_on) ) {
+                  if( id(light_on) && id(firebox_open) ) {
                     return lv_color_hex(id(color_light));
                   }
                   return lv_color_hex(id(color_00));
@@ -5500,64 +5532,112 @@ sensor:
 
   - platform: ble_rssi
     mac_address: ${g32_mac_address}
-    name: "BT Signal Level"
+    id: g32_ble_rssi
+    internal: true
   - platform: wifi_signal
-    name: "WiFi Signal ESP"
+    name: "ESP WiFi Signal"
     update_interval: 10s
   - platform: internal_temperature
-    name: "CPU Temperature ESP"
+    name: "ESP CPU Temperature"
     update_interval: 10s
 
   - platform: ble_client
     ble_client_id: ow_g32
     type: characteristic
-    name: "G32 Datablock Read"
+    name: "G32 Frame Length"
+    entity_category: diagnostic
+    accuracy_decimals: 0
     service_uuid: ${g32_service_uuid}
     characteristic_uuid: ${g32_characteristic_uuid_tx}
     update_interval: 10s
     lambda: |-
-      if (x.size() < 32) {
-        ESP_LOGW("ble", "Received invalid BLE data (size: %d), skipping.", x.size());
-        return {};
+      const int n = x.size();
+      std::string hex_data;
+      hex_data.reserve(n * 3);
+      for (int i = 0; i < n; i++) {
+        char buf[4];
+        sprintf(buf, "%02X ", x[i]);
+        hex_data += buf;
       }
-      float t = (x[6]*10.0+x[7]/10.0);
+      ESP_LOGI("ble", "G32 datablock size %d: %s", n, hex_data.c_str());
+      // Temperatures start at raw index 6. Do not require the A3 3A ... C3
+      // wrapper: a 1.4.5 read is 32 bytes and does not end on the real tail.
+      // Light threshold, GasBuddy connected, grill mode, and the temperature
+      // warnings are read from their own characteristics below.
+      if (n < 14) {
+        ESP_LOGW("ble", "Received short BLE data (size: %d), skipping.", n);
+        return NAN;
+      }
+      const bool framed = n >= 3 && x[0] == 0xA3 && x[1] == 0x3A && x[n - 1] == 0xC3;
+      const int last = framed ? n - 2 : n - 1;
+      if (!framed) {
+        static bool logged = false;
+        if (!logged) {
+          logged = true;
+          ESP_LOGW("ble", "BLE frame has no A3 3A .. C3 marker (size %d, head %02X %02X, tail %02X). Parsing bytes that are present.",
+                   n, x[0], x[1], x[n - 1]);
+        }
+      }
+
+      float t = (x[6] * 10.0 + x[7] / 10.0);
       id(g32_zone1).publish_state(t);
-      t = (x[8]*10.0+x[9]/10.0);
+      t = (x[8] * 10.0 + x[9] / 10.0);
       id(g32_zone2).publish_state(t);
-      t = (x[10]*10.0+x[11]/10.0);
+      t = (x[10] * 10.0 + x[11] / 10.0);
       id(g32_zone3).publish_state(t);
-      t = (x[12]*10.0+x[13]/10.0);
+      t = (x[12] * 10.0 + x[13] / 10.0);
       id(g32_zone4).publish_state(t);
 
-      if ((id(active_meaters) & (1 << 0)) == 0) {
-        t = (x[14]*10.0+x[15]/10.0);
-        id(g32_probe1).publish_state(t);
-      }                  
-      if ((id(active_meaters) & (1 << 1)) == 0) {
-        t = (x[16]*10.0+x[17]/10.0);
-        id(g32_probe2).publish_state(t);
-      }                  
-      if ((id(active_meaters) & (1 << 2)) == 0) {
-        t = (x[18]*10.0+x[19]/10.0);
-        id(g32_probe3).publish_state(t);
-      }                  
-      if ((id(active_meaters) & (1 << 3)) == 0) {
-        t = (x[20]*10.0+x[21]/10.0);
-        id(g32_probe4).publish_state(t);
-      }                  
-      t = (x[22]*256+x[23]);
-      id(g32_gas_weight).publish_state(t);
-      t = (x[24]);
-      id(g32_firebox_open).publish_state(t);
-      if (id(g32_firebox_open).state){
-        t = (x[25]);
-      } else {
-        t = 0; // no light if firebox is closed
+      if (last >= 21) {
+        if ((id(active_meaters) & (1 << 0)) == 0) {
+          t = (x[14] * 10.0 + x[15] / 10.0);
+          id(g32_probe1).publish_state(t);
+        }
+        if ((id(active_meaters) & (1 << 1)) == 0) {
+          t = (x[16] * 10.0 + x[17] / 10.0);
+          id(g32_probe2).publish_state(t);
+        }
+        if ((id(active_meaters) & (1 << 2)) == 0) {
+          t = (x[18] * 10.0 + x[19] / 10.0);
+          id(g32_probe3).publish_state(t);
+        }
+        if ((id(active_meaters) & (1 << 3)) == 0) {
+          t = (x[20] * 10.0 + x[21] / 10.0);
+          id(g32_probe4).publish_state(t);
+        }
       }
-      id(g32_light_on).publish_state(t);
-      t = (x[31]);
-      id(g32_gas_percent).publish_state(t);
-      return (x[30]);
+
+      if (last >= 23) {
+        t = (x[22] * 256 + x[23]);
+        id(g32_gas_weight).publish_state(t);
+      }
+      if (last >= 24) {
+        id(g32_firebox_open).publish_state(x[24] == 1);
+      }
+      if (last >= 25) {
+        id(g32_light_on).publish_state(x[25] == 1);
+      }
+      if (last >= 26) {
+        id(g32_fw_code).publish_state(x[26]);
+      }
+      if (last >= 5) {
+        char serial_buf[9];
+        snprintf(serial_buf, sizeof(serial_buf), "%02x%02x%02x%02x", x[2], x[3], x[4], x[5]);
+        id(g32_serial).publish_state(serial_buf);
+      }
+
+      if (last >= 29) {
+        char ver_buf[16];
+        snprintf(ver_buf, sizeof(ver_buf), "%u.%u.%u", x[27], x[28], x[29]);
+        id(g32_firmware).publish_state(ver_buf);
+      }
+      if (last >= 30) {
+        id(g32_signal).publish_state((int8_t) x[30]);
+      }
+      if (last >= 31) {
+        id(g32_gas_percent).publish_state(x[31]);
+      }
+      return n;
 
   - platform: template
     name: "G32 Zone 1"
@@ -5565,7 +5645,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(zone1_value) = x;
       - lvgl.widget.refresh: [zone1_label, zone1_label_large, zone1_arc]
 
@@ -5575,7 +5659,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(zone2_value) = x;
       - lvgl.widget.refresh: [zone2_label, zone2_label_large, zone2_arc]
 
@@ -5585,7 +5673,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(zone3_value) = x;
       - lvgl.widget.refresh: [zone3_label, zone3_label_large, zone3_arc]
 
@@ -5595,7 +5687,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(zone4_value) = x;
       - lvgl.widget.refresh: [zone4_label, zone4_label_large, zone4_arc]
 
@@ -5605,7 +5701,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(sensor1_value) = x;
       - lvgl.widget.refresh: [sensor1_label, sensor1_label_large, sensor1_arc, sensor1_obj]
       - lvgl.widget.refresh: [sensor1_battery]
@@ -5616,7 +5716,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(sensor2_value) = x;
       - lvgl.widget.refresh: [sensor2_label, sensor2_label_large, sensor2_arc, sensor2_obj]
       - lvgl.widget.refresh: [sensor2_battery]
@@ -5627,7 +5731,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(sensor3_value) = x;
       - lvgl.widget.refresh: [sensor3_label, sensor3_label_large, sensor3_arc, sensor3_obj]
       - lvgl.widget.refresh: [sensor3_battery]
@@ -5638,7 +5746,11 @@ sensor:
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 0
-    on_value:
+    filters:
+      - lambda: |-
+          if (x >= ${Invalid_Sensor_Value}) return NAN;
+          return x;
+    on_raw_value:
       - lambda: id(sensor4_value) = x;
       - lvgl.widget.refresh: [sensor4_label, sensor4_label_large, sensor4_arc, sensor4_obj]
       - lvgl.widget.refresh: [sensor4_battery]
@@ -5666,6 +5778,7 @@ sensor:
     id: g32_gas_percent
     state_class: measurement
     unit_of_measurement: "%"
+    accuracy_decimals: 0
     icon: "mdi:gas-cylinder"
     on_value:
       - globals.set:
@@ -5676,7 +5789,126 @@ sensor:
             }
             return int(x);
       - lvgl.widget.refresh: [gas_percent_label, gas_percent_label_unit, gas_percent_bar]
-    
+
+  - platform: template
+    name: "G32 Firmware Code"
+    id: g32_fw_code
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    icon: "mdi:chip"
+
+  - platform: template
+    name: "G32 Signal Strength"
+    id: g32_signal
+    entity_category: diagnostic
+    device_class: signal_strength
+    state_class: measurement
+    unit_of_measurement: dBm
+    accuracy_decimals: 0
+
+  - platform: template
+    name: "G32 Light Threshold"
+    id: g32_light_threshold
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: "mdi:brightness-percent"
+
+  # One-byte characteristics. Intervals are staggered so the six G32 reads
+  # are not queued on the same GATT transaction.
+  - platform: ble_client
+    ble_client_id: ow_g32
+    type: characteristic
+    id: g32_light_threshold_read
+    internal: true
+    service_uuid: ${g32_binary_service_uuid}
+    characteristic_uuid: ${g32_light_threshold_uuid}
+    update_interval: 11s
+    lambda: |-
+      if (x.size() < 1) {
+        return NAN;
+      }
+      ESP_LOGI("ble", "G32 light threshold %u", x[0]);
+      id(g32_light_threshold).publish_state(x[0]);
+      return x[0];
+
+  - platform: ble_client
+    ble_client_id: ow_g32
+    type: characteristic
+    id: g32_gasbuddy_connected_read
+    internal: true
+    service_uuid: ${g32_gas_service_uuid}
+    characteristic_uuid: ${g32_gasbuddy_connected_uuid}
+    update_interval: 13s
+    lambda: |-
+      if (x.size() < 1) {
+        return NAN;
+      }
+      ESP_LOGI("ble", "G32 gasbuddy connected %u", x[0]);
+      id(g32_gasbuddy_connected).publish_state(x[0] != 0);
+      return x[0];
+
+  - platform: ble_client
+    ble_client_id: ow_g32
+    type: characteristic
+    id: g32_temp_warn_read
+    internal: true
+    service_uuid: ${g32_temp_service_uuid}
+    characteristic_uuid: ${g32_temp_warn_active_uuid}
+    update_interval: 15s
+    lambda: |-
+      if (x.size() < 1) {
+        return NAN;
+      }
+      ESP_LOGI("ble", "G32 temperature warning %u", x[0]);
+      id(g32_temp_warn).publish_state(x[0] != 0);
+      return x[0];
+
+  - platform: ble_client
+    ble_client_id: ow_g32
+    type: characteristic
+    id: g32_temp_warn_enabled_read
+    internal: true
+    service_uuid: ${g32_temp_service_uuid}
+    characteristic_uuid: ${g32_temp_warn_enabled_uuid}
+    update_interval: 17s
+    lambda: |-
+      if (x.size() < 1) {
+        return NAN;
+      }
+      ESP_LOGI("ble", "G32 temperature warning enabled %u", x[0]);
+      id(g32_temp_warn_enabled).publish_state(x[0] != 0);
+      return x[0];
+
+  - platform: ble_client
+    ble_client_id: ow_g32
+    type: characteristic
+    id: g32_grill_mode_read
+    internal: true
+    service_uuid: ${g32_mgmt_service_uuid}
+    characteristic_uuid: ${g32_grill_mode_uuid}
+    update_interval: 19s
+    lambda: |-
+      if (x.size() < 1) {
+        return NAN;
+      }
+      const char *mode = nullptr;
+      switch (x[0]) {
+        case 0: mode = "direct"; break;
+        case 1: mode = "indirect_1"; break;
+        case 2: mode = "indirect_2"; break;
+        case 3: mode = "indirect_3"; break;
+        default: break;
+      }
+      if (mode != nullptr) {
+        id(g32_grill_mode).publish_state(mode);
+      } else {
+        char mode_buf[8];
+        snprintf(mode_buf, sizeof(mode_buf), "%u", x[0]);
+        id(g32_grill_mode).publish_state(mode_buf);
+      }
+      ESP_LOGI("ble", "G32 grill mode %u", x[0]);
+      return x[0];
+
   - platform: ble_client
     ble_client_id: meater0
     type: characteristic
@@ -5934,7 +6166,7 @@ sensor:
 
 binary_sensor:
   - platform: status
-    name: "Status ESP"
+    name: "ESP Status"
 
   - platform: template
     name: "G32 Light"
@@ -5956,6 +6188,21 @@ binary_sensor:
           id: firebox_open
           value: !lambda return(x);
       - lvgl.widget.refresh: firebox_open_label
+
+  - platform: template
+    name: "G32 GasBuddy Connected"
+    id: g32_gasbuddy_connected
+    icon: "mdi:gas-cylinder"
+
+  - platform: template
+    name: "G32 Temperature Warning"
+    id: g32_temp_warn
+    icon: "mdi:thermometer-alert"
+
+  - platform: template
+    name: "G32 Temperature Warning Enabled"
+    id: g32_temp_warn_enabled
+    icon: "mdi:thermometer-check"
 
 script:
   # Consolidated refresh scripts for performance optimization

@@ -220,6 +220,8 @@ This project would not have been possible without the work of the community. Spe
 
 [fschwarz86/g32](https://github.com/fschwarz86/g32)
 
+[tobsch/g32-investigations](https://github.com/tobsch/g32-investigations) (additional information about BLE and serial communication)
+
 [ralmoe/g32-docker-client](https://github.com/ralmoe/g32-docker-client)
 
 [MortenVinding/MEATER.yaml](https://gist.github.com/MortenVinding/a513c0094d0df41a4425612257b3cabc) (Meater® accuracy)
