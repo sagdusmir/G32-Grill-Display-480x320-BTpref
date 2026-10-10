@@ -40,9 +40,9 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.6.0-beta"
+  version: "BTpref-retro 2.6.2-beta"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
-  url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
+  url_check_for_updates: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
   # Enter data of the newly created Home Assistant ESPHome device. Example:
   api_encryption_key: "E1fyywUUE1DWzu0OzhDkyc4yAnfGwyEfsVNvhytrU6k="
@@ -190,8 +190,6 @@ esphome:
   name: ${name}
   build_path: /tmp/esphome_build/${name}
   min_version: "2026.8.2"
-  includes_c:
-    - "<regex.h>"
   platformio_options:
     upload_speed: 921600
     board_build.flash_mode: dio
@@ -252,7 +250,8 @@ http_request:
   # optional global defaults (recommended for reliability)
   timeout: 5s
   verify_ssl: true
-  follow_redirects: true
+  # The version check reads the releases/latest redirect. Following it downloads the HTML page.
+  follow_redirects: false
 
 ota:
   - platform: esphome
@@ -6888,43 +6887,32 @@ script:
       - http_request.get:
           url: ${url_check_for_updates}
           request_headers:
-            Accept: application/vnd.github.v3+json
             User-Agent: ESPHome
-          max_response_buffer_size: 8192
-          capture_response: true
+          collect_headers:
+            - Location
           on_response:
             then:
               - if:
                   condition:
-                    lambda: 'return response->status_code == 200;'
+                    lambda: 'return response->status_code == 301 || response->status_code == 302 || response->status_code == 307 || response->status_code == 308;'
                   then:
                     - lambda: |-
-                        ESP_LOGI("VersionCheck", "returned");
-                        // The release document is longer than the read buffer, so it is not valid JSON.
-                        // The title is the "name" string that follows target_commitish, near the start.
-                        // A missing closing quote means the title itself was cut off.
-                        static const char *pattern =
-                            "\"target_commitish\"[[:space:]]*:[[:space:]]*\"[^\"]*\"[[:space:]]*,[[:space:]]*"
-                            "\"name\"[[:space:]]*:[[:space:]]*\"([^\"]*)\"";
-                        static regex_t re;
-                        static bool ready = false;
-                        if (!ready) {
-                          if (regcomp(&re, pattern, REG_EXTENDED) == 0) {
-                            ready = true;
-                          } else {
-                            ESP_LOGW("VersionCheck", "version pattern failed to compile");
-                          }
+                        std::string location = response->get_response_header("Location");
+                        const std::string marker = "/tag/";
+                        auto pos = location.rfind(marker);
+                        if (pos == std::string::npos) {
+                          ESP_LOGW("VersionCheck", "release tag not in redirect");
+                          return;
                         }
-                        if (ready) {
-                          regmatch_t match[2];
-                          if (regexec(&re, body.c_str(), 2, match, 0) == 0 && match[1].rm_so >= 0) {
-                            std::string latest = body.substr(match[1].rm_so, match[1].rm_eo - match[1].rm_so);
-                            id(latest_version) = latest;
-                            ESP_LOGI("VersionCheck", "latest: %s", latest.c_str());
-                          } else {
-                            ESP_LOGW("VersionCheck", "release name not in response");
-                          }
+                        std::string latest = location.substr(pos + marker.size());
+                        // The tag omits the space used in the release title and the firmware version.
+                        const std::string prefix = "BTpref-retro";
+                        if (latest.compare(0, prefix.size(), prefix) == 0 &&
+                            latest.size() > prefix.size() && latest[prefix.size()] != ' ') {
+                          latest.insert(prefix.size(), 1, ' ');
                         }
+                        id(latest_version) = latest;
+                        ESP_LOGI("VersionCheck", "latest: %s", latest.c_str());
                     - lvgl.widget.refresh: [latest_version_label1, latest_version_label2]
                   else:
                     - logger.log:
