@@ -1,4 +1,9 @@
 # Changelog
+* [2026-10-10] BTpref-retro 2.6.0-beta
+   - rewrite code for reading the BLE data frame
+   - read additional BLE characteristics beyond the 32 bytes we get from the G32
+   - expos additional values to HA
+   - minor refinements of HA values
 * [2026-09-17] BTpref-retro 2.5.7-1
 
 * [2026-09-13] BTpref-retro 2.5.7
