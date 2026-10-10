@@ -1290,6 +1290,7 @@ font:
       - "\U000F1358" # mdi-propane-tank-outline
       - "\U000F002A" # mdi-alert-outline
       - "\U000F0DD0" # mdi-format-list-bulleted-square
+      - "\U000F0493" # mdi-cog
       - "\U000F140B" # mdi-lightning-bolt
       - "\U000F050F" # mdi-thermometer
       - "\U000F1A4E" # mdi-lightbulb-on-20
