@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.6.1-beta"
+  version: "BTpref-retro 2.6.0-beta"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://api.github.com/repos/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -190,6 +190,8 @@ esphome:
   name: ${name}
   build_path: /tmp/esphome_build/${name}
   min_version: "2026.8.2"
+  includes_c:
+    - "<regex.h>"
   platformio_options:
     upload_speed: 921600
     board_build.flash_mode: dio
@@ -6898,13 +6900,31 @@ script:
                   then:
                     - lambda: |-
                         ESP_LOGI("VersionCheck", "returned");
-                        json::parse_json(body, [](JsonObject root) -> bool {
-                          if (root["name"].is<std::string>()) {
-                            id(latest_version) = root["name"].as<std::string>();
-                            return true;
+                        // The release document is longer than the read buffer, so it is not valid JSON.
+                        // The title is the "name" string that follows target_commitish, near the start.
+                        // A missing closing quote means the title itself was cut off.
+                        static const char *pattern =
+                            "\"target_commitish\"[[:space:]]*:[[:space:]]*\"[^\"]*\"[[:space:]]*,[[:space:]]*"
+                            "\"name\"[[:space:]]*:[[:space:]]*\"([^\"]*)\"";
+                        static regex_t re;
+                        static bool ready = false;
+                        if (!ready) {
+                          if (regcomp(&re, pattern, REG_EXTENDED) == 0) {
+                            ready = true;
+                          } else {
+                            ESP_LOGW("VersionCheck", "version pattern failed to compile");
                           }
-                          return false;
-                        });
+                        }
+                        if (ready) {
+                          regmatch_t match[2];
+                          if (regexec(&re, body.c_str(), 2, match, 0) == 0 && match[1].rm_so >= 0) {
+                            std::string latest = body.substr(match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+                            id(latest_version) = latest;
+                            ESP_LOGI("VersionCheck", "latest: %s", latest.c_str());
+                          } else {
+                            ESP_LOGW("VersionCheck", "release name not in response");
+                          }
+                        }
                     - lvgl.widget.refresh: [latest_version_label1, latest_version_label2]
                   else:
                     - logger.log:
