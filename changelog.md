@@ -1,4 +1,6 @@
 # Changelog
+* [2026-10-10] BTpref-retro 2.6.2-beta
+   - json was truncated because of buffer size
 * [2026-10-10] BTpref-retro 2.6.0-beta
    - rewrite code for reading the BLE data frame
    - read additional BLE characteristics beyond the 32 bytes we get from the G32
