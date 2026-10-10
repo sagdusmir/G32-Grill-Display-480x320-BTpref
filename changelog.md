@@ -1,4 +1,6 @@
 # Changelog
+* [2026-10-10] BTpref-retro 2.6.1-beta
+   - expose more controls in HA - similar to my G32 display mini project
 * [2026-10-10] BTpref-retro 2.6.0-beta
    - rewrite code for reading the BLE data frame
    - read additional BLE characteristics beyond the 32 bytes we get from the G32
