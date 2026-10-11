@@ -1,6 +1,6 @@
 # Changelog
 * [2026-10-11] BTpref-retro 2.6.3-beta
-
+   - add missing "Hide inactive sensors" setting to Home Assistant
 * [2026-10-10] BTpref-retro 2.6.2-beta
    - bugfix: json was truncated because of buffer size
 * [2026-10-10] BTpref-retro 2.6.0-beta
