@@ -34,7 +34,7 @@ substitutions:
   # General information for customizing optional hardware:
   # Speaker / Buzzer:
   # By default the buzzer is pre-configured. See two config blocks "RTTTL buzzer (GPIO pin)".
-  # Configuration for a speaker is disabled. See two config blocks "RTTTL speaker (speaker header, external DAC)"
+  # Configuration for a speaker is disabled. See four config blocks "RTTTL speaker (speaker header, external DAC)"
   # Just (un-)/comment the config blocks for the hardware you would like to use.
   # Speaker builds also enable the Home Assistant number "Speaker Volume" (0% to 100%,
   # remembered on the device). Those lines use the same speaker marker as the speaker
@@ -211,6 +211,9 @@ esphome:
                   // from being shown - but makes it nearly impossible
                   // to enter a complex password at all.
                   // lv_textarea_set_password_show_time(id(settings_wifi_password_textarea), 0);  # 0 ms = hide immediately
+    #-------------------------------------------
+    # RTTTL speaker (speaker header, external DAC)
+    #-------------------------------------------
     # Apply the saved speaker volume after the number entity restores it (setup priority 600).
     # - priority: 500                      # variant [speaker]
     #   then:                              # variant [speaker]
@@ -620,6 +623,8 @@ touchscreen:
 #     i2s_dout_pin: GPIO41                 # variant [speaker] 
 #     channel: mono                        # variant [speaker] 
 #     buffer_duration: 0.1s                # variant [speaker] 
+
+
 #-------------------------------------------
 # Internal outputs
 #-------------------------------------------
@@ -1216,6 +1221,9 @@ switch:
       - script.execute: sync_settings_page
 
 number:
+  #-------------------------------------------
+  # RTTTL speaker (speaker header, external DAC)
+  #-------------------------------------------
   # Home Assistant "Speaker Volume". Left commented out in buzzer builds.
 #   - platform: template                   # variant [speaker]
 #     id: speaker_volume                   # variant [speaker]
