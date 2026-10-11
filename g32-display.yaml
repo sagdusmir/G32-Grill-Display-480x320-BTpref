@@ -43,7 +43,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.7.0"
+  version: "BTpref-retro 2.7.1"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -663,23 +663,6 @@ rtttl:
   # speaker: my_speaker                    # variant [speaker] 
   # gain: 100%                             # variant [speaker] 
 
-# Home Assistant "Speaker Volume". Left commented out in buzzer builds.
-# number:                                 # variant [speaker]
-#   - platform: template                   # variant [speaker]
-#     id: speaker_volume                   # variant [speaker]
-#     name: "Speaker Volume"               # variant [speaker]
-#     icon: "mdi:volume-high"              # variant [speaker]
-#     entity_category: config              # variant [speaker]
-#     mode: slider                         # variant [speaker]
-#     unit_of_measurement: "%"             # variant [speaker]
-#     min_value: 0                         # variant [speaker]
-#     max_value: 100                       # variant [speaker]
-#     step: 1                              # variant [speaker]
-#     initial_value: 100                   # variant [speaker]
-#     restore_value: true                  # variant [speaker]
-#     optimistic: true                     # variant [speaker]
-#     set_action:                          # variant [speaker]
-#       - lambda: "id(my_rtttl).set_gain(x / 100.0f); id(my_speaker).set_volume(x / 100.0f);" # variant [speaker]
 interval:
   - interval: 1s
     then:
@@ -1233,6 +1216,21 @@ switch:
       - script.execute: sync_settings_page
 
 number:
+  # Home Assistant "Speaker Volume". Left commented out in buzzer builds.
+#   - platform: template                   # variant [speaker]
+#     id: speaker_volume                   # variant [speaker]
+#     name: "Speaker Volume"               # variant [speaker]
+#     icon: "mdi:volume-high"              # variant [speaker]
+#     mode: slider                         # variant [speaker]
+#     unit_of_measurement: "%"             # variant [speaker]
+#     min_value: 0                         # variant [speaker]
+#     max_value: 100                       # variant [speaker]
+#     step: 1                              # variant [speaker]
+#     initial_value: 100                   # variant [speaker]
+#     restore_value: true                  # variant [speaker]
+#     optimistic: true                     # variant [speaker]
+#     set_action:                          # variant [speaker]
+#       - lambda: "id(my_rtttl).set_gain(x / 100.0f); id(my_speaker).set_volume(x / 100.0f);" # variant [speaker]
   - platform: template
     name: "Min Gas Value"
     id: min_gas_value_number
