@@ -62,7 +62,8 @@ See [changelog.md](changelog.md).
 ### Limitations
 * Everything that was mentioned above under [What is missing?](#what-is-missing)
 * The UI might be a bit laggy at times - so touch input will take a second to have any effect. Suggestions on how to improve this further are welcome.
-* Volume level of the optional buzzer / speaker is a bit low. This is the reason there is no volume control in the settings.
+* Volume level of the optional buzzer / speaker is a bit low. The settings screen has no volume slider. Speaker firmware exposes a Home Assistant number named "Speaker Volume". Buzzer firmware uses the volume written in the YAML (`gain: 80%`) and has no volume entity.
+* A speaker on the SPEAK connector is driven by the onboard NS4168 amplifier. That amplifier stays enabled whenever the board is powered. It draws about 13 mA at 5 V while idle (about 20 mA from the battery) and can hiss or buzz after the ESP32 loses power. Details are in the Buzzer / Speaker hardware notes.
 * Meater probes can only connect to a single device at a time. However, this does not prevent using a Meater Block.
 
 
@@ -111,10 +112,13 @@ The total cost should be around 35-40€ if you have a friend with a 3d printer.
 * __Buzzer / Speaker__<br>
   You can choose to connect either a buzzer or a speaker:
   * A passive piezo buzzer.<br>These do not seem to be available with a JST1.25 2pin connector. So you might need to solder a JST 1.25 2pin connector cable obtained separately to the buzzer leads. Additional work, and probably additional costs. This connects to the GPIO (P2) connector to pins IO9 and IO14. If you have a DIY JST1.25 assortment (and/or OCD), you can do a custom 8pin connector that nicely fits P2. But a 2pin connector will do fine.
-  * EXPERIMENTAL: A small 8Ohm / 1W speaker (4Ohm / 3W for noisy environments) with a JST1.25 2pin connector. <br>This usually results in a slightly higher volume and a more pleasant sound. Getting one with the proper connector saves you some effort. This connects directly to the "SPEAK" (P6) connector. This is still considered "experimental" and needs some verification if the used external DAC is actually powered off if the ESP32 is powered down.
+  * EXPERIMENTAL: A small 8Ohm / 1W speaker (4Ohm / 3W for noisy environments) with a JST1.25 2pin connector. <br>This usually results in a slightly higher volume and a more pleasant sound. Getting one with the proper connector saves you some effort. This connects directly to the "SPEAK" (P6) connector, the output of an onboard NS4168 Class-D amplifier.<br>
+    The NS4168 is powered by the board. It stays enabled whenever the board is on, including with the buzzer firmware, where I2S is left unconfigured. While enabled it draws about 13 mA at 5 V with nothing playing (datasheet figure, no speaker load). From the battery that is about 20 mA at the cell, because the onboard boost raises the battery to 5 V. After the board is switched off and the 5 V rail has dropped, that current stops.<br>
+    CTRL is the amplifier's shutdown pin: below about 0.4 V the outputs go quiet (about 1 µA). The firmware leaves CTRL to the board and only drives the I2S pins — data on GPIO41, bit clock on GPIO42, word clock on GPIO2. When the ESP32 loses power those pins float, the clocks stop, and CTRL stays in the on range for as long as the amplifier still has supply. The speaker can then hiss or buzz until that supply falls. Speaker Volume in Home Assistant only scales tones while the ESP32 is running.<br>
+    A pull-down that holds CTRL below 0.4 V shuts the amplifier down once the ESP32 is off. If a resistor from the supply already holds CTRL up, that resistor has to be lifted or made much weaker, and CTRL has to be driven back into the on range only while a tone plays. CTRL is not brought out to a GPIO in this firmware.
 
   
-  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires enabling / disabling the marked config blocks, or use a pre-configured YAML / firmware from the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases).
+  Note: Take the available space into consideration. The passive buzzer is configured by default in the YAML. Switching to the speaker requires enabling / disabling the marked config blocks, including the Speaker Volume lines, or use a pre-configured YAML / firmware from the latest [releases](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases).
 
 
 * __Cable__<br>
@@ -168,11 +172,9 @@ Each [GitHub Release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTp
 
 1. Easiest path: download a prebuilt `.espbinpatch` from the latest [release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest) and patch Wi-Fi / OTA / Home Assistant values in [ESP Bin Patcher](https://sagdusmir.github.io/ESP-bin-patcher/) (see [Prebuilt firmware](#prebuilt-firmware)). If you compile from source: nothing to change in the YAML if you trust everyone on the same WiFi. Everyone else: `api_encryption_key`, `ota_password`. Have a look at the very top of `g32-display.yaml` for details.
 
-2. During validation of the yaml file, you might see something like `[max_connections] is an invalid option for [esp32_ble]`. The "max_connections" option has been moved from "esp32_ble_tracker:" to "esp32_ble:". Both variants are included in the YAML and you need to switch to the other variant by adding / removing a comment (#). Do not mess up the indentation. This is caused by a breaking change in esphome.
+2. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
 
-3. If compiling and flashing the ESP32 succeeds, but the screen is looking distorted (the left portion is partially readable while the right portion shows mostly pixel noise"), simply look at the "dimensions" in the "display" section and swap the values for "width:" and "height:". This is caused by a breaking change in esphome.
-
-4. If you get A LOT of strange syntax errors, try to clean up the configured build folder via
+3. If you get A LOT of strange syntax errors, try to clean up the configured build folder via
    ```bash
    esphome clean g32-display.yaml
    ```
