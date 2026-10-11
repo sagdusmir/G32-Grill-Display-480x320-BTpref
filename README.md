@@ -212,6 +212,10 @@ Each [GitHub Release](https://github.com/sagdusmir/G32-Grill-Display-480x320-BTp
 <img alt="In action 1" src="https://github.com/user-attachments/assets/2cc83a7c-75c3-4c01-b1db-8f422a5380da" width="265">
 <img alt="In Action 2" src="https://github.com/user-attachments/assets/6baaa8af-9068-4675-aac9-c1b00c2df483" width="265">
 <img alt="JC3248W535 board" src="https://github.com/user-attachments/assets/e5e94217-a3c4-45f8-8d2d-40fa72840559" width="265">
+<img alt="Home Assistant Device" src="https://github.com/user-attachments/assets/5f6a6dfd-b18d-4d5b-acf5-718ad743c047" width="265">
+
+
+
 
 ## Acknowledgments
 This project would not have been possible without the work of the community. Special thanks go to:
