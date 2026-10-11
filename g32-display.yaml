@@ -189,10 +189,29 @@ substitutions:
   meater_decode_tip: |-
     uint16_t tip_u = uint16_t(x[0]) | (uint16_t(x[1]) << 8); int16_t tip = int16_t(tip_u); if (tip_u < 0x1000 && tip >= 2048) tip -= 4096;
 
+  # Insert into a lambda, then call g32_fw_at_least(major, minor, patch).
+  # Reads G32 Firmware. An empty or unparsed version returns false.
+  # Do not use G32 Firmware Code: that byte stays 13 on 1.0.5 and 1.4.5.
+  g32_fw_at_least: |-
+    auto g32_fw_at_least = [](int min_major, int min_minor, int min_patch) -> bool {
+      int major = 0, minor = 0, patch = 0;
+      if (sscanf(id(g32_firmware).state.c_str(), "%d.%d.%d", &major, &minor, &patch) != 3) {
+        return false;
+      }
+      if (major != min_major) return major > min_major;
+      if (minor != min_minor) return minor > min_minor;
+      return patch >= min_patch;
+    };
+
 esphome:
   name: ${name}
   build_path: /tmp/esphome_build/${name}
   min_version: "2026.8.2"
+  # Writes to the grill. Kept off the display device so Home Assistant
+  # shows them apart from the local screen settings.
+  devices:
+    - id: g32_grill
+      name: "G32 Grill"
   platformio_options:
     upload_speed: 921600
     board_build.flash_mode: dio
@@ -724,6 +743,9 @@ globals:
   - id: g32_connected
     type: bool
     initial_value: 'false'
+  - id: g32_hoodlight_percent
+    type: int
+    initial_value: '-1'
   - id: firebox_open
     type: bool
     initial_value: 'false'
@@ -1270,6 +1292,47 @@ number:
           id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
       - lvgl.widget.refresh: [warning_on_label, battery_symbol, battery_symbol_fix, battery_soc_label, battery_soc_label_unit]
       - script.execute: sync_settings_page
+
+  # Writes one percent byte to the grill. No on-device control.
+  # Stays unknown until G32 Firmware is >= 1.1.0 and a read has arrived.
+  - platform: template
+    name: "Hood Light Threshold"
+    id: g32_hoodlight_threshold
+    device_id: g32_grill
+    icon: "mdi:brightness-percent"
+    min_value: 0
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    update_interval: never
+    lambda: |-
+      ${g32_fw_at_least}
+      if (!g32_fw_at_least(1, 1, 0) || id(g32_hoodlight_percent) < 0) {
+        return {};
+      }
+      return (float) id(g32_hoodlight_percent);
+    set_action:
+      - if:
+          condition:
+            lambda: |-
+              ${g32_fw_at_least}
+              return g32_fw_at_least(1, 1, 0);
+          then:
+            - ble_client.ble_write:
+                id: ow_g32
+                service_uuid: ${g32_binary_service_uuid}
+                characteristic_uuid: ${g32_light_threshold_uuid}
+                value: !lambda 'return {(uint8_t) std::lround(x)};'
+            - lambda: |-
+                int pct = (int) std::lround(x);
+                id(g32_hoodlight_percent) = pct;
+                id(g32_hoodlight_threshold).publish_state(pct);
+                id(g32_light_threshold).publish_state(pct);
+                ESP_LOGI("ble", "G32 hood light threshold set to %u", pct);
+          else:
+            - lambda: |-
+                ESP_LOGW("ble", "G32 hood light threshold not written: firmware '%s' is below 1.1.0", id(g32_firmware).state.c_str());
 
 font:
   - file: 'https://raw.githubusercontent.com/sagdusmir/G32-Grill-Display-480x320-BTpref/main/fonts/MaterialDesign-Webfont/materialdesignicons-webfont.ttf'
@@ -5899,6 +5962,12 @@ sensor:
         char ver_buf[16];
         snprintf(ver_buf, sizeof(ver_buf), "%u.%u.%u", x[27], x[28], x[29]);
         id(g32_firmware).publish_state(ver_buf);
+        ${g32_fw_at_least}
+        if (g32_fw_at_least(1, 1, 0) && id(g32_hoodlight_percent) >= 0) {
+          id(g32_hoodlight_threshold).publish_state(id(g32_hoodlight_percent));
+        } else if (!g32_fw_at_least(1, 1, 0)) {
+          id(g32_hoodlight_threshold).set_has_state(false);
+        }
       }
       if (last >= 30) {
         id(g32_signal).publish_state((int8_t) x[30]);
@@ -6098,6 +6167,11 @@ sensor:
       }
       ESP_LOGI("ble", "G32 light threshold %u", x[0]);
       id(g32_light_threshold).publish_state(x[0]);
+      id(g32_hoodlight_percent) = x[0];
+      ${g32_fw_at_least}
+      if (g32_fw_at_least(1, 1, 0)) {
+        id(g32_hoodlight_threshold).publish_state(x[0]);
+      }
       return x[0];
 
   - platform: ble_client
