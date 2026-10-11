@@ -40,7 +40,7 @@ substitutions:
   # Name of the ESPHome device (modify if you like, avoid special characters)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "BTpref-retro 2.6.2-beta"
+  version: "BTpref-retro 2.6.3-beta"
   url_qrcode: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref"
   url_check_for_updates: "https://github.com/sagdusmir/G32-Grill-Display-480x320-BTpref/releases/latest"
 
@@ -1189,6 +1189,24 @@ switch:
           id(settings_enable_auto_hiding_temperature_limits) = id(settings_enable_auto_hiding_temperature_limits_persistent);
       - script.execute: refresh_all_temps
       - script.execute: refresh_all_limits
+      - script.execute: sync_settings_page
+
+  - platform: template
+    name: "Hide Inactive Sensors"
+    id: hide_inactive_sensors_switch
+    optimistic: true
+    restore_mode: DISABLED
+    on_turn_on:
+      - lambda: |-
+          id(settings_hide_inactive_sensors_persistent) = true;
+          id(settings_hide_inactive_sensors) = id(settings_hide_inactive_sensors_persistent);
+      - script.execute: refresh_all_temps
+      - script.execute: sync_settings_page
+    on_turn_off:
+      - lambda: |-
+          id(settings_hide_inactive_sensors_persistent) = false;
+          id(settings_hide_inactive_sensors) = id(settings_hide_inactive_sensors_persistent);
+      - script.execute: refresh_all_temps
       - script.execute: sync_settings_page
 
 number:
@@ -5627,6 +5645,13 @@ lvgl:
                                 - switch.turn_off: enable_auto_hiding_temperature_limits_switch
                               else:
                                 - switch.turn_on: enable_auto_hiding_temperature_limits_switch
+                          - if:
+                              condition:
+                                lambda: return id(settings_hide_inactive_sensors_persistent);
+                              then:
+                                - switch.turn_on: hide_inactive_sensors_switch
+                              else:
+                                - switch.turn_off: hide_inactive_sensors_switch
                           - lambda: id(min_soc_value_number).publish_state(static_cast<float>(id(settings_min_soc_value_persistent)));
                           - lambda: id(min_gas_value_number).publish_state(static_cast<float>(id(settings_min_gas_value_persistent)));
                           - lambda: id(display_timeout_select).publish_state(to_string(id(settings_display_timeout_value_persistent)));
@@ -6692,6 +6717,10 @@ script:
           id: settings_enable_auto_hiding_temperature_limits_switch
           state:
             checked: !lambda 'return id(settings_enable_auto_hiding_temperature_limits);'
+      - lvgl.widget.update:
+          id: settings_hide_inactive_sensors_switch
+          state:
+            checked: !lambda 'return id(settings_hide_inactive_sensors);'
       - lambda: |-
           auto select_option = [](lv_obj_t *roller, const char *target) {
             if (roller == nullptr || target == nullptr)
@@ -6820,6 +6849,13 @@ script:
                   - switch.turn_off: enable_auto_hiding_temperature_limits_switch
                 else:
                   - switch.turn_on: enable_auto_hiding_temperature_limits_switch
+            - if:
+                condition:
+                  lambda: return id(settings_hide_inactive_sensors_persistent);
+                then:
+                  - switch.turn_on: hide_inactive_sensors_switch
+                else:
+                  - switch.turn_off: hide_inactive_sensors_switch
             - lambda: id(min_soc_value_number).publish_state(static_cast<float>(id(settings_min_soc_value_persistent)));
             - lambda: id(min_gas_value_number).publish_state(static_cast<float>(id(settings_min_gas_value_persistent)));
             - lambda: id(display_timeout_select).publish_state(to_string(id(settings_display_timeout_value_persistent)));
